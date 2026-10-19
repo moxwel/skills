@@ -8,3 +8,5 @@ Check the source when a tag or convention is in doubt. Where these guides disagr
 - PEP 257, Python docstrings: https://peps.python.org/pep-0257/
 - Sphinx field lists (`:param:`, `:returns:`, `:raises:`): https://www.sphinx-doc.org/en/master/usage/domains/python.html#info-field-lists
 - Bash manual: https://www.gnu.org/software/bash/manual/bash.html
+- Writing on GitHub: https://docs.github.com/en/get-started/writing-on-github
+- GitHub Markdown syntax: https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax

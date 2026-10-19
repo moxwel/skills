@@ -6,6 +6,11 @@ check_style.py: the mechanical part of the style references. Checks .ts/.tsx/.js
 - a missing header comment (comments-and-docs.md rule 2): a /* */ block in TS/JS/CSS, a module docstring
   in Python, a # block in Bash. Only a shebang or a Python encoding line may come before it.
 
+And documentation .md files for typographic symbols and emojis outside code spans and fenced blocks
+(markdown.md rules 3 and 4). Letters, accents and numbers of any language pass. Markdown skips the column and
+header checks: a paragraph is one line however long (markdown.md rule 2). Emojis the user asked for are still
+reported. Agent files are not documentation and are skipped: AGENT_FILES and any .md inside a skill folder.
+
 Comment detection reads line by line and skips markers inside one-line string literals ("image/*" is not
 a comment). It tracks /* */ blocks, and Python triple-quoted strings (a docstring when the line opens with
 it, a plain string otherwise). Multi-line template literals and heredocs are not understood: a marker
@@ -17,11 +22,17 @@ path:line: problem and exits with code 1.
 import os
 import re
 import sys
+import unicodedata
 
 MAX_COLUMNS = 120
 C_STYLE_EXTENSIONS = (".ts", ".tsx", ".js", ".jsx", ".mjs", ".css")
 PYTHON_EXTENSION = ".py"
 SHELL_EXTENSION = ".sh"
+MARKDOWN_EXTENSION = ".md"
+SOURCE_EXTENSIONS = C_STYLE_EXTENSIONS + (PYTHON_EXTENSION, SHELL_EXTENSION)
+SKILL_FILE = "SKILL.md"
+# Markdown written for agents, not people: markdown.md does not apply to it.
+AGENT_FILES = {SKILL_FILE, "CLAUDE.md", "AGENTS.md", "GEMINI.md"}
 # Dependency and build output folders, never hand-written code.
 SKIPPED_DIRS = {"node_modules", "dist", "build", "__pycache__", "venv"}
 STRING_QUOTES = ('"', "'", "`")
@@ -36,6 +47,13 @@ NO_BLOCK, COMMENT_BLOCK, STRING_BLOCK = "", "comment", "string"
 # PEP 263: the encoding declaration must be on line 1 or 2.
 MAX_ENCODING_LINE = 2
 ENCODING_PATTERN = re.compile(r"^#.*coding[:=]")
+# A fence opens with 3+ backticks or tildes and closes with the same character, at least as many times.
+FENCE_PATTERN = re.compile(r"^(`{3,}|~{3,})")
+INLINE_CODE_PATTERN = re.compile(r"(`+).*?\1")
+# Unicode category initials of letters, marks (accents) and numbers: text of the language, not typography.
+LANGUAGE_CATEGORIES = ("L", "M", "N")
+# Spanish inverted question and exclamation marks open a sentence; they are orthography, not typography.
+ALLOWED_SYMBOLS = {"\u00bf", "\u00a1"}
 
 
 def find_marker(text: str, markers: tuple[str, ...]) -> tuple[int, str]:
@@ -147,6 +165,54 @@ def scan_comment_line(line: str, extension: str, block: str) -> tuple[str, str]:
     return scan_shell_line(stripped), NO_BLOCK
 
 
+def scan_markdown_line(stripped: str, fence: str) -> tuple[str, str]:
+    """Extracts the prose of a Markdown line, dropping code spans and tracking fenced blocks.
+
+    :param stripped: Line without surrounding whitespace.
+    :param fence: Fence left open by the previous line, empty if none.
+    :returns: (prose text, empty inside or on a fence; fence open after the line, empty if none).
+    """
+    fence_match = FENCE_PATTERN.match(stripped)
+    is_fence_line = fence_match is not None
+    is_in_fence = fence != NO_BLOCK
+    if is_in_fence:
+        line_fence = fence_match.group(1) if is_fence_line else ""
+        is_closing = line_fence.startswith(fence[0]) and len(line_fence) >= len(fence)
+        return "", NO_BLOCK if is_closing else fence
+    if is_fence_line:
+        return "", fence_match.group(1)
+    return INLINE_CODE_PATTERN.sub("", stripped), NO_BLOCK
+
+
+def is_typographic_symbol(char: str) -> bool:
+    """Tells whether a character is a typographic symbol or an emoji rather than text of a language.
+
+    :param char: One character.
+    :returns: True for non-ASCII characters that are not letters, marks or numbers, nor in ALLOWED_SYMBOLS.
+    """
+    is_language_text = unicodedata.category(char)[0] in LANGUAGE_CATEGORIES
+    return not char.isascii() and not is_language_text and char not in ALLOWED_SYMBOLS
+
+
+def check_markdown(path: str, lines: list[str]) -> list[str]:
+    """Reports typographic symbols and emojis outside code in a Markdown file.
+
+    :param path: Path of the file.
+    :param lines: Lines of the file.
+    :returns: One "path:line: problem" entry per line with symbols; empty if clean.
+    """
+    problems = []
+    fence = NO_BLOCK
+    for line_number, line in enumerate(lines, start=1):
+        prose, fence = scan_markdown_line(line.strip(), fence)
+        # dict.fromkeys keeps each symbol once, in order of appearance
+        symbols = list(dict.fromkeys(char for char in prose if is_typographic_symbol(char)))
+        has_symbols = len(symbols) > 0
+        if has_symbols:
+            problems.append(f"{path}:{line_number}: typographic symbol or emoji outside code: {' '.join(symbols)}")
+    return problems
+
+
 def has_header(lines: list[str], extension: str) -> bool:
     """Tells whether the file opens with the header comment form of its language.
 
@@ -173,7 +239,7 @@ def has_header(lines: list[str], extension: str) -> bool:
 
 
 def check_file(path: str) -> list[str]:
-    """Runs every check on one source file.
+    """Runs every check on one source or Markdown file.
 
     :param path: Path of the file.
     :returns: One "path:line: problem" entry per problem found; empty if clean.
@@ -185,6 +251,9 @@ def check_file(path: str) -> list[str]:
     except OSError:
         # A dangling symlink or an unreadable file is reported, not a crash of the whole run
         return [f"{path}:1: cannot read file"]
+    is_markdown = extension == MARKDOWN_EXTENSION
+    if is_markdown:
+        return check_markdown(path, lines)
     problems = []
     if not has_header(lines, extension):
         problems.append(f"{path}:1: missing header comment")
@@ -209,6 +278,20 @@ def is_scanned_dir(name: str) -> bool:
     return not is_hidden and name not in SKIPPED_DIRS
 
 
+def is_checked_file(file_name: str, is_in_skill: bool) -> bool:
+    """Tells whether a file is source code or user documentation that the checks cover.
+
+    :param file_name: File name, without its path.
+    :param is_in_skill: Whether the file sits inside a skill folder (one holding SKILL_FILE).
+    :returns: True for source files, and for Markdown that is neither an agent file nor inside a skill.
+    """
+    is_markdown = file_name.endswith(MARKDOWN_EXTENSION)
+    if not is_markdown:
+        return file_name.endswith(SOURCE_EXTENSIONS)
+    is_agent_file = is_in_skill or file_name in AGENT_FILES
+    return not is_agent_file
+
+
 def main() -> int:
     """Walks the folder given as argument and prints every problem.
 
@@ -218,12 +301,17 @@ def main() -> int:
     if not has_folder:
         print("Usage: python3 check_style.py <folder>")
         return 2
-    checked_extensions = C_STYLE_EXTENSIONS + (PYTHON_EXTENSION, SHELL_EXTENSION)
     problems = []
+    skill_roots = []
     for root, dir_names, file_names in os.walk(sys.argv[1]):
         dir_names[:] = sorted(name for name in dir_names if is_scanned_dir(name))
+        # os.walk is top-down, so a skill folder is recorded before its subfolders are visited
+        if SKILL_FILE in file_names:
+            # Normalized because commonpath drops a leading "./" from what it returns
+            skill_roots.append(os.path.normpath(root))
+        is_in_skill = any(os.path.commonpath([root, skill_root]) == skill_root for skill_root in skill_roots)
         for file_name in sorted(file_names):
-            if file_name.endswith(checked_extensions):
+            if is_checked_file(file_name, is_in_skill):
                 problems.extend(check_file(os.path.join(root, file_name)))
     for problem in problems:
         print(problem)
