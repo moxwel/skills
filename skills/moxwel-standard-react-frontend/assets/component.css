@@ -1,0 +1,28 @@
+/*
+ * Badge styles (TEMPLATE): only the component's own appearance (colors, border, typography, data-* states). Layout
+ * (inline-flex, gap, padding) goes with Tailwind in the JSX. What several ui/ pieces share goes to
+ * components/ui/shared.css (created when two pieces share a class), and each component imports it explicitly.
+ */
+
+/* Layer order repeated in every file: the first CSS the browser loads may be this one, and the order is set by the
+   first declaration. In components, Tailwind utilities win over it */
+@layer theme, base, components, utilities;
+@layer components {
+  .badge {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--muted);
+  }
+
+  .badge[data-tone="success"] {
+    border-color: var(--success);
+    color: var(--success);
+  }
+
+  .badge[data-tone="danger"] {
+    border-color: var(--danger);
+    color: var(--danger);
+  }
+}

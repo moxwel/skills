@@ -1,0 +1,25 @@
+{
+  "name": "moxwel-skills",
+  "owner": {
+    "name": "moxwel"
+  },
+  "metadata": {
+    "description": "moxwel's Agent Skills for coding conventions and web frontends"
+  },
+  "plugins": [
+    {
+      "name": "moxwel-code-style",
+      "description": "Language-agnostic code style: comments, file headers, doc comments, naming, control flow, line length and imports.",
+      "source": "./",
+      "strict": false,
+      "skills": ["./skills/moxwel-code-style"]
+    },
+    {
+      "name": "moxwel-standard-react-frontend",
+      "description": "Standard for web frontends on Next.js App Router, React 19, Base UI, Tailwind v4 and Docker.",
+      "source": "./",
+      "strict": false,
+      "skills": ["./skills/moxwel-standard-react-frontend"]
+    }
+  ]
+}

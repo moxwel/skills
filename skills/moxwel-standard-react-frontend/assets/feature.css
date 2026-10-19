@@ -1,0 +1,17 @@
+/*
+ * itemManager appearance (TEMPLATE): colors, borders, typography and data-* states. NO layout here (flex, gap, padding,
+ * sizes, responsive): that goes with Tailwind in the JSX.
+ */
+
+/* Layer order repeated in every file: the first CSS the browser loads may be this one, and the order is set by the
+   first declaration. In components, Tailwind utilities win over it */
+@layer theme, base, components, utilities;
+@layer components {
+  .itemManager-item {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .itemManager-item:last-child {
+    border-bottom: 0;
+  }
+}

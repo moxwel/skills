@@ -1,0 +1,98 @@
+/*
+ * Global styles: only what does not belong to a component.
+ * - Tailwind v4 WITHOUT preflight (theme + utilities only) for all layout (components included). Component CSS goes in
+ *   @layer components, so utilities win over it. Here: the color tokens unlayered, as Tailwind v4 does with its own;
+ *   the reset and base element appearance in @layer base.
+ * - Color variables in :root; only CSS uses them (Tailwind carries no colors: it is layout only).
+ * - Browser reset and base element appearance in @layer base. Layout of the body and the root div (isolate) goes with
+ *   Tailwind in app/layout.tsx.
+ * The focus border of form fields lives with them, outside any layer (base-ui/shared.css, select.css).
+ */
+
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+:root {
+  --bg: #111318;
+  --surface: #1a1d24;
+  --surface-2: #242833;
+  --secondary: #2c3140;
+  --border: #323848;
+  --text: #e6e8ee;
+  --muted: #9aa1b2;
+  --accent: #f08a24;
+  --accent-hover: #ff9d3d;
+  --accent-text: #15120e;
+  --accent-shadow: #b8620f;
+  --danger: #e5484d;
+  --success: #3fb950;
+  --warning: #d4a72c;
+  --radius: 3px;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+
+/* Browser reset: the only layout in CSS outside the commented "Layout exception" cases, because it only neutralizes
+   browser defaults. In the base layer: utilities override it. */
+@layer base {
+  /* Dark theme by default for native controls and scrollbars */
+  :root {
+    color-scheme: dark;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  /* No default margins: spacing comes from the gap of each flex container */
+  html,
+  body,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  ul,
+  ol,
+  dl,
+  dd,
+  pre,
+  figure,
+  blockquote,
+  fieldset,
+  button {
+    margin: 0;
+  }
+
+  /* Lists (navigation, cards) are used for their meaning, not for the bullets */
+  ul,
+  ol {
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Appearance only: the body layout (relative for Base UI backdrops on iOS, flex column with min height of the screen)
+     goes with Tailwind in app/layout.tsx */
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  a {
+    color: var(--accent);
+  }
+
+  h1,
+  h2,
+  h3 {
+    line-height: 1.25;
+  }
+}
