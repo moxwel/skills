@@ -1,6 +1,6 @@
 ---
 name: moxwel-code-style
-description: Use this skill whenever writing, changing, refactoring, reviewing or auditing code in any language or project for moxwel (TypeScript, JavaScript, Python, Bash, CSS and others), even when the user never mentions style and only says things like "add a function that does X", "write a script for Y", "clean up this file", "rename this", "add comments/docs", "review this code" or "does this follow my conventions?". Covers moxwel's code style: language of code and comments, file headers, doc comments, naming, booleans, conditions, control flow, line length and imports. It is the base layer: a stack-specific skill or the project CLAUDE.md/AGENTS.md adds to it. Do not use for prose, configuration-only edits or questions that write no code.
+description: Use this skill whenever writing, changing, refactoring, reviewing or auditing code in any language or project for moxwel (TypeScript, JavaScript, Python, Bash, CSS and others), even when the user never mentions style and only says things like "add a function that does X", "write a script for Y", "clean up this file", "rename this", "add comments/docs", "review this code" or "does this follow my conventions?". Covers moxwel's code style, language of code and comments, file headers, doc comments, naming, booleans, conditions, control flow, line length and imports. It is the base layer, a stack-specific skill or the project CLAUDE.md/AGENTS.md adds to it. Do not use for prose, configuration-only edits or questions that write no code.
 ---
 
 # moxwel's code style
