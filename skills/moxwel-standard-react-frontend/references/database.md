@@ -12,6 +12,7 @@ Covers `lib/db`, query functions, injection safety, soft deletes, transactions, 
 6. **All-or-nothing writes are one transaction inside one `lib/db` function,** even across tables. File side effects are ordered or compensated, since the transaction doesn't cover them.
 7. **Expected outcomes are return values** (a duplicate makes `insert*` return `false`). Catch only the specific expected error code and rethrow everything else.
 8. **The schema constrains too:** `NOT NULL`, `UNIQUE`, `CHECK`, foreign keys (Mongo: unique indexes, `$jsonSchema`). Dates are stored in UTC.
+9. **Entities tied to a user or made public are identified by a UUID, never by an ascending number,** unless the user explicitly asks for numbers: users, their content (posts, files, clips, collections) and anything whose id reaches a URL, an embed or another user. The UUID is the primary key and every foreign key uses it. Integers stay for technical data (sessions keyed by token, rowids, page numbers).
 
 ## Details
 
@@ -20,6 +21,13 @@ Covers `lib/db`, query functions, injection safety, soft deletes, transactions, 
 - **Function names:** verb + subject. `list*`, `find*`/`get*` (one result or `undefined`), `count*`, `insert*`, `update*`/`mark*`, `softDelete*`, and `delete*` for technical data only.
 - **Return types:** row types keep the DB column names (`created_at`). Convert with `plain()` for `node:sqlite` rows and `toPlain()` for Mongo `ObjectId`/`Date`.
 - **Mongo injection:** `{ username: input }` with `input = { $ne: null }` matches everyone. Never use `$where`/`$function` or keys taken from user input.
+- **UUID ids (rule 9):** a v4 UUID as lowercase text. In SQLite the column is `id TEXT PRIMARY KEY NOT NULL DEFAULT (<uuid v4 expression>) CHECK (length(id) = 36)`, so rows created by SQL or by the admin CRUD get one too; read the new id back with `INSERT … RETURNING id`. When the id must exist before the insert (files named after it), generate it with `crypto.randomUUID()` and pass it. A table with a `TEXT PRIMARY KEY` keeps its implicit `rowid`, which the generic CRUD can still use. The v4 expression for SQLite:
+
+  ```sql
+  lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-4' || substr(lower(hex(randomblob(2))), 2)
+    || '-' || substr('89ab', 1 + (abs(random()) % 4), 1) || substr(lower(hex(randomblob(2))), 2)
+    || '-' || lower(hex(randomblob(6)))
+  ```
 - **Unique among active rows only:** `CREATE UNIQUE INDEX … WHERE deleted_at IS NULL` (Mongo: `isDeleted` + `deletedAt` instead of `deleted_at`; reads filter `isDeleted: false`, and the unique index uses `partialFilterExpression`).
 - **Transactions:** keep them short (no network or file I/O inside). Any error rolls back and rethrows. Example: `setUserPasswordAndCloseSessions`.
 - **Schema changes:** SQLite uses `CREATE TABLE IF NOT EXISTS` on first open with no migrations; changes to an existing deployment are documented manual steps. PostgreSQL uses versioned migrations.
@@ -32,7 +40,7 @@ Covers `lib/db`, query functions, injection safety, soft deletes, transactions, 
 | Transaction | `exec("BEGIN")`/`COMMIT`/`ROLLBACK` | `BEGIN`…`COMMIT` on **the same** `pool.connect()` client, `release()` in `finally` | `session.withTransaction()` (needs a replica set) |
 | Unique violation | `errcode === 2067` | `code === "23505"` | `code === 11000` |
 | Did it match | `run().changes` | `rowCount` | `modifiedCount`/`matchedCount` |
-| Ids from input | `cleanId` → number | `cleanId` or UUID check | 24-hex check, `new ObjectId()` inside `lib/db` |
+| Ids from input | `cleanUuid` (entities, rule 9); `cleanId` → number for rowids and pages | `cleanUuid`; `cleanId` for technical ids | 24-hex check, `new ObjectId()` inside `lib/db` |
 
 ## Gotchas
 
@@ -43,3 +51,4 @@ Covers `lib/db`, query functions, injection safety, soft deletes, transactions, 
 - [ ] No SQL, driver or `connection` import outside `lib/db/`.
 - [ ] Parameters only, explicit columns, invariants in the filter, writes report a match.
 - [ ] Domain deletes are soft, and multi-writes are one transaction.
+- [ ] Users, their content and anything public use UUID primary and foreign keys (unless numbers were asked for).

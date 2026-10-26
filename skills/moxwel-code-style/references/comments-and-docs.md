@@ -33,19 +33,19 @@ Covers every source file in any language: the language of code and text, file he
 ```ts
 /**
  * Marks the item as reviewed if it is still pending.
- * @param id - Item id.
+ * @param id - Item UUID.
  * @param status - Final status.
  * @returns true if it marked it; false if it doesn't exist or was already reviewed.
  * @throws If the store is not open.
  */
-export function markItemReviewed(id: number, status: ReviewStatus): boolean {
+export function markItemReviewed(id: string, status: ReviewStatus): boolean {
 ```
 
 ```python
-def mark_item_reviewed(item_id: int, status: str) -> bool:
+def mark_item_reviewed(item_id: str, status: str) -> bool:
     """Marks the item as reviewed if it is still pending.
 
-    :param item_id: Item id.
+    :param item_id: Item UUID.
     :param status: Final status.
     :returns: True if it marked it; False if it doesn't exist or was already reviewed.
     :raises RuntimeError: If the store is not open.

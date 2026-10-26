@@ -36,7 +36,7 @@ type Props = { items: ItemRow[] };
 export function ItemManager({ items }: Props) {
   const { state, isPending: isCreating, formRef, handleSubmit } = useFormAction(createItem);
   const [isDeleting, startTransition] = useTransition();
-  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const toast = useActionToast();
   // Braces: the effect must not return whatever toast() returns
   useEffect(() => {

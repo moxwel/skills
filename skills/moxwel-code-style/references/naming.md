@@ -1,6 +1,6 @@
 # Naming
 
-Covers names of variables, constants, functions, types and booleans, in any language.
+Covers names of variables, constants, functions, types and booleans, and the identifiers of stored records, in any language.
 
 ## Rules
 
@@ -9,6 +9,7 @@ Covers names of variables, constants, functions, types and booleans, in any lang
 3. **Booleans are named `is*`/`has*`/`can*`/`should*`/`was*`:** variables, state, function results, parameters, fields and predicates (`isTaken()`, `hasPendingItems()`). Exceptions: names fixed by a platform or library (`disabled`, `open`), fields of records that mirror an external schema (rule 1), and commands that report success (`insertItem()` returning `boolean`).
 4. **Values are named after their content,** not their type or origin: `visibleItems`, `retryDelayMs`, not `list2`, `data` or `result`. Handlers and commands are named after the action (`confirmDelete`, `syncFiles`).
 5. **Non-obvious literals become named constants** at the top of the file (`MAX_RETRIES = 3`), or in a shared constants module when several files use them.
+6. **Records tied to a user or made public are identified by a UUID, never by an ascending number,** unless the user explicitly asks for numbers. That covers users and their content (posts, files, uploads, collections) and anything whose id reaches a URL, a file name, an API payload or another user, in any storage (SQL, document store, files). The UUID is the record's primary key and every reference to it uses the same UUID. Sequential integers stay for technical data that never leaves the system (row ids, page numbers, counters).
 
 ## Details
 
@@ -30,3 +31,4 @@ Covers names of variables, constants, functions, types and booleans, in any lang
 - [ ] Casing matches the language table; constants are UPPER_CASE.
 - [ ] No single-letter names besides `i`; every boolean has its prefix.
 - [ ] No unexplained magic number or string in the body.
+- [ ] Records tied to a user or made public use UUID ids and UUID references (unless numbers were asked for).

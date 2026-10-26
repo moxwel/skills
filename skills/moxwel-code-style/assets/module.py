@@ -40,20 +40,17 @@ def rename_item(name: str, new_name: str) -> bool:
 
     :param name: Current name.
     :param new_name: Name to give it.
-    :returns: True if it renamed it; False if either name is invalid or the new name is taken.
+    :returns: True if it renamed it; False if the new name is invalid or already taken.
     :raises OSError: If the item does not exist or the folder is not writable.
     """
-    are_valid_names = NAME_PATTERN.match(name) is not None and NAME_PATTERN.match(new_name) is not None
-    if not are_valid_names:
+    is_valid_name = NAME_PATTERN.match(new_name) is not None
+    if not is_valid_name:
         return False
-    old_path = os.path.join(ITEMS_DIR, name + ITEM_EXTENSION)
     new_path = os.path.join(ITEMS_DIR, new_name + ITEM_EXTENSION)
-    # ponytail: link+unlink instead of rename so a taken name fails atomically; needs hard links
-    try:
-        os.link(old_path, new_path)
-    except FileExistsError:
+    is_taken = os.path.exists(new_path)
+    if is_taken:
         return False
-    os.unlink(old_path)
+    os.rename(os.path.join(ITEMS_DIR, name + ITEM_EXTENSION), new_path)
     return True
 
 

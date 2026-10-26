@@ -3,7 +3,7 @@
  * the folder on every call instead of caching, because other processes write to it too.
  */
 
-import { link, readdir, readFile, unlink } from "node:fs/promises";
+import { readdir, readFile, rename } from "node:fs/promises";
 import { join } from "node:path";
 
 import { formatBytes } from "./formatBytes";
@@ -38,23 +38,16 @@ export async function listItems(query: string): Promise<Item[]> {
  * Renames an item if the new name is valid and free.
  * @param name - Current name.
  * @param newName - Name to give it.
- * @returns true if it renamed it; false if either name is invalid or the new name is taken.
+ * @returns true if it renamed it; false if the new name is invalid or already taken.
  * @throws If the item does not exist or the folder is not writable.
  */
 export async function renameItem(name: string, newName: string): Promise<boolean> {
-  const areValidNames = NAME_PATTERN.test(name) && NAME_PATTERN.test(newName);
-  if (!areValidNames) return false;
-  const oldPath = join(ITEMS_DIR, name + ITEM_EXTENSION);
-  const newPath = join(ITEMS_DIR, newName + ITEM_EXTENSION);
-  // ponytail: link+unlink instead of rename so a taken name fails atomically; needs hard links
-  try {
-    await link(oldPath, newPath);
-  } catch (error) {
-    const isTaken = (error as NodeJS.ErrnoException).code === "EEXIST";
-    if (isTaken) return false;
-    throw error;
-  }
-  await unlink(oldPath);
+  const isValidName = NAME_PATTERN.test(newName);
+  if (!isValidName) return false;
+  const fileNames = await readdir(ITEMS_DIR);
+  const isTaken = fileNames.includes(newName + ITEM_EXTENSION);
+  if (isTaken) return false;
+  await rename(join(ITEMS_DIR, name + ITEM_EXTENSION), join(ITEMS_DIR, newName + ITEM_EXTENSION));
   return true;
 }
 

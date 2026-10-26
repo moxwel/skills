@@ -28,8 +28,9 @@ export async function createItem(_prev: ActionState, formData: FormData): Promis
   if (!name) return { errors: { name: NAME_RULES } };
 
   // No owner check: on create there is no existing object (update/delete do it here)
-  const wasInserted = itemsDb.insertItem(name, session.userId);
-  if (!wasInserted) return { errors: { name: "That item already exists." } };
+  const itemId = itemsDb.insertItem(name, session.userId);
+  const isDuplicate = itemId === null;
+  if (isDuplicate) return { errors: { name: "That item already exists." } };
 
   refresh();
   return { ok: `Item ${name} created.` };

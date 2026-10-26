@@ -33,11 +33,11 @@ Covers every `.ts`/`.tsx` file (headers and line length also cover CSS): languag
 ```ts
 /**
  * Marks the suggestion as reviewed if it is still pending.
- * @param id - Suggestion id.
+ * @param id - Suggestion UUID.
  * @param status - Final status.
  * @returns true if it marked it; false if it doesn't exist or was already reviewed.
  */
-export function markSuggestionReviewed(id: number, status: ReviewStatus): boolean {
+export function markSuggestionReviewed(id: string, status: ReviewStatus): boolean {
 ```
 
 - **Names:** values are named after their content (`visibleLinks`, `rootClassName`); `const hasErrors = Object.keys(errors).length > 0;`. Non-obvious literals become constants at the top of the file, or in `lib/const/` when app-wide. Routes always come from `PAGES`. Handlers are named after the action (`confirmDelete`).

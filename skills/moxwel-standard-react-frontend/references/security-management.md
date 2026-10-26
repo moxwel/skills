@@ -24,12 +24,12 @@ Covers entry points (pages, server actions, route handlers), auth, sessions, val
 ```ts
 /**
  * Deletes (soft delete) an item the user owns, or any item for an admin.
- * @param itemId - Item id from the client; sanitized here.
+ * @param itemId - Item UUID from the client; sanitized here.
  * @returns `ok` with the toast message, or `error` if it is invalid, missing or not theirs.
  */
-export async function deleteItem(itemId: number): Promise<ActionState> {
+export async function deleteItem(itemId: string): Promise<ActionState> {
   const session = await requireUser();
-  const id = cleanId(String(itemId));
+  const id = cleanUuid(String(itemId));
   if (!id) return { error: "Invalid item." };
   // Same message whether it doesn't exist or isn't theirs, so it reveals nothing
   const item = itemsDb.getItem(id);
@@ -67,7 +67,9 @@ export async function deleteItem(itemId: number): Promise<ActionState> {
 | username | trim, `^[a-zA-Z0-9_.-]{3,32}$` |
 | password | **no trim**, length 8–128 |
 | file/folder name | lowercase, spaces → `_`, `^[a-z0-9_]{1,48}$` |
-| numeric id | `^[1-9]\d{0,14}$`, then `Number()` |
+| UUID id (users and their content, database.md rule 9) | lowercase v4, `^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$` |
+| list of UUIDs | an array of strings, each a UUID, deduplicated, with a length cap |
+| numeric id (rowid, page) | `^[1-9]\d{0,14}$`, then `Number()` |
 | enum | value must be in the const list |
 
 - **Files:**
