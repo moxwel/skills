@@ -2,9 +2,7 @@
  * cn(): joins CSS classes and resolves conflicts between Tailwind utilities with tailwind-merge. Needed because
  * component layout is Tailwind in the JSX: if a feature passes `className="flex-row gap-4"` to a component that already
  * has `flex-col gap-3`, both are utilities of the same layer and whichever Tailwind generates later would win, not the
- * one requested. ponytail: tailwind-merge is the only styling dependency; it leaves custom classes (card, button...)
- * alone. No Node imports: used by client and server components. (TEMPLATE: goes in src/lib/ui/cn.ts; needs
- * `npm i tailwind-merge`.)
+ * one requested.
  */
 
 import { twMerge } from "tailwind-merge";

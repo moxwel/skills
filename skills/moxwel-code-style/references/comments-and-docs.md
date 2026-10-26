@@ -7,8 +7,7 @@ Covers every source file in any language: the language of code and text, file he
 1. **Language:** code, comments, doc comments, user-facing strings, logs and docs are in English. When the project names another language for user-facing strings, comments or docs (an override, see SKILL.md), those use it. Comments stay ASCII (drop accents) and identifiers stay English whatever that language; user-facing strings keep full orthography.
 2. **Every source file starts with a header comment** (only a line the language requires to be literally first, such as a shebang or an encoding declaration, precedes it; existing files get one when the task touches them): what the file is, what it does, and any non-obvious decision and why. Config and data files need none.
 3. **Inline comments explain *why*, never what the next line does.** Every non-obvious workaround gets one. No emojis.
-4. **Deliberate shortcuts** get a `ponytail:` comment (a fixed marker word, so every shortcut can be found with one search) stating the trade-off (`// ponytail: linear scan, lists stay under 100 items`).
-5. **Every named function has a doc comment:** a one-sentence summary, plus `@param`/`@returns`/`@throws` (or the language's equivalent) where they apply, with no `{type}`. Anonymous inline callbacks need none.
+4. **Every named function has a doc comment:** a one-sentence summary, plus `@param`/`@returns`/`@throws` (or the language's equivalent) where they apply, with no `{type}`. Anonymous inline callbacks need none.
 
 ## Details
 
@@ -61,4 +60,3 @@ def mark_item_reviewed(item_id: str, status: str) -> bool:
 
 - [ ] Every new or touched source file has a header comment saying what it is and why it looks that way.
 - [ ] Every named function has a doc comment, with each outcome explained in `returns` and every deliberate throw in `throws`.
-- [ ] Comments are ASCII and explain why; shortcuts carry `ponytail:`.

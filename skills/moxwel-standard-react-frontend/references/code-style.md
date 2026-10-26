@@ -17,8 +17,7 @@ Covers every `.ts`/`.tsx` file (headers and line length also cover CSS): languag
 11. **Forms keep their values on failure:** never use the `<Form action>` prop. Use `useFormAction`, which resets only on `ok`.
 12. **Validate everything, then execute:** nothing slow or with side effects runs until every check that can run has passed. Every field the server requires carries its HTML constraint (`required` on selects too), so the Form blocks the submit. A form that processes data before sending first calls a server pre-check action with the same `lib/` validation as the final action (without uploading files), and the final action validates again.
 13. **Imports:** grouped and sorted (Details), always from the defining file, never through a barrel.
-14. **Deliberate shortcuts** get a `ponytail:` comment stating the trade-off.
-15. **Output:** rely on React's escaping. Never use `dangerouslySetInnerHTML`. User-influenced URL segments go through `encodeURIComponent`.
+14. **Output:** rely on React's escaping. Never use `dangerouslySetInnerHTML`. User-influenced URL segments go through `encodeURIComponent`.
 
 ## Details
 
