@@ -1,6 +1,6 @@
 ---
 name: moxwel-standard-react-frontend
-description: Use this skill when building, changing, styling, reviewing or auditing a web frontend that follows moxwel's standard (Next.js App Router, React 19, Base UI, Tailwind v4 for layout + plain CSS for looks, database behind lib/db, Docker), or when starting a new web app with no stack chosen yet. Applies even when the user never names the stack and only says things like "add a page", "make a form for X", "fix this layout on mobile", "add login", "show this data in a table", "add a delete button" or "does the project follow the standard?". Covers where files go, styling, semantic HTML, forms, server-action security and database queries. Do not use for frontends on another stack (Vue, Angular, a plain Vite SPA) unless the user wants to move them to this standard.
+description: Use this skill when building, changing, styling, reviewing or auditing a web frontend that follows moxwel's standard (Next.js App Router, React 19, Base UI, Tailwind v4 for layout + plain CSS for looks, database behind lib/db, Docker), or when starting a new web app with no stack chosen yet. Applies even when the user never names the stack and only says things like "add a page", "make a form for X", "fix this layout on mobile", "add login", "show this data in a table", "add a delete button" or "does the project follow the standard?". Covers where files go, styling, semantic HTML, forms, page metadata and Open Graph link previews, server-action security and database queries. Do not use for frontends on another stack (Vue, Angular, a plain Vite SPA) unless the user wants to move them to this standard.
 ---
 
 # moxwel's standard for React frontends
@@ -19,6 +19,7 @@ description: Use this skill when building, changing, styling, reviewing or audit
 | UI: component, feature, page, layout, styling, markup | + [styling.md](references/styling.md), [semantic-html.md](references/semantic-html.md), [components.md](references/components.md) |
 | New file, moving or splitting code, naming | + [project-structure.md](references/project-structure.md) |
 | Page, server action, route handler, auth, uploads, env | + [security-management.md](references/security-management.md) |
+| Page metadata, Open Graph, link previews, video or image embeds | + [social-metadata.md](references/social-metadata.md) |
 | Any data access or schema | + [database.md](references/database.md), [security-management.md](references/security-management.md) |
 | New project, dependencies, config, Docker, deploy | + [stack-and-setup.md](references/stack-and-setup.md), [security-management.md](references/security-management.md) |
 | Audit or "find and fix inconsistencies" | all references |

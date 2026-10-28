@@ -12,4 +12,6 @@ Check the source when an API is in doubt, since versions move fast. For Next.js,
 - PostgreSQL `pg`: https://node-postgres.com; MongoDB driver: https://www.mongodb.com/docs/drivers/node/current/
 - Material Design Icons: https://pictogrammers.com/library/mdi/
 - JSDoc tags: https://jsdoc.app/
+- Open Graph protocol: https://ogp.me/ (tags, types, video and image properties)
+- Facebook Sharing Debugger (preview checker for any platform's crawler): https://developers.facebook.com/tools/debug/
 - OWASP cheat sheets (passwords, sessions, input validation, SQL/NoSQL injection, XSS, file upload, OS command injection): https://cheatsheetseries.owasp.org/
