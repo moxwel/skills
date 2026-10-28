@@ -21,12 +21,17 @@ Covers Base UI wrappers (`components/base-ui/`), generic UI pieces (`components/
 - **`render` prop composition:** `BaseAlertDialog.Close render={<Button variant="secondary" />}`. The rendered component must forward its `ref` and spread the props it receives. A button part rendered as a non-`<button>` needs `nativeButton={false}`.
 - **State attributes:** `[data-checked]`, `[data-disabled]`, `[data-popup-open]` (triggers), `[data-open]` (popups/panels), `[data-highlighted]`, `[data-invalid]`.
 - **Catalog:**
-  - Icons: `<Icon path={mdiX} size="1.15em" />` from `@mdi/react` + `@mdi/js`.
+  - Icons: `<Icon path={mdiX} size={ICON_SIZE} />` from `@mdi/react` + `@mdi/js`. Three sizes, all in `lib/const/icons.ts` and in rem (so they don't depend on the surrounding font size):
+    - `ICON_SIZE = "1.5rem"`, the default: buttons, navbar, tabs, toasts, chevrons and every icon nobody said otherwise about.
+    - `ICON_SIZE_SMALL = "1rem"`, only where the user asks for it explicitly, typically next to small text: status badges and the property rows of a record (views, date, author, size).
+    - `ICON_SIZE_LARGE = "3rem"`, only where the user asks for it explicitly: the icon next to a page title (`PageTitle`), and the large logo.
+    No per-place size constants or `iconSize` props. Outside the three sizes there is only a mark that must fit a fixed box (the check inside a checkbox or a select option) and a deliberate focal icon (a large upload circle); each one names itself as an exception in its file. The `Button` loading spinner matches the icon (`size-6`), so the button doesn't change width while loading.
   - `Button`: `variant`, `icon` (MDI path), `isLoading` (spinner, stays focusable, `aria-busy`). With no children it is icon-only (`data-icon-only`) and needs `aria-label` + `title`.
   - `Form`: defaults to `method="post"`, so a submit before hydration never puts values in the URL. It focuses the first invalid field itself.
   - `AlertDialog`: its icon-only trigger uses `triggerAriaLabel` as both `aria-label` and `title`.
   - `Dialog`: controlled, for edit forms. Close it from the action's `ok` in an effect.
   - `Select`: `key={dependency}` resets it when its options depend on another field.
+  - `Switch`: always the switch first and its text to the right, both inside one `<label>` (`flex items-center gap-3`), so a click on the text toggles it too. Never the text first or the switch pushed to the far end. The text names the "on" state ("Visibilidad pública"); a hint below can describe the current state.
   - `ToastProvider` + `useActionToast()`: `toast(state)` shows `ok` as success and `error` as error.
   - `Accordion`: closed panels are not mounted, so media inside loads only when opened.
 - **`components/ui/`** pieces, built only when needed: `Card` (`as` = section (default)|article|div), `Notice`, `Table` (scroll wrapper + `<table>`), `StatusBadge`, `Spinner`, `AudioPlayer` (native `<audio preload="none">`), `PageTitle` (`<h1>` + icon from `PAGES`), `ButtonLink`.
@@ -96,6 +101,8 @@ export function replaceUrlFragment(fragment: string): void {
 ## Checklist
 
 - [ ] No `@base-ui/react` import outside `components/base-ui/` (`grep -rn "@base-ui/react" src`).
+- [ ] Every `<Icon>` uses `ICON_SIZE`, or `ICON_SIZE_SMALL` / `ICON_SIZE_LARGE` where it was asked for; any other size is a fitted mark or a focal icon that says so in its file.
 - [ ] New wrappers use the Base UI docs name. Destructive actions use `AlertDialog`.
 - [ ] New `Tabs`/`Accordion` values are slugs without `-`, and nested ones get `fragmentPrefix`. Reloading with `#id` reopens the same item.
 - [ ] No password reveal unless asked.
+- [ ] Every `Switch` comes before its text, inside the same `<label>`.
