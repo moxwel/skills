@@ -18,6 +18,7 @@ Covers Tailwind, plain CSS, cascade layers, responsive layout, modals, motion an
 12. **Every component imports every CSS file it uses,** `shared.css` included. Each folder's `shared.css` serves only that folder.
 13. **No animations unless the user asks for that element:** no `transition`, `animation`, `@keyframes`, `[data-starting-style]`/`[data-ending-style]` rules, or Tailwind `transition-*`/`animate-*`/`duration-*` utilities. State changes apply instantly. When asked, animate only that element and property, in the CSS of the component that renders it; if that component is shared, only the instances asked, through a data attribute the caller sets.
 14. **Every view that shows data has three states:** loading, error and empty, each perceivable and saying what is happening and what to do next (copy.md rule 6 of the base skill). Loading is a server `loading.tsx` in the route-group segment (Tailwind only, top on mobile and centered from `md`) with the spinner and a text naming what loads. Error is an `error.tsx` in the same segment with a retry action. Empty is part of the component that renders the list.
+15. **Contrast is computed, never eyeballed:** text needs 4.5:1 (large text 3:1), and the edge of a control or a status indicator needs 3:1 against the colors next to it, in every theme. Fields, selects, checkboxes, radios and switches use `--border-strong` for their edge; `--border` is only for dividers and card edges that do not identify a control. Check each new color pair with the WCAG formula or a contrast tool.
 
 ## Details
 
@@ -40,7 +41,7 @@ Covers Tailwind, plain CSS, cascade layers, responsive layout, modals, motion an
 - **Visual language (defaults for new projects):**
   - Theme: dark with an orange accent (`#f08a24`). Radius 3px except circles.
   - `.button`: solid background + darker 3px bottom stripe. Variants `primary`/`secondary`/`danger`/`ghost` (ghost: no stripe, accent border on hover). Disabled at 50% opacity. Sizes (prop `size`): `default` is `h-11` (44 px, the minimum touch target), `small` is `h-9` with its touch area extended to 44 px by a `::after` (a Layout exception), `large` is `h-14`. Icon-only is a square of the same size.
-  - Fields: `h-11`, 1px border, accent on focus.
+  - Fields: `h-11`, 1px `--border-strong` border, accent on focus.
   - Popups: 1px accent border + soft shadow. Notice: 3px warning left border.
   - Toasts: a bottom-right list, newest at the bottom (`flex-col-reverse`), no stacked deck.
   - Icons: 1.5rem (24 px) by default (`ICON_SIZE`); 1rem (16 px, `ICON_SIZE_SMALL`) for status rows, properties, details and icons inline with text; 3rem (48 px, `ICON_SIZE_LARGE`) for page titles and the logo; the user can set another size (components.md catalog).
@@ -63,3 +64,4 @@ Covers Tailwind, plain CSS, cascade layers, responsive layout, modals, motion an
 - [ ] Every new CSS file has the layer-order line, and each component imports what it uses.
 - [ ] No animation or grid unless asked (`grep -rnE "transition|animate-|@keyframes|grid" src`).
 - [ ] Every data view has loading, error and empty states that say what happens and what to do.
+- [ ] Contrast checked: text 4.5:1, control edges and indicators 3:1, in every theme.
