@@ -10,8 +10,9 @@ description: Use this skill when building, changing, styling, reviewing or audit
 ## Before acting
 
 1. Read the project `CLAUDE.md`/`AGENTS.md`. A convention it declares is a deliberate deviation and wins over this skill.
-2. **Read in full the references for your task** (table below), every time, before writing, changing or reviewing code. Don't rely on memory of an earlier session: the standard has many non-obvious rules and gotchas that only the references state.
-3. If the repo ships `node_modules/next/dist/docs/`, read the relevant Next.js guide too.
+2. **Also load the base `moxwel-code-style` skill** (comments, naming, readability, copy, git): its rules apply here and are not repeated. If it is not installed, stop and ask the user to install it (`npx skills add moxwel/skills`). Only if the user declines, read the base references you need from `https://raw.githubusercontent.com/moxwel/skills/main/skills/moxwel-code-style/references/<file>.md` (`comments-and-docs.md`, `copy.md`, `naming.md`, `readability.md`, `git-conventions.md`).
+3. **Read in full the references for your task** (table below), every time, before writing, changing or reviewing code. Don't rely on memory of an earlier session: the standard has many non-obvious rules and gotchas that only the references state.
+4. If the repo ships `node_modules/next/dist/docs/`, read the relevant Next.js guide too.
 
 | Task | Read |
 |---|---|
@@ -29,7 +30,7 @@ When an API is in doubt, check [links.md](references/links.md) (official docs) r
 ## Always
 
 - Edit this skill only when the user explicitly asks to change the skill. Project conventions go to the project `CLAUDE.md`/`AGENTS.md`.
-- No git writes unless the user explicitly asks.
+- Git follows the base skill's `git-conventions.md`.
 - Before saying "done", go through the Checklist of every reference you read.
 
 ## Why the standard looks like this
