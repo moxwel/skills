@@ -4,7 +4,7 @@ Covers `lib/db`, query functions, injection safety, soft deletes, transactions, 
 
 ## Rules
 
-1. **Every query is a named function in `lib/db/<table>.ts`** (`listUsers()`, `softDeleteItem(id)`), imported as a namespace (`import * as itemsDb`). Nothing outside `lib/db/` writes SQL or filters, imports the connection, or sees driver objects.
+1. **Every query is a named function in `lib/db/<table>.ts`** (function and namespace names: [naming.md](naming.md)). Nothing outside `lib/db/` writes SQL or filters, imports the connection, or sees driver objects.
 2. **Values are always parameters, never interpolated.** A dynamic identifier is allowed only after checking it against the engine catalog, and then quoted. Mongo values must be primitives of the expected type.
 3. **Read only what's needed:** explicit columns or a projection, and a `LIMIT` on every list (plus offset or cursor when paginated). Secret fields never leave `lib/`. Return plain, app-typed objects.
 4. **Invariants go in the filter** (`AND status = 'pending' AND deleted_at IS NULL`), and writes report whether they matched.
@@ -18,8 +18,7 @@ Covers `lib/db`, query functions, injection safety, soft deletes, transactions, 
 
 - **Engine:** SQLite via `node:sqlite` is the default (one instance, no extra container, no ORM). Use PostgreSQL or MongoDB only for several instances, an existing database, or very large data.
 - **Layout:** `lib/db/` holds `connection.ts`, `types.ts` and one file per table. Template: [dbTable.ts](../assets/dbTable.ts).
-- **Function names:** verb + subject. `list*`, `find*`/`get*` (one result or `undefined`), `count*`, `insert*`, `update*`/`mark*`, `softDelete*`, and `delete*` for technical data only.
-- **Return types:** row types keep the DB column names (`created_at`). Convert with `plain()` for `node:sqlite` rows and `toPlain()` for Mongo `ObjectId`/`Date`.
+- **Return types:** row types keep the DB column names (naming.md). Convert with `plain()` for `node:sqlite` rows and `toPlain()` for Mongo `ObjectId`/`Date`.
 - **Mongo injection:** `{ username: input }` with `input = { $ne: null }` matches everyone. Never use `$where`/`$function` or keys taken from user input.
 - **UUID ids (rule 9):** a v4 UUID as lowercase text. In SQLite the column is `id TEXT PRIMARY KEY NOT NULL DEFAULT (<uuid v4 expression>) CHECK (length(id) = 36)`, so rows created by SQL or by the admin CRUD get one too; read the new id back with `INSERT … RETURNING id`. When the id must exist before the insert (files named after it), generate it with `crypto.randomUUID()` and pass it. A table with a `TEXT PRIMARY KEY` keeps its implicit `rowid`, which the generic CRUD can still use. The v4 expression for SQLite:
 

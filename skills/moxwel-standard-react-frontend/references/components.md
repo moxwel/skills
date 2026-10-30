@@ -5,7 +5,7 @@ Covers Base UI wrappers (`components/base-ui/`), generic UI pieces (`components/
 ## Rules
 
 1. **App code never imports `@base-ui/react`;** only `components/base-ui/` does. Use every Base UI primitive over a native control (Button, Input, Select, RadioGroup, Switch, Slider, Tabs, Accordion, Dialog, AlertDialog, Toast, Collapsible, Fieldset…). Native elements only where Base UI has nothing (`<table>`, `<audio>`, text, links).
-2. **Wrapper names match the Base UI docs exactly** (`AlertDialog`, never `ConfirmDialog`). Alias the import with a `Base` prefix. Complementary parts share a file named after the primitive (`form.tsx` holds `Form` + `Field` + `Input`). A variant is a prop mode of the same wrapper, not a second wrapper (`Slider` with a number or a `[start, end]` range).
+2. **Wrapper names, import aliases and file names follow [naming.md](naming.md)** (`form.tsx` holds the complementary parts `Form` + `Field` + `Input`). A variant is a prop mode of the same wrapper, not a second wrapper (`Slider` with a number or a `[start, end]` range).
 3. **Wrappers stay minimal.** Composing several primitives for one use case of the app is a feature. A `ui/` piece knows no domain and calls no action.
 4. **Every destructive action** (delete, reject, logout) asks first with `AlertDialog`.
 5. **Navigation state lives in the URL fragment:** the active tab and the opened accordion item, as `#id`, hierarchical with `-` (`/admin#taunts-props-laughs`). Ephemeral state (open modal, drafts) stays local, and shareable filters go in the query string.
@@ -36,7 +36,7 @@ Covers Base UI wrappers (`components/base-ui/`), generic UI pieces (`components/
   - `Accordion`: closed panels are not mounted, so media inside loads only when opened.
 - **`components/ui/`** pieces, built only when needed: `Card` (`as` = section (default)|article|div), `Notice`, `Table` (scroll wrapper + `<table>`), `StatusBadge`, `Spinner`, `AudioPlayer` (native `<audio preload="none">`), `PageTitle` (`<h1>` + icon from `PAGES`), `ButtonLink`.
 - **Fragments:**
-  - Each fragment is the real `id` of the element it names (`Tab`, accordion `Item`). Values are lowercase slugs without `-`, because `-` is the separator. Nested wrappers take a `fragmentPrefix`.
+  - Each fragment is the real `id` of the element it names (`Tab`, accordion `Item`). Value format and prefixes: naming.md.
   - A tab is active when the fragment equals its id or starts with `id-`. Otherwise use `defaultValue`.
   - Write with `history.replaceState(null, "", url)`, never `location.hash`, which scrolls and adds history entries. Read with `useSyncExternalStore` (server snapshot `""`).
   - Both functions live in `lib/ui/urlFragment.ts`, an allowed two-export file because they share the private event.
@@ -103,6 +103,6 @@ export function replaceUrlFragment(fragment: string): void {
 - [ ] No `@base-ui/react` import outside `components/base-ui/` (`grep -rn "@base-ui/react" src`).
 - [ ] Every `<Icon>` uses `ICON_SIZE`, or `ICON_SIZE_SMALL` / `ICON_SIZE_LARGE` where it was asked for; any other size is a fitted mark or a focal icon that says so in its file.
 - [ ] New wrappers use the Base UI docs name. Destructive actions use `AlertDialog`.
-- [ ] New `Tabs`/`Accordion` values are slugs without `-`, and nested ones get `fragmentPrefix`. Reloading with `#id` reopens the same item.
+- [ ] New `Tabs`/`Accordion` values follow naming.md. Reloading with `#id` reopens the same item.
 - [ ] No password reveal unless asked.
 - [ ] Every `Switch` comes before its text, inside the same `<label>`.

@@ -1,6 +1,6 @@
 # Project structure
 
-Covers where a file goes, naming, one export per file, one responsibility per component, types and constants.
+Covers where a file goes, one export per file, one responsibility per component, types and constants.
 
 ## Rules
 
@@ -8,7 +8,7 @@ Covers where a file goes, naming, one export per file, one responsibility per co
 2. **Data flows down from the page.** Features never call `lib/db`: the page loads the data and passes it as props. Only `lib/db/*` imports `lib/db/connection`.
 3. **One export per file,** with the file named after it and imported directly (no `index.ts` barrels). Exceptions must cover related exports only, each justified in the file header (Details).
 4. **One responsibility per component:** one kind of data or one setting, with its state, actions and UI. A list with its create form and row actions is one job. A second job becomes a sibling component that the parent composes; siblings never import each other.
-5. **Files are camelCase,** named after their export (`formatBytes.ts`, `passwordInput.tsx`), or after their subject for a file of complementary parts (`form.tsx`). No folder per component: `card.tsx` + `card.css` sit side by side.
+5. **File names follow [naming.md](naming.md).** No folder per component: `card.tsx` + `card.css` sit side by side.
 6. **Constants:** routes, labels and icons live once, in `lib/const/pages.ts` (`PAGES`). `lib/const/` holds constants only, all Node-free except `paths.ts`. Shared types live in each folder's `types.ts`.
 
 ## Details
@@ -68,5 +68,5 @@ src/
 
 ## Checklist
 
-- [ ] Each new file is in its layer, named after its single export (or a justified exception).
+- [ ] Each new file is in its layer and named per naming.md (one export, or a justified exception).
 - [ ] Each component/feature has one job, and no feature calls `lib/db` (`import type` of row types is fine).

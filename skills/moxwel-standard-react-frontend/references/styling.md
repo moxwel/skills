@@ -4,7 +4,7 @@ Covers Tailwind, plain CSS, cascade layers, responsive layout, modals, motion an
 
 ## Rules
 
-1. **Layout in Tailwind, appearance in CSS, in every layer.** Box properties (display, position/inset, z-index, isolation, overflow, flex and alignment, gap, padding, width/height/min/max, aspect-ratio, object-fit) are Tailwind classes in JSX. Everything visual (colors, background, borders, radius, shadows, outline, typography, list-style, transforms, cursor, opacity, pointer-events, SVG fill) goes in the component's same-named `.css`. Ellipsis: `text-overflow` in CSS, its `overflow-hidden` in JSX. CSS classes are prefixed with the component or feature name (`.itemManager-item`), and appearance state lives in data attributes (`[data-variant="ghost"]`), not modifier classes.
+1. **Layout in Tailwind, appearance in CSS, in every layer.** Box properties (display, position/inset, z-index, isolation, overflow, flex and alignment, gap, padding, width/height/min/max, aspect-ratio, object-fit) are Tailwind classes in JSX. Everything visual (colors, background, borders, radius, shadows, outline, typography, list-style, transforms, cursor, opacity, pointer-events, SVG fill) goes in the component's same-named `.css`. Ellipsis: `text-overflow` in CSS, its `overflow-hidden` in JSX. CSS classes are named per [naming.md](naming.md), and appearance state lives in data attributes (`[data-variant="ghost"]`), not modifier classes.
 2. **Layout in CSS only where native Tailwind can't express it,** marked `/* Layout exception: <why> */`: pseudo-elements, attribute-value or `:has()` selectors, Base UI internal markup, Base UI CSS vars, `calc()`/`min()`/`max()`, and percentages other than 100%. Keep only those declarations, never one a utility on the same element also sets. The browser reset in `globals.css` is the other allowed layout in CSS.
 3. **No inline `style`** in own code. A runtime value goes through a component prop (Base UI `Progress`/`Meter` `value`) or a data attribute. Inline styles that libraries set are fine.
 4. **Pages (`app/`) have no CSS of their own** besides `globals.css`, and use no color or typography utilities. They render components and pass props.
@@ -15,7 +15,7 @@ Covers Tailwind, plain CSS, cascade layers, responsive layout, modals, motion an
 9. **Cascade layers.** `globals.css` declares `@layer theme, base, components, utilities;` and imports Tailwind without preflight. Every other CSS file puts that same line right after its header comment and wraps its rules in `@layer components`. Two deliberate unlayered exceptions: the `:root` tokens in `globals.css`, and the field focus-border rule at the end of the file that defines its class (`shared.css`, `select.css`).
 10. **Overrides go through `className`.** Every component that takes `className` builds its root with `cn("own-class <default layout>", className)`, so the caller's utilities win. Never override a component's layout from CSS.
 11. **Shared layout is a constant** in `lib/const/layout.ts` (`BUTTON_LAYOUT`, `FIELD_BOX_LAYOUT`, `MODAL_*_LAYOUT`, `FORM_ACTIONS_LAYOUT`), never a shared CSS class.
-12. **Every component imports every CSS file it uses,** `shared.css` included. Each folder's `shared.css` serves only that folder, and its classes are named by purpose, never with a component prefix.
+12. **Every component imports every CSS file it uses,** `shared.css` included. Each folder's `shared.css` serves only that folder.
 13. **No animations unless the user asks for that element:** no `transition`, `animation`, `@keyframes`, `[data-starting-style]`/`[data-ending-style]` rules, or Tailwind `transition-*`/`animate-*`/`duration-*` utilities. State changes apply instantly. When asked, animate only that element and property, in the CSS of the component that renders it; if that component is shared, only the instances asked, through a data attribute the caller sets.
 14. **No `loading.tsx`** unless the user asks. Navigation keeps the current page until the next one is ready.
 
@@ -36,7 +36,7 @@ Covers Tailwind, plain CSS, cascade layers, responsive layout, modals, motion an
   - A piece in another folder that needs a shared class repeats it, with a comment naming the original.
 - **Native defaults:** `<fieldset>` gets `p-0 min-w-0` + `border: none`. `<legend>` is floated (`float-left w-full p-0`) so it joins the `gap`. A `<p>` with mixed inline content stays block.
 - **Button-styled links** use `ButtonLink` (Next `Link` + `.button` + `BUTTON_LAYOUT`). Explicit exception to the per-folder `shared.css` rule: it imports `@/components/base-ui/button.css`, since it is the link form of Button.
-- **When animation is asked:** `transition: <property> 150ms ease-out` on that property only, never `all`. Keyframes go in `@layer components`, named `<component>-<verb>`. Deleting the transition must leave a correct, instant UI.
+- **When animation is asked:** `transition: <property> 150ms ease-out` on that property only, never `all`. Keyframes go in `@layer components`, named per naming.md. Deleting the transition must leave a correct, instant UI.
 - **When a loading spinner is asked:** a server `loading.tsx` in the route-group segment, Tailwind only, top on mobile and centered from `md`.
 - **Visual language (defaults for new projects):**
   - Theme: dark with an orange accent (`#f08a24`). Radius 3px except circles.

@@ -15,9 +15,9 @@ description: Use this skill when building, changing, styling, reviewing or audit
 
 | Task | Read |
 |---|---|
-| Any code change or review | [workflow-and-verification.md](references/workflow-and-verification.md), [code-style.md](references/code-style.md) |
+| Any code change or review | [workflow-and-verification.md](references/workflow-and-verification.md), [code-style.md](references/code-style.md), [naming.md](references/naming.md) |
 | UI: component, feature, page, layout, styling, markup | + [styling.md](references/styling.md), [semantic-html.md](references/semantic-html.md), [components.md](references/components.md) |
-| New file, moving or splitting code, naming | + [project-structure.md](references/project-structure.md) |
+| New file, moving or splitting code | + [project-structure.md](references/project-structure.md) |
 | Page, server action, route handler, auth, uploads, env | + [security-management.md](references/security-management.md) |
 | Page metadata, Open Graph, link previews, video or image embeds | + [social-metadata.md](references/social-metadata.md) |
 | Any data access or schema | + [database.md](references/database.md), [security-management.md](references/security-management.md) |
