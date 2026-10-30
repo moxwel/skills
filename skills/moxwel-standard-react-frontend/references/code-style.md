@@ -5,9 +5,9 @@ Covers every `.ts`/`.tsx` file (headers and line length also cover CSS): languag
 ## Rules
 
 1. **Language:** code, comments, JSDoc, UI strings (text, `aria-label`, `title`, errors, toasts), logs and docs are in English. Exception: when the project `CLAUDE.md`/`AGENTS.md` names another language for UI strings, comments or docs, those use it, and route segments follow the UI language. Comments are always ASCII (drop accents); UI strings keep full orthography.
-2. **Every source file starts with a `/* */` header** (before `"use client"`/`"use server"`): what the file is, what it does, and any non-obvious decision and why. Config files need none.
+2. **Every source file starts with a `/* */` header** (before `"use client"`/`"use server"`) of at most two lines: what the file is and any non-obvious decision and why. Config files need none.
 3. **No line, code or comment, goes past 120 columns.**
-4. **Every named function has a JSDoc:** a one-sentence summary, plus `@param`/`@returns`/`@throws` where they apply (Details), with no `{type}`. Anonymous inline callbacks need none.
+4. **Doc comments follow the base `moxwel-code-style` skill** ([comments-and-docs.md](../../moxwel-code-style/references/comments-and-docs.md)): a JSDoc only where the name and signature do not say enough, two lines at most, no tag that echoes the name or the type, no `{type}`. Anonymous inline callbacks need none.
 5. **Names follow [naming.md](naming.md):** casing, booleans, functions, hooks, callback props, files, CSS classes and constants all live there.
 6. **Named conditions:** a comparison or compound condition used in an `if`, ternary or JSX becomes a named const first (naming.md). No nested ternaries.
 7. **JSX reads like a template:** derived values in named consts before `return`, and big JSX split into named consts or `render*` helpers.
@@ -20,20 +20,12 @@ Covers every `.ts`/`.tsx` file (headers and line length also cover CSS): languag
 
 ## Details
 
-- **Comments:** inline comments explain *why*, never what the next line does. Comment every non-obvious workaround. No emojis.
-- **JSDoc tags:**
-  - `@param name - Desc.` for each parameter. Components use `props` + one `props.x` line per prop (`[props.x=default]` when optional).
-  - `@returns Desc.` when the function returns a value, explaining each outcome (`The item, or undefined if it does not exist.`).
-  - `@throws Desc.` when the function throws or rethrows on purpose, or calls a function whose JSDoc has `@throws` without catching it. Next's `redirect()`/`notFound()` are control flow, not throws.
-  - No `@` inside the text.
-  - Constants that need explaining get a one-line `/** */`. Shared types get `@property` for non-obvious fields, never comments inside the type.
+- **Doc comments in React code:** a component documents only the props that `Props` does not make obvious (`[props.x=default]` when optional). `@throws` applies when the function throws on purpose or calls one whose JSDoc has it without catching; Next's `redirect()`/`notFound()` are control flow, not throws.
 
 ```ts
 /**
  * Marks the suggestion as reviewed if it is still pending.
- * @param id - Suggestion UUID.
- * @param status - Final status.
- * @returns true if it marked it; false if it doesn't exist or was already reviewed.
+ * @returns false if it doesn't exist or was already reviewed.
  */
 export function markSuggestionReviewed(id: string, status: ReviewStatus): boolean {
 ```
@@ -77,7 +69,7 @@ useEffect(() => {
 
 ## Checklist
 
-- [ ] New files have a header, every named function has JSDoc, and every name follows naming.md.
+- [ ] New files have a header of at most two lines, no comment echoes a name or signature, and every name follows naming.md.
 - [ ] No line over 120 columns, no nested ternaries, no inline prop types.
 - [ ] `"use client"` only where needed. No `<Form action=` (`grep -rn "<Form action=" src`).
 - [ ] Forms validate fully before processing or sending.

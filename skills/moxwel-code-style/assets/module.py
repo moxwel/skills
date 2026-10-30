@@ -1,7 +1,6 @@
 """
-Item store on disk: lists, renames and describes the items kept as JSON files in one folder.
-
-Reads the folder on every call instead of caching, because other processes write to it too.
+Item store on disk: items kept as JSON files in one folder. Reads the folder on every call instead of caching,
+because other processes write to it too.
 """
 
 import json
@@ -20,12 +19,9 @@ NAME_PATTERN = re.compile(r"^[a-z0-9_]{1,48}$")
 
 
 def list_items(query: str) -> list[dict]:
-    """Lists the items, newest first.
+    """Lists the items whose name contains `query` (all if empty), newest first, at most MAX_LISTED_ITEMS.
 
-    :param query: Text the name must contain; empty lists every item.
-    :returns: At most MAX_LISTED_ITEMS items.
-    :raises OSError: If the folder or an item file cannot be read.
-    :raises json.JSONDecodeError: If an item file is not valid JSON.
+    :raises OSError: If the folder or an item file cannot be read (invalid JSON raises json.JSONDecodeError).
     """
     item_files = [name for name in os.listdir(ITEMS_DIR) if name.endswith(ITEM_EXTENSION)]
     items = [read_item(os.path.join(ITEMS_DIR, file_name)) for file_name in item_files]
@@ -36,11 +32,8 @@ def list_items(query: str) -> list[dict]:
 
 
 def rename_item(name: str, new_name: str) -> bool:
-    """Renames an item if the new name is valid and free.
+    """Renames an item; returns False if the new name is invalid or already taken.
 
-    :param name: Current name.
-    :param new_name: Name to give it.
-    :returns: True if it renamed it; False if the new name is invalid or already taken.
     :raises OSError: If the item does not exist or the folder is not writable.
     """
     is_valid_name = NAME_PATTERN.match(new_name) is not None
@@ -55,23 +48,11 @@ def rename_item(name: str, new_name: str) -> bool:
 
 
 def describe_item(item: dict) -> str:
-    """One-line summary of an item for logs.
-
-    :param item: Item to describe.
-    :returns: Name, size and whether it is archived.
-    """
     size = format_bytes(item["size_bytes"])
     archived_label = " (archived)" if item["is_archived"] else ""
     return f"{item['name']}, {size}{archived_label}"
 
 
 def read_item(path: str) -> dict:
-    """Reads and parses one item file.
-
-    :param path: Path of the JSON file.
-    :returns: The parsed item.
-    :raises OSError: If the file is missing.
-    :raises json.JSONDecodeError: If the file is not valid JSON.
-    """
     with open(path, encoding="utf-8") as item_file:
         return json.load(item_file)

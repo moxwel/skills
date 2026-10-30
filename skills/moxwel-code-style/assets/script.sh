@@ -1,8 +1,7 @@
 #!/bin/bash
 #
-# sync_items.sh
-# Copies every item in items/ to backup/, keeping each source mtime so later runs can tell which
-# files changed. Never deletes from backup/: a file removed from items/ stays there.
+# Copies every item in items/ to backup/, keeping each source mtime so later runs can tell which files changed.
+# Never deletes from backup/: a file removed from items/ stays there.
 #
 # Status of each file:
 #   [NEW]  missing in backup/ -> copied
@@ -35,8 +34,7 @@ for arg in "$@"; do
     esac
 done
 
-# Tells whether two files are equal: size + mtime first (fast), then the contents.
-# Takes the source and destination paths; returns 0 if equal, non-zero otherwise.
+# Compares size + mtime first (fast), then the contents.
 is_same_file() {
     local source="$1"
     local destination="$2"
@@ -50,7 +48,6 @@ is_same_file() {
 }
 
 # Copies a new file to the backup (a modified one only with --update) and prints its status.
-# Takes the file name relative to SOURCE_DIR; prints nothing for an unchanged file without --verbose.
 sync_file() {
     local name="$1"
     local source="$SOURCE_DIR/$name"

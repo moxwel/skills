@@ -1,6 +1,6 @@
 /*
- * Item store on disk: lists, renames and describes the items kept as JSON files in one folder. Reads
- * the folder on every call instead of caching, because other processes write to it too.
+ * Item store on disk: items kept as JSON files in one folder. Reads the folder on every call instead of caching,
+ * because other processes write to it too.
  */
 
 import { readdir, readFile, rename } from "node:fs/promises";
@@ -19,9 +19,7 @@ const ITEM_EXTENSION = ".json";
 const NAME_PATTERN = /^[a-z0-9_]{1,48}$/;
 
 /**
- * Lists the items, newest first.
- * @param query - Text the name must contain; empty lists every item.
- * @returns At most MAX_LISTED_ITEMS items.
+ * Lists the items whose name contains `query` (all if empty), newest first, at most MAX_LISTED_ITEMS.
  * @throws If the folder or an item file cannot be read or parsed.
  */
 export async function listItems(query: string): Promise<Item[]> {
@@ -35,10 +33,7 @@ export async function listItems(query: string): Promise<Item[]> {
 }
 
 /**
- * Renames an item if the new name is valid and free.
- * @param name - Current name.
- * @param newName - Name to give it.
- * @returns true if it renamed it; false if the new name is invalid or already taken.
+ * Renames an item; returns false if the new name is invalid or already taken.
  * @throws If the item does not exist or the folder is not writable.
  */
 export async function renameItem(name: string, newName: string): Promise<boolean> {
@@ -51,23 +46,12 @@ export async function renameItem(name: string, newName: string): Promise<boolean
   return true;
 }
 
-/**
- * One-line summary of an item for logs.
- * @param item - Item to describe.
- * @returns Name, size and whether it is archived.
- */
 export function describeItem(item: Item): string {
   const size = formatBytes(item.size_bytes);
   const archivedLabel = item.is_archived ? " (archived)" : "";
   return `${item.name}, ${size}${archivedLabel}`;
 }
 
-/**
- * Reads and parses one item file.
- * @param path - Path of the JSON file.
- * @returns The parsed item.
- * @throws If the file is missing or is not valid JSON.
- */
 async function readItem(path: string): Promise<Item> {
   const itemJson = await readFile(path, "utf8");
   return JSON.parse(itemJson) as Item;

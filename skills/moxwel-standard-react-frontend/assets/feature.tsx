@@ -1,7 +1,6 @@
 /*
- * Item manager (TEMPLATE for a feature in features/<feature>/). Form to create items and a list with Delete (with
- * confirmation, soft delete). Uses actions/items; the action only lets the owner or an admin delete. Layout with
- * Tailwind utilities in the JSX; its own visual styles go in itemManager.css.
+ * TEMPLATE for a feature in features/<feature>/: form to create items and a list with a confirmed, soft Delete. The
+ * action only lets the owner or an admin delete. Layout is Tailwind in the JSX; visuals go in itemManager.css.
  */
 
 "use client";
@@ -27,12 +26,6 @@ import "./itemManager.css";
 
 type Props = { items: ItemRow[] };
 
-/**
- * Item manager: create and delete.
- * @param props - ItemManager props.
- * @param props.items - Active items, already loaded by the page.
- * @returns The section with the form and the list.
- */
 export function ItemManager({ items }: Props) {
   const { state, isPending: isCreating, formRef, handleSubmit } = useFormAction(createItem);
   const [isDeleting, startTransition] = useTransition();
@@ -45,15 +38,9 @@ export function ItemManager({ items }: Props) {
 
   const isEmpty = items.length === 0;
 
-  /**
-   * List item: name, date and Delete button with confirmation.
-   * @param item - Item to show.
-   * @returns The item's <li>.
-   */
   const renderItem = (item: ItemRow) => {
     const deleteTitle = `Delete ${item.name}?`;
     const isDeletingThis = isDeleting && deletingId === item.id;
-    /** Deletes the item and reports the result with a toast. */
     const confirmDelete = () => {
       setDeletingId(item.id);
       startTransition(async () => {
