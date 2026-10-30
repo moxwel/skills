@@ -16,12 +16,7 @@ Covers the shape of code in any language: conditions, control flow, function bod
 - **Body order:** inputs and guards (early returns) → derived values → local helpers → named pieces → a short final `return` or output that composes them. A guard that needs a derived value comes right after it.
 
 ```ts
-/**
- * One-line summary of the items that match a query.
- * @param items - Items to describe.
- * @param query - Text the name must contain; empty matches every item.
- * @returns The count and names, or a message when there are no items or no matches.
- */
+/** The count and names, or a message when there are no items or no matches. */
 export function describeItems(items: Item[], query: string): string {
   const isEmpty = items.length === 0;
   if (isEmpty) return "No items.";
