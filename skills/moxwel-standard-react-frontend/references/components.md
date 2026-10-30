@@ -22,9 +22,10 @@ Covers Base UI wrappers (`components/base-ui/`), generic UI pieces (`components/
 - **State attributes:** `[data-checked]`, `[data-disabled]`, `[data-popup-open]` (triggers), `[data-open]` (popups/panels), `[data-highlighted]`, `[data-invalid]`.
 - **Catalog:**
   - Icons: `<Icon path={mdiX} size={ICON_SIZE} />` from `@mdi/react` + `@mdi/js`. Three sizes, all in `lib/const/icons.ts` and in rem (so they don't depend on the surrounding font size):
-    - `ICON_SIZE = "1.5rem"`, the default: buttons, navbar, tabs, toasts, chevrons and every icon nobody said otherwise about.
-    - `ICON_SIZE_SMALL = "1rem"`, only where the user asks for it explicitly, typically next to small text: status badges and the property rows of a record (views, date, author, size).
-    - `ICON_SIZE_LARGE = "3rem"`, only where the user asks for it explicitly: the icon next to a page title (`PageTitle`), and the large logo.
+    - `ICON_SIZE = "1.5rem"`, the default: buttons, navbar, tabs, toasts, chevrons and every icon that is neither small nor large below.
+    - `ICON_SIZE_SMALL = "1rem"`, for icons beside small text and icons inline with text: status rows and badges, the property rows of a record (views, date, author, size), detail lines and icons placed inside a line of text.
+    - `ICON_SIZE_LARGE = "3rem"`, for the icon next to a page title (`PageTitle`) and for the large logo.
+    These apply unless the user states another size or convention for that icon; then follow the user.
     No per-place size constants or `iconSize` props. Outside the three sizes there is only a mark that must fit a fixed box (the check inside a checkbox or a select option) and a deliberate focal icon (a large upload circle); each one names itself as an exception in its file. The `Button` loading spinner matches the icon (`size-6`), so the button doesn't change width while loading.
   - `Button`: `variant`, `icon` (MDI path), `isLoading` (spinner, stays focusable, `aria-busy`). With no children it is icon-only (`data-icon-only`) and needs `aria-label` + `title`.
   - `Form`: defaults to `method="post"`, so a submit before hydration never puts values in the URL. It focuses the first invalid field itself.
@@ -101,7 +102,7 @@ export function replaceUrlFragment(fragment: string): void {
 ## Checklist
 
 - [ ] No `@base-ui/react` import outside `components/base-ui/` (`grep -rn "@base-ui/react" src`).
-- [ ] Every `<Icon>` uses `ICON_SIZE`, or `ICON_SIZE_SMALL` / `ICON_SIZE_LARGE` where it was asked for; any other size is a fitted mark or a focal icon that says so in its file.
+- [ ] Every `<Icon>` uses `ICON_SIZE`, or `ICON_SIZE_SMALL` (status rows, properties, details, inline with text) / `ICON_SIZE_LARGE` (page titles, logo), unless the user set another size; any other size is a fitted mark or a focal icon that says so in its file.
 - [ ] New wrappers use the Base UI docs name. Destructive actions use `AlertDialog`.
 - [ ] New `Tabs`/`Accordion` values follow naming.md. Reloading with `#id` reopens the same item.
 - [ ] No password reveal unless asked.
