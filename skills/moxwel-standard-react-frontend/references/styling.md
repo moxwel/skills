@@ -14,7 +14,7 @@ Covers Tailwind, plain CSS, cascade layers, responsive layout, modals, motion an
 8. **Flexbox + `gap`, no margins.** Every grouping element is flex; padding is only inner fill. Tabular data uses `<table>`. `grid` only where the user asked for a specific column/row arrangement, using native `grid-cols-N`/`md:grid-cols-N`, with a comment saying it was requested.
 9. **Cascade layers.** `globals.css` declares `@layer theme, base, components, utilities;` and imports Tailwind without preflight. Every other CSS file puts that same line right after its header comment and wraps its rules in `@layer components`. Two deliberate unlayered exceptions: the `:root` tokens in `globals.css`, and the field focus-border rule at the end of the file that defines its class (`shared.css`, `select.css`).
 10. **Overrides go through `className`.** Every component that takes `className` builds its root with `cn("own-class <default layout>", className)`, so the caller's utilities win. Never override a component's layout from CSS.
-11. **Shared layout is a constant** in `lib/const/layout.ts` (`BUTTON_LAYOUT`, `FIELD_BOX_LAYOUT`, `MODAL_*_LAYOUT`, `FORM_ACTIONS_LAYOUT`), never a shared CSS class.
+11. **Shared layout is a constant** in `lib/const/layout.ts` (`BUTTON_LAYOUT` plus `BUTTON_LAYOUT_SMALL` and `BUTTON_LAYOUT_LARGE`, `FIELD_BOX_LAYOUT`, `MODAL_*_LAYOUT`, `FORM_ACTIONS_LAYOUT`), never a shared CSS class.
 12. **Every component imports every CSS file it uses,** `shared.css` included. Each folder's `shared.css` serves only that folder.
 13. **No animations unless the user asks for that element:** no `transition`, `animation`, `@keyframes`, `[data-starting-style]`/`[data-ending-style]` rules, or Tailwind `transition-*`/`animate-*`/`duration-*` utilities. State changes apply instantly. When asked, animate only that element and property, in the CSS of the component that renders it; if that component is shared, only the instances asked, through a data attribute the caller sets.
 14. **No `loading.tsx`** unless the user asks. Navigation keeps the current page until the next one is ready.
@@ -35,13 +35,13 @@ Covers Tailwind, plain CSS, cascade layers, responsive layout, modals, motion an
   - `components/ui/shared.css`: created once two `ui/` pieces share a class.
   - A piece in another folder that needs a shared class repeats it, with a comment naming the original.
 - **Native defaults:** `<fieldset>` gets `p-0 min-w-0` + `border: none`. `<legend>` is floated (`float-left w-full p-0`) so it joins the `gap`. A `<p>` with mixed inline content stays block.
-- **Button-styled links** use `ButtonLink` (Next `Link` + `.button` + `BUTTON_LAYOUT`). Explicit exception to the per-folder `shared.css` rule: it imports `@/components/base-ui/button.css`, since it is the link form of Button.
+- **Button-styled links** use `ButtonLink` (Next `Link` + `.button` + the same `size` prop and `BUTTON_LAYOUT*` constants as Button). Explicit exception to the per-folder `shared.css` rule: it imports `@/components/base-ui/button.css`, since it is the link form of Button.
 - **When animation is asked:** `transition: <property> 150ms ease-out` on that property only, never `all`. Keyframes go in `@layer components`, named per naming.md. Deleting the transition must leave a correct, instant UI.
 - **When a loading spinner is asked:** a server `loading.tsx` in the route-group segment, Tailwind only, top on mobile and centered from `md`.
 - **Visual language (defaults for new projects):**
   - Theme: dark with an orange accent (`#f08a24`). Radius 3px except circles.
-  - `.button`: solid background + darker 3px bottom stripe. Variants `primary`/`secondary`/`danger`/`ghost` (ghost: no stripe, accent border on hover). Disabled at 50% opacity. Height `h-9`; icon-only is square.
-  - Fields: `h-9`, 1px border, accent on focus.
+  - `.button`: solid background + darker 3px bottom stripe. Variants `primary`/`secondary`/`danger`/`ghost` (ghost: no stripe, accent border on hover). Disabled at 50% opacity. Sizes (prop `size`): `default` is `h-11` (44 px, the minimum touch target), `small` is `h-9` with its touch area extended to 44 px by a `::after` (a Layout exception), `large` is `h-14`. Icon-only is a square of the same size.
+  - Fields: `h-11`, 1px border, accent on focus.
   - Popups: 1px accent border + soft shadow. Notice: 3px warning left border.
   - Toasts: a bottom-right list, newest at the bottom (`flex-col-reverse`), no stacked deck.
   - Icons: 1.5rem (24 px) by default (`ICON_SIZE`); 1rem (16 px, `ICON_SIZE_SMALL`) for status rows, properties, details and icons inline with text; 3rem (48 px, `ICON_SIZE_LARGE`) for page titles and the logo; the user can set another size (components.md catalog).

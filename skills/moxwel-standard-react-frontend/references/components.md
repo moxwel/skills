@@ -27,7 +27,7 @@ Covers Base UI wrappers (`components/base-ui/`), generic UI pieces (`components/
     - `ICON_SIZE_LARGE = "3rem"`, for the icon next to a page title (`PageTitle`) and for the large logo.
     These apply unless the user states another size or convention for that icon; then follow the user.
     No per-place size constants or `iconSize` props. Outside the three sizes there is only a mark that must fit a fixed box (the check inside a checkbox or a select option) and a deliberate focal icon (a large upload circle); each one names itself as an exception in its file. The `Button` loading spinner matches the icon (`size-6`), so the button doesn't change width while loading.
-  - `Button`: `variant`, `icon` (MDI path), `isLoading` (spinner, stays focusable, `aria-busy`). With no children it is icon-only (`data-icon-only`) and needs `aria-label` + `title`.
+  - `Button`: `variant`, `size` (`small`, `default`, `large`; default is `h-11`, styling.md), `icon` (MDI path), `isLoading` (spinner, stays focusable, `aria-busy`). With no children it is icon-only (`data-icon-only`) and needs `aria-label` + `title`.
   - `Form`: defaults to `method="post"`, so a submit before hydration never puts values in the URL. It focuses the first invalid field itself.
   - `AlertDialog`: its icon-only trigger uses `triggerAriaLabel` as both `aria-label` and `title`.
   - `Dialog`: controlled, for edit forms. Close it from the action's `ok` in an effect.
