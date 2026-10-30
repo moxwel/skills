@@ -8,7 +8,8 @@ Covers how repositories are created, committed and pushed, and how commit messag
 2. **Commit messages follow Conventional Commits 1.0.0:** `<type>[optional scope][!]: <description>`, then an optional body and footers, each separated by a blank line.
 3. **The type may be any lowercase word,** not only `feat` and `fix`. Use the standard ones where they fit and invent a type when none does (Details).
 4. **One commit per topic:** each commit holds one specific, related set of changes. With many changes, split them into small commits; never put everything in a single commit.
-5. **Every commit stands on its own:** the code and its tests, docs or config that the change needs go in the same commit, and the repository builds and passes its checks after each one.
+5. **No body unless the user explicitly asks for one:** the subject line is the whole message. When a body is asked for, it is a list of dashes, one change per line.
+6. **Every commit stands on its own:** the code and its tests, docs or config that the change needs go in the same commit, and the repository builds and passes its checks after each one.
 
 ## Details
 
@@ -23,7 +24,17 @@ Covers how repositories are created, committed and pushed, and how commit messag
 ```
 
 - **Description:** imperative mood, lowercase after the colon, no trailing period, about 72 characters at most (`fix: handle empty item list`, not `Fixed the bug.`).
-- **Body:** explains what changed and why, not how; wrap it at 72 characters. Skip it when the description says it all.
+- **Body:** only on request. Write it as a dash list, one change per line, each in the same imperative style as the description:
+
+```
+feat(auth): add magic link login
+
+- add sendMagicLink action
+- add /login/verify route
+- remove password field from login form
+```
+
+  Footers (`Refs:`, `BREAKING CHANGE:`) and attribution lines the project or tool requires are not a body and stay.
 - **Scope:** a noun in parentheses naming the area, only when it adds information (`feat(auth): add magic link login`).
 - **Breaking changes:** `!` after the type or scope, or a `BREAKING CHANGE: <description>` footer.
 - **Footers:** `Token: value` lines, such as `Refs: #12` or `BREAKING CHANGE: ...`.
@@ -48,6 +59,7 @@ Covers how repositories are created, committed and pushed, and how commit messag
 ## Checklist
 
 - [ ] Nothing was initialised, committed or pushed without the user asking.
+- [ ] No body was written unless the user asked for one, and a requested body is a dash list.
 - [ ] Every message is `type[(scope)][!]: description`, imperative, lowercase, no period.
 - [ ] The type is a standard one or one already used in the project's history.
 - [ ] Each commit holds one topic; unrelated changes are in separate commits.
