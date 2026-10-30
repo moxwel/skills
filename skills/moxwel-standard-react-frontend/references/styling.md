@@ -44,7 +44,7 @@ Covers Tailwind, plain CSS, cascade layers, responsive layout, modals, motion an
   - Fields: `h-11`, 1px `--border-strong` border, accent on focus.
   - Popups: 1px accent border + soft shadow. Notice: 3px warning left border.
   - Toasts: a bottom-right list, newest at the bottom (`flex-col-reverse`), no stacked deck.
-  - Icons: 1.5rem (24 px) by default (`ICON_SIZE`); 1rem (16 px, `ICON_SIZE_SMALL`) for status rows, properties, details and icons inline with text; 3rem (48 px, `ICON_SIZE_LARGE`) for page titles and the logo; the user can set another size (components.md catalog).
+  - Icons: three sizes, defined in the components.md catalog.
   - Spinner: a static ring with `role="status"` and a visible text naming what loads, so it never reads as a frozen page. It rotates only if the user asks for rotation (rule 13).
   - AlertDialog: Cancel left (secondary), confirm right (danger), each `flex-1`.
 
