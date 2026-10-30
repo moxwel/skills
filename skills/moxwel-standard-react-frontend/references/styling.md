@@ -39,7 +39,7 @@ Covers Tailwind, plain CSS, cascade layers, responsive layout, modals, motion an
 - **Button-styled links** use `ButtonLink` (Next `Link` + `.button` + the same `size` prop and `BUTTON_LAYOUT*` constants as Button). Explicit exception to the per-folder `shared.css` rule: it imports `@/components/base-ui/button.css`, since it is the link form of Button.
 - **When animation is asked:** `transition: <property> 150ms ease-out` on that property only, never `all`. Keyframes go in `@layer components`, named per naming.md. Deleting the transition must leave a correct, instant UI.
 - **Visual language (defaults for new projects):**
-  - Theme: dark with an orange accent (`#f08a24`). Radius 3px except circles.
+  - Theme: dark with an orange accent (`#f08a24`). Radius 3px except circles. Dials: ENERGY 1 / RHYTHM 1 / MOTION 1 (calm, uniform, static; workflow-and-verification.md).
   - `.button`: solid background + darker 3px bottom stripe. Variants `primary`/`secondary`/`danger`/`ghost` (ghost: no stripe, accent border on hover). Disabled at 50% opacity. Sizes (prop `size`): `default` is `h-11` (44 px, the minimum touch target), `small` is `h-9` with its touch area extended to 44 px by a `::after` (a Layout exception), `large` is `h-14`. Icon-only is a square of the same size.
   - Fields: `h-11`, 1px `--border-strong` border, accent on focus.
   - Popups: 1px accent border + soft shadow. Notice: 3px warning left border.
