@@ -13,7 +13,7 @@ Covers entry points (pages, server actions, route handlers), auth, sessions, val
    5. Respond with no internals: actions call `refresh()` when data changed and return `ActionState`, route handlers return a `Response`, pages render.
 3. **Layouts and `proxy.ts` (formerly middleware) never gate access.** Layouts don't re-render on navigation, so their check goes stale. Each page and action checks for itself.
 4. **Validate on the server with allow-lists** (regex, enum) in `lib/validation/validate.ts`, which returns the clean value or `null`. Client checks are UX only.
-5. **Output escaping** is code-style.md rule 13 (every task reads it).
+5. **Output escaping** is code-style.md rule 8 (every task reads it).
 6. **Passwords:** scrypt with a random salt, verified with `timingSafeEqual`. Never trimmed, logged or returned. **Sessions:** a random token in an `httpOnly` cookie, with only its sha256 stored.
 7. **Files:** paths come from `lib/const/paths.ts` + sanitized segments. Never overwrite and never delete user content. **Processes:** `execFile` with an args array, never a shell, always with a timeout.
 8. **Deployment values** (credentials, tokens, connection strings, IPs, ports, URLs) live only in `.env`, never hardcoded or printed. **Secrets have no default:** a missing one is logged by name and stops the server at startup; the first-admin seed variables are required only while `users` is empty. Optional non-secret settings may default to a safe, neutral value (empty `DEV_ORIGINS`). Container-internal values fixed by the image or compose design (`PORT=3000`, `DATA_DIR=/data`) are not deployment values.

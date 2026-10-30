@@ -10,7 +10,7 @@ Covers planning, delegating, verifying, audits and house rules for working on a 
 4. **Verify cheapest first** (Details) before saying "done". If the user says they verify manually, skip headless runs but still run `tsc` and the build.
 5. **Record new project conventions in the project `CLAUDE.md`/`AGENTS.md`,** never in this skill.
 6. **Talk to the user in their language.** Audit reports are always in English.
-7. **No git writes** (commit, add, stash, push, branch, reset, a checkout that changes files) unless the user explicitly asks for that operation. Reads are fine.
+7. **Git follows the base skill** (`git-conventions.md`): explicit writes only, Conventional Commits, one commit per topic.
 8. **Before building or restyling a UI, read the project's design direction** (`DESIGN.md`, or the visual language in the project `CLAUDE.md`/`AGENTS.md`). With none, the defaults in styling.md are the direction. Say it in one line before the first edit: `Reading this as: <page kind> for <audience>, <visual language>, ENERGY n / RHYTHM n / MOTION n.` (Details).
 9. **Kill processes only by a verified PID** (`/proc/<pid>/cmdline`), never with `pkill -f`. Temporary files go in the session scratchpad.
 
@@ -38,4 +38,4 @@ Covers planning, delegating, verifying, audits and house rules for working on a 
 
 - [ ] Verification ladder run as far as the change requires; what couldn't be checked is said.
 - [ ] New project conventions recorded in the project `CLAUDE.md`/`AGENTS.md`.
-- [ ] No git writes, unless the user asked.
+- [ ] Git rules of the base skill followed.
