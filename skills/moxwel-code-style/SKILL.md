@@ -1,6 +1,6 @@
 ---
 name: moxwel-code-style
-description: Use this skill whenever writing, changing, refactoring, reviewing or auditing code in any language or project for moxwel (TypeScript, JavaScript, Python, Bash, CSS and others), even when the user never mentions style and only says things like "add a function that does X", "write a script for Y", "clean up this file", "rename this", "add comments/docs", "review this code", "write a README", "document this in a .md" or "does this follow my conventions?". Covers moxwel's code style, language of code and comments, file headers, doc comments, naming, booleans, conditions, control flow, line length, imports and Markdown documentation the user asks for (READMEs, docs). It is the base layer, a stack-specific skill or the project CLAUDE.md/AGENTS.md adds to it. Do not use for other prose, agent files (skills, CLAUDE.md/AGENTS.md, memory, plans), configuration-only edits or questions that write no code.
+description: Use this skill whenever writing, changing, refactoring, reviewing or auditing code in any language or project for moxwel (TypeScript, JavaScript, Python, Bash, CSS and others), even when the user never mentions style and only says things like "add a function that does X", "write a script for Y", "clean up this file", "rename this", "add comments/docs", "review this code", "write a README", "document this in a .md" or "does this follow my conventions?". Covers moxwel's code style, language of code and comments, file headers, doc comments, naming, booleans, conditions, control flow, line length, imports, Markdown documentation the user asks for (READMEs, docs) and git conventions (explicit repo creation, commits and pushes, Conventional Commits messages, one commit per topic). It is the base layer, a stack-specific skill or the project CLAUDE.md/AGENTS.md adds to it. Do not use for other prose, agent files (skills, CLAUDE.md/AGENTS.md, memory, plans), configuration-only edits or questions that write no code.
 ---
 
 # moxwel's code style
@@ -16,6 +16,7 @@ description: Use this skill whenever writing, changing, refactoring, reviewing o
 |---|---|
 | Any code change or review | [comments-and-docs.md](references/comments-and-docs.md), [naming.md](references/naming.md), [readability.md](references/readability.md) |
 | Writing or changing Markdown documentation the user asked for (README, docs), not agent files | [markdown.md](references/markdown.md) |
+| Creating a repository, committing, pushing, writing a commit message or splitting changes into commits | [git-conventions.md](references/git-conventions.md) |
 | Style audit ("does it follow my conventions?") | all references |
 
 When a doc tag or language convention is in doubt, check [links.md](references/links.md) (official docs) rather than memory.
