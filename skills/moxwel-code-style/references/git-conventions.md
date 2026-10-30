@@ -4,7 +4,7 @@ Covers how repositories are created, committed and pushed, and how commit messag
 
 ## Rules
 
-1. **Git writes are explicit:** create a repository (`git init`, `gh repo create`), commit and push only when the user asks. Never as a side effect of another task, and approval for one does not extend to the next (a commit is not a push).
+1. **Git writes are explicit:** creating a repository (`git init`, `gh repo create`), `add`, `commit`, `push`, `stash`, `branch`, `reset` and a checkout that changes files happen only when the user asks for that operation. Reads are fine. Never as a side effect of another task, and approval for one does not extend to the next (a commit is not a push).
 2. **Commit messages follow Conventional Commits 1.0.0:** `<type>[optional scope][!]: <description>`, then an optional body and footers, each separated by a blank line.
 3. **The type may be any lowercase word,** not only `feat` and `fix`. Use the standard ones where they fit and invent a type when none does (Details).
 4. **One commit per topic:** each commit holds one specific, related set of changes. With many changes, split them into small commits; never put everything in a single commit.
