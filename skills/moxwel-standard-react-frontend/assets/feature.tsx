@@ -83,7 +83,7 @@ export function ItemManager({ items }: Props) {
     </Card>
   );
 
-  const emptyMessage = <p className="feature-empty">No items yet.</p>;
+  const emptyMessage = <p className="feature-empty">No items yet. Create the first one in the form above.</p>;
 
   const itemList = (
     <Card>

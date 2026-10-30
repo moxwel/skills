@@ -46,5 +46,6 @@ When an API is in doubt, check [links.md](references/links.md) (official docs) r
 - Global CSS and helpers: `globals.css`, `cn.ts`, `useFormAction.ts`.
 - Components: `component.tsx`/`.css` (a `ui/` piece), `feature.tsx`/`.css` (a client feature with form, list and confirm dialog).
 - Server side: `page.tsx` (server page with auth), `action.ts` (server action), `dbTable.ts` (a `lib/db` table with soft delete), `requireUser.ts`.
+- Route states: `loading.tsx` (loading fallback) and `error.tsx` (error boundary with a retry).
 
 [scripts/checkImports.py](scripts/checkImports.py) checks import order (`--fix` reorders).

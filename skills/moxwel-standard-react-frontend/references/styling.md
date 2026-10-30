@@ -17,7 +17,7 @@ Covers Tailwind, plain CSS, cascade layers, responsive layout, modals, motion an
 11. **Shared layout is a constant** in `lib/const/layout.ts` (`BUTTON_LAYOUT` plus `BUTTON_LAYOUT_SMALL` and `BUTTON_LAYOUT_LARGE`, `FIELD_BOX_LAYOUT`, `MODAL_*_LAYOUT`, `FORM_ACTIONS_LAYOUT`), never a shared CSS class.
 12. **Every component imports every CSS file it uses,** `shared.css` included. Each folder's `shared.css` serves only that folder.
 13. **No animations unless the user asks for that element:** no `transition`, `animation`, `@keyframes`, `[data-starting-style]`/`[data-ending-style]` rules, or Tailwind `transition-*`/`animate-*`/`duration-*` utilities. State changes apply instantly. When asked, animate only that element and property, in the CSS of the component that renders it; if that component is shared, only the instances asked, through a data attribute the caller sets.
-14. **No `loading.tsx`** unless the user asks. Navigation keeps the current page until the next one is ready.
+14. **Every view that shows data has three states:** loading, error and empty, each perceivable and saying what is happening and what to do next (copy.md rule 6 of the base skill). Loading is a server `loading.tsx` in the route-group segment (Tailwind only, top on mobile and centered from `md`) with the spinner and a text naming what loads. Error is an `error.tsx` in the same segment with a retry action. Empty is part of the component that renders the list.
 
 ## Details
 
@@ -37,7 +37,6 @@ Covers Tailwind, plain CSS, cascade layers, responsive layout, modals, motion an
 - **Native defaults:** `<fieldset>` gets `p-0 min-w-0` + `border: none`. `<legend>` is floated (`float-left w-full p-0`) so it joins the `gap`. A `<p>` with mixed inline content stays block.
 - **Button-styled links** use `ButtonLink` (Next `Link` + `.button` + the same `size` prop and `BUTTON_LAYOUT*` constants as Button). Explicit exception to the per-folder `shared.css` rule: it imports `@/components/base-ui/button.css`, since it is the link form of Button.
 - **When animation is asked:** `transition: <property> 150ms ease-out` on that property only, never `all`. Keyframes go in `@layer components`, named per naming.md. Deleting the transition must leave a correct, instant UI.
-- **When a loading spinner is asked:** a server `loading.tsx` in the route-group segment, Tailwind only, top on mobile and centered from `md`.
 - **Visual language (defaults for new projects):**
   - Theme: dark with an orange accent (`#f08a24`). Radius 3px except circles.
   - `.button`: solid background + darker 3px bottom stripe. Variants `primary`/`secondary`/`danger`/`ghost` (ghost: no stripe, accent border on hover). Disabled at 50% opacity. Sizes (prop `size`): `default` is `h-11` (44 px, the minimum touch target), `small` is `h-9` with its touch area extended to 44 px by a `::after` (a Layout exception), `large` is `h-14`. Icon-only is a square of the same size.
@@ -45,7 +44,7 @@ Covers Tailwind, plain CSS, cascade layers, responsive layout, modals, motion an
   - Popups: 1px accent border + soft shadow. Notice: 3px warning left border.
   - Toasts: a bottom-right list, newest at the bottom (`flex-col-reverse`), no stacked deck.
   - Icons: 1.5rem (24 px) by default (`ICON_SIZE`); 1rem (16 px, `ICON_SIZE_SMALL`) for status rows, properties, details and icons inline with text; 3rem (48 px, `ICON_SIZE_LARGE`) for page titles and the logo; the user can set another size (components.md catalog).
-  - Spinner: a static ring with `role="status"`. It stays static even when a loading spinner is asked; it rotates only if the user asks for rotation too.
+  - Spinner: a static ring with `role="status"` and a visible text naming what loads, so it never reads as a frozen page. It rotates only if the user asks for rotation (rule 13).
   - AlertDialog: Cancel left (secondary), confirm right (danger), each `flex-1`.
 
 ## Gotchas
@@ -62,4 +61,5 @@ Covers Tailwind, plain CSS, cascade layers, responsive layout, modals, motion an
 - [ ] No margins. No layout in `.css` except the reset and commented exceptions.
 - [ ] Only `md:` breakpoints (others only where asked) and no `@media`. Window-centered elements are at the top on mobile.
 - [ ] Every new CSS file has the layer-order line, and each component imports what it uses.
-- [ ] No animation, `loading.tsx` or grid unless asked (`grep -rnE "transition|animate-|@keyframes|grid" src`, `find src/app -name "loading.*"`).
+- [ ] No animation or grid unless asked (`grep -rnE "transition|animate-|@keyframes|grid" src`).
+- [ ] Every data view has loading, error and empty states that say what happens and what to do.
