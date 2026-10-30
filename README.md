@@ -4,7 +4,7 @@
 
 | Skill | What it covers |
 |---|---|
-| [`moxwel-code-style`](skills/moxwel-code-style) | Language-agnostic code style: language of code and comments, file headers, doc comments, naming, booleans, conditions, control flow, line length, imports, Markdown documentation and git conventions. |
+| [`moxwel-code-style`](skills/moxwel-code-style) | Language-agnostic code style: language of code and comments, file headers, doc comments, naming, booleans, conditions, control flow, line length, imports, Markdown documentation, git conventions and copy. |
 | [`moxwel-standard-react-frontend`](skills/moxwel-standard-react-frontend) | Web frontends on Next.js App Router, React 19, Base UI, Tailwind v4 for layout + plain CSS for looks, a database behind `lib/db`, and Docker. |
 
 `moxwel-code-style` is the base layer and `moxwel-standard-react-frontend` builds on it, so install both for frontend work.

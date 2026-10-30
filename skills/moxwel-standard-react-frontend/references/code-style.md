@@ -4,7 +4,7 @@ Covers every `.ts`/`.tsx` file (headers and line length also cover CSS): languag
 
 ## Rules
 
-1. **Language:** code, comments, JSDoc, UI strings (text, `aria-label`, `title`, errors, toasts), logs and docs are in English. Exception: when the project `CLAUDE.md`/`AGENTS.md` names another language for UI strings, comments or docs, those use it, and route segments follow the UI language. Comments are always ASCII (drop accents); UI strings keep full orthography.
+1. **Language:** code, comments, JSDoc, UI strings (text, `aria-label`, `title`, errors, toasts), logs and docs are in English, and UI strings follow the base skill's [copy.md](../../moxwel-code-style/references/copy.md). Exception: when the project `CLAUDE.md`/`AGENTS.md` names another language for UI strings, comments or docs, those use it, and route segments follow the UI language. Comments are always ASCII (drop accents); UI strings keep full orthography.
 2. **Every source file starts with a `/* */` header** (before `"use client"`/`"use server"`) of at most two lines: what the file is and any non-obvious decision and why. Config files need none.
 3. **No line, code or comment, goes past 120 columns.**
 4. **Doc comments follow the base `moxwel-code-style` skill** ([comments-and-docs.md](../../moxwel-code-style/references/comments-and-docs.md)): a JSDoc only where the name and signature do not say enough, two lines at most, no tag that echoes the name or the type, no `{type}`. Anonymous inline callbacks need none.
