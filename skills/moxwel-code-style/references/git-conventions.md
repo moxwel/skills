@@ -10,6 +10,7 @@ Covers how repositories are created, committed and pushed, and how commit messag
 4. **One commit per topic:** each commit holds one specific, related set of changes. With many changes, split them into small commits; never put everything in a single commit.
 5. **No body unless the user explicitly asks for one:** the subject line is the whole message. When a body is asked for, it is a list of dashes, one change per line.
 6. **Every commit stands on its own:** the code and its tests, docs or config that the change needs go in the same commit, and the repository builds and passes its checks after each one.
+7. **Diffs are minimal, so code reviews stay short and easy to read:** a change touches only the lines the task needs. No reformatting, whitespace, line-ending or reordering changes on lines the task does not change, and no rewording, moving or deleting of comments that are still correct.
 
 ## Details
 
@@ -45,6 +46,7 @@ feat(auth): add magic link login
   - `init`: the first commit of a repository (`init: scaffold project`).
   - `release`: version bump and changelog (`release: v1.2.0`).
 - **Splitting changes:** stage by topic with `git add <paths>` or `git add -p`, never `git add -A` or `git commit -a` over unrelated changes. Check `git status` and `git diff --staged` before each commit, so nothing unrelated is mixed in. Separate a refactor from the feature or fix that motivated it, formatting from logic, and each independent fix from the others.
+- **Minimal diffs:** keep the existing formatting, quotes, import order and line breaks of code you do not change, and leave a comment alone unless the change makes it wrong. A needed cleanup of unrelated lines goes in its own commit (`style:` or `refactor:`), never mixed into a feature or fix. Review `git diff` before committing and revert every hunk the task did not need.
 - **Order:** commit prerequisites first, so the history reads in the order a reviewer would follow it.
 - **Pushing:** `git push` only on request, to the branch the user names or the current one. Never force-push, and never rewrite published history, unless the user asks for it explicitly.
 
@@ -52,6 +54,7 @@ feat(auth): add magic link login
 
 - A request like "commit the changes" with many unrelated changes still means several commits, one per topic.
 - "Commit" does not mean "push": stop after the commit and say what is ready to push.
+- An editor or formatter that rewrites a whole file hides the real change: turn off format-on-save for files you only touch, or revert the formatting hunks.
 - A message with `and` in the description usually hides two commits.
 - Do not amend or reset commits the user made; add a new commit.
 - A project `CLAUDE.md`/`AGENTS.md` may add its own types, scopes or attribution lines; they apply on top of these rules.
@@ -64,4 +67,5 @@ feat(auth): add magic link login
 - [ ] The type is a standard one or one already used in the project's history.
 - [ ] Each commit holds one topic; unrelated changes are in separate commits.
 - [ ] Each commit includes what it needs (tests, docs, config) and leaves the repository working.
+- [ ] The diff has no unrelated line, whitespace or comment changes.
 - [ ] `git diff --staged` was checked before each commit.
