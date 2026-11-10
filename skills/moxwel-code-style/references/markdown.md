@@ -4,7 +4,7 @@ Covers Markdown documentation the user asks for (`README.md`, docs, guides, chan
 
 ## Rules
 
-1. **Concise and human.** Short sentences and plain words, written the way a person explains something to a colleague. Say what the reader needs and stop: no filler, no marketing tone, no closing recap, no AI-isms (`comprehensive`, `seamless`, `robust`, `leverage`, `In summary`, `It's worth noting`).
+1. **Concise and human.** Short sentences and plain words, written the way a person explains something to a colleague. Say what the reader needs and stop: no filler, no marketing tone, no closing recap, no AI-isms (`comprehensive`, `seamless`, `robust`, `leverage`, `In summary`, `It's worth noting`). The tone rules of copy.md (no buzzwords, no invented facts, write like a person) apply to documentation too.
 2. **One paragraph per line.** Never hard-wrap prose: a paragraph, a list item or a table row is one line, however long. The 120-column limit (readability.md rule 4) does not apply to Markdown prose.
 3. **No typographic symbols outside code.** No em or en dashes (`—`, `–`), curly quotes (`“ ” ‘ ’`), arrows (`→ ⇒`), bullets (`•`), the ellipsis character (`…`), `×`, check marks or box-drawing. Use the ASCII form instead: `-` for ranges (`4-12`), `->` or `>` for sequences (`hooks -> derived values -> return`), straight quotes (`"`, `'`), three periods (`...`) and `x`. Letters and accents of the doc language are fine, and so are Spanish `¿` and `¡`. Code spans and fenced blocks keep their literal content.
 4. **No emojis** (Unicode or `:shortcode:`) unless the user explicitly asks for them.
