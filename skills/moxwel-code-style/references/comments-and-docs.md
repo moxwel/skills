@@ -9,6 +9,7 @@ Covers every source file in any language: the language of code and text, file he
 3. **Inline comments explain *why*, never what the next line does.** Every non-obvious workaround gets one. No emojis. A line, variable or constant whose name already says it gets no comment.
 4. **A doc comment goes on a function only when its name and signature do not say enough:** complex logic, an outcome the signature hides (a `false` that means "already taken", a deliberate throw, a side effect) or a parameter that is not obvious. A self-descriptive function (`formatBytes`, `describeItem`) gets none.
 5. **A doc comment is short:** two lines at most, and tags (`@param`, `@returns`, `@throws` or the language's equivalent) only for what the name and the type do not already say. A comment that echoes the name, the type or the signature is deleted.
+6. **Short inline comments are lowercase fragments:** one line, no capital at the start, no period at the end, as few words as it takes (`// retry once, the socket may be stale`). The tone rules of copy.md apply to every comment and doc.
 
 ## Details
 
@@ -30,6 +31,17 @@ Covers every source file in any language: the language of code and text, file he
   - A summary-only doc is one line (`/** Number of active items. */`).
 - **Constants** that need explaining get a one-line doc comment above them (`/** … */`, `#` in Python/Bash), never a trailing comment. A constant with a descriptive name needs none.
 - **Shared types** get `@property name - Desc.` lines in the type's doc for non-obvious fields, never comments inside the type.
+- **Inline comment form:**
+  - An inline comment is a `//` or `#` comment inside a body or after a line of code. File headers, doc comments and the usage block of a script keep full sentences (capital, final period).
+  - Names, acronyms and proper nouns keep their case (`the API returns null`, `Plasma ignores it`), and a tool directive or marker stays as the tool expects it (`// eslint-disable-next-line`, `# noqa`, `shortcut: ...`).
+  - Cut the lead-in: `this is needed because`, `note that`, `we need to`. Start at the fact.
+  - A comment that needs several sentences is written as sentences (capital, periods), and is a smell (Gotchas).
+
+| Before | After |
+|---|---|
+| `// Retry once, the socket may be stale.` | `// retry once, the socket may be stale` |
+| `// Note that the API returns null for an empty list.` | `// the API returns null for an empty list` |
+| `# This is needed because the file may not exist yet.` | `# the file may not exist yet` |
 
 ```ts
 /**
@@ -58,3 +70,4 @@ def mark_item_reviewed(item_id: str, status: str) -> bool:
 - [ ] Every new or touched source file has a header of at most two lines saying what it is and why it looks that way.
 - [ ] No comment echoes a name, a type or a signature; self-descriptive functions and constants have none.
 - [ ] A doc comment exists where the name hides something (an outcome, a deliberate throw, complex logic), and is two lines at most.
+- [ ] Every short inline comment is one lowercase line with no final period and no lead-in filler.
