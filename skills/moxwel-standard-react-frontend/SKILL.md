@@ -24,6 +24,7 @@ description: Use this skill when building, changing, styling, reviewing or audit
 | Any data access or schema | + [database.md](references/database.md), [security-management.md](references/security-management.md) |
 | New project, dependencies, config, Docker, deploy | + [stack-and-setup.md](references/stack-and-setup.md), [security-management.md](references/security-management.md) |
 | Audit or "find and fix inconsistencies" | all references |
+| Audit, or applying picked fixes, over more than 5 files | + [delegating.md](references/delegating.md) and the base skill's `delegating.md` |
 
 When an API is in doubt, check [links.md](references/links.md) (official docs) rather than memory.
 
