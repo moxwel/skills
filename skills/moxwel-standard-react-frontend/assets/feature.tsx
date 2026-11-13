@@ -39,7 +39,7 @@ export function ItemManager({ items }: Props) {
   const isEmpty = items.length === 0;
 
   const renderItem = (item: ItemRow) => {
-    const deleteTitle = `Delete ${item.name}?`;
+    const deleteTitle    = `Delete ${item.name}?`;
     const isDeletingThis = isDeleting && deletingId === item.id;
     const confirmDelete = () => {
       setDeletingId(item.id);
