@@ -15,7 +15,7 @@ import traceback
 from alignment import self_check
 from checks import output_problems
 from scenarios import SCENARIOS
-from session_log import missing_skill_files, session_facts
+from session_log import missing_skill_files, self_check as session_log_self_check, session_facts
 
 USAGE = "Usage: python3 test/run_scenarios.py <round-name> [scenario[:repetition] ...] | --self-check"
 MODEL = "sonnet"
@@ -117,6 +117,7 @@ def main() -> None:
     is_self_check = arguments == ["--self-check"]
     if is_self_check:
         self_check()
+        session_log_self_check()
         return
     if not arguments:
         sys.exit(USAGE)
