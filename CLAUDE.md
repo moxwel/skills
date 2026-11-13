@@ -5,7 +5,7 @@ Agent Skills that teach coding agents moxwel's conventions. They ship as a Claud
 ## Layout
 
 - `skills/<name>/SKILL.md` only routes: it says which references to read for each task and holds no rules of its own.
-- `references/` holds the rules. Each style reference opens with its Rules, then Details, Gotchas and a Checklist.
+- `references/` holds the rules. Each style reference holds its Rules and Checklist; its Details and Gotchas live in `references/details/` with the same file name, so agents load them only when needed.
 - `assets/` holds complete template files that follow every rule.
 - `scripts/` holds checkers for the mechanical rules.
 

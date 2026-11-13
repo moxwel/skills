@@ -5,20 +5,22 @@ description: Use this skill whenever writing, changing, refactoring, reviewing o
 
 # moxwel's code style
 
-**The references are the standard. This file states no coding rules: it routes you to the references that hold them.** Each style reference (all but links.md) opens with its **Rules**, followed by Details (binding too), and Gotchas and a Checklist where present: read the whole file. A convention declared in the project `CLAUDE.md`/`AGENTS.md` overrides this skill and its references; otherwise, if anything here seems to disagree with a reference, the reference wins.
+**The references are the standard. This file states no coding rules: it routes you to the references that hold them.** Each style reference (all but links.md) holds its **Rules** and **Checklist**; its Details and Gotchas live in `references/details/<file>.md` and are binding too, split out only so they load on demand. A convention declared in the project `CLAUDE.md`/`AGENTS.md` overrides this skill and its references; otherwise, if anything here seems to disagree with a reference, the reference wins.
 
 ## Before acting
 
 1. Read the project `CLAUDE.md`/`AGENTS.md`. A convention it declares (another comment language, another line width) is a deliberate deviation, not a mistake to fix. A stack-specific skill in use adds rules on top of these.
 2. **Read in full the references for your task** (table below), every time, before writing, changing or reviewing code. Don't rely on memory of an earlier session: several rules are non-obvious and only the references state them.
+3. **Rules are summaries; the exact mechanics live in `details/`.** Before you edit, list the rules your change touches (a new or changed group of similar lines touches alignment, a new import touches import order, a doc comment touches doc tags, a `try`/`catch` touches error boundaries) and read the `details/` file of each reference that holds one of them. For a style audit read every `details/` file.
 
 | Task | Read |
 |---|---|
-| Any code change or review | [comments-and-docs.md](references/comments-and-docs.md), [copy.md](references/copy.md), [naming.md](references/naming.md), [readability.md](references/readability.md), [robustness.md](references/robustness.md) |
+| Any code change or review | [comments-and-docs.md](references/comments-and-docs.md), [copy.md](references/copy.md), [naming.md](references/naming.md), [readability.md](references/readability.md) |
+| Code that handles errors, I/O, network, external input, timeouts or retries | + [robustness.md](references/robustness.md) |
 | Writing or changing Markdown documentation the user asked for (README, docs), not agent files | [markdown.md](references/markdown.md), [copy.md](references/copy.md) |
 | Writing or changing user-facing text: UI strings, button labels, errors, toasts, empty and loading messages | [copy.md](references/copy.md) |
 | Creating a repository, committing, pushing, writing a commit message or splitting changes into commits | [git-conventions.md](references/git-conventions.md) |
-| Style audit ("does it follow my conventions?") | all references |
+| Style audit ("does it follow my conventions?") | all references and their `details/` files |
 
 When a doc tag or language convention is in doubt, check [links.md](references/links.md) (official docs) rather than memory.
 
