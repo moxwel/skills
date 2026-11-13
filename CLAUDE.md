@@ -19,4 +19,7 @@ Agent Skills that teach coding agents moxwel's conventions. They ship as a Claud
 - Code follows `moxwel-code-style`. Its [markdown.md](skills/moxwel-code-style/references/markdown.md) applies only to user documentation such as `README.md`, not to skill files or this `CLAUDE.md`.
 - A change to a skill keeps its `SKILL.md`, its references, the table in `README.md` and `marketplace.json` in sync.
 - Run `python3 skills/moxwel-code-style/scripts/check_style.py .` before finishing. It prints nothing when clean.
-- Commits use Conventional Commits (`feat:`, `fix:`, `chore:`).
+- Commits use Conventional Commits with these types:
+  - `add(<skill>)`, `refactor(<skill>)` and `delete(<skill>)` for a change to a skill: something added, something existing changed, something removed. `<skill>` is the name of the skill that changed (`refactor(moxwel-code-style): ...`).
+  - `docs` or `docs(<skill>)` for documentation, such as `README.md`.
+  - `test` for changes under `test/`.
