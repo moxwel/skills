@@ -32,9 +32,24 @@ npx skills add moxwel/skills
 
 Add `-g` to install for your user instead of the current project, `--skill <name>` to pick a skill and `-a <agent>` to pick an agent.
 
-### Manually
+### From a local clone
 
-Clone the repo and copy (or symlink) a folder from `skills/` into your agent's skills folder, such as `~/.claude/skills/` for Claude Code or `~/.agents/skills/` for Codex.
+Use this when you work on the skills themselves: symlinks point your agent at the clone, so every edit takes effect in the next session without reinstalling anything.
+
+```bash
+git clone https://github.com/moxwel/skills.git ~/projects/moxwel-skills
+cd ~/projects/moxwel-skills
+
+mkdir -p ~/.claude/skills ~/.claude/agents
+ln -s "$PWD/skills/moxwel-code-style" ~/.claude/skills/moxwel-code-style
+ln -s "$PWD/skills/moxwel-standard-react-frontend" ~/.claude/skills/moxwel-standard-react-frontend
+ln -s "$PWD/agents/moxwel-auditor.md" ~/.claude/agents/moxwel-auditor.md
+ln -s "$PWD/agents/moxwel-sweeper.md" ~/.claude/agents/moxwel-sweeper.md
+```
+
+The agents are optional and only Claude Code reads them. For another agent, link the skill folders into its own skills folder instead, such as `~/.agents/skills/` for Codex.
+
+Check that the links point at the clone with `ls -l ~/.claude/skills ~/.claude/agents`. Don't also install the plugin or run `npx skills add`, or the agent sees every skill twice.
 
 ## Project overrides
 

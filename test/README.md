@@ -7,7 +7,7 @@ Run it after changing a `SKILL.md` description, a routing table, a rule, or what
 ## Requirements
 
 - Claude Code installed and logged in, with `claude` on the `PATH`.
-- The skills installed from this working copy, so the sessions read the files you are editing: `~/.claude/skills/moxwel-code-style` and `~/.claude/skills/moxwel-standard-react-frontend` must resolve to the folders in `skills/`.
+- The skills installed from this working copy, so the sessions read the files you are editing: `~/.claude/skills/moxwel-code-style` and `~/.claude/skills/moxwel-standard-react-frontend` must resolve to the folders in `skills/`, and `~/.claude/agents/moxwel-auditor.md` and `moxwel-sweeper.md` to the files in `agents/`. The symlinks in [Install from a local clone](../README.md#from-a-local-clone) set this up.
 - Python 3.9 or newer. No packages to install.
 
 ## Usage
@@ -85,4 +85,4 @@ A model does not answer the same way twice. Repeat a scenario (`cut2:1 cut2:2 cu
 
 To add a scenario, add an entry to `SCENARIOS` in `scenarios.py` and a `check_<name>` function to `CHECKS` in `checks.py`. A scenario for a task that writes no code sets `"base": False`, so the session does not have to read the references every code change reads; one that must not load the base skill at all sets `"skill": False`.
 
-The agents in `agents/` are not covered: the sessions load the skills from `~/.claude/skills`, not as plugins, so they always take the path without agents.
+The agents in `agents/` are available to the sessions through the symlinks, but no scenario covers delegation yet: every scenario works on fewer than the 6 files that make a skill delegate.
