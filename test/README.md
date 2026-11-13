@@ -60,7 +60,7 @@ A model does not answer the same way twice. Repeat a scenario (`cut2:1 cut2:2 cu
 | `robust` | Write a Python client for a flaky API | Timeout, domain error with its cause, `Retry-After`, docstring tags, and that it read `robustness.md` and the Python details |
 | `naming` | Add a predicate and a slug function | Boolean prefix, named constant, short doc comments |
 | `doc` | Add a function with a hidden outcome to a Python file | `:returns:` tag, existing unaligned constants untouched |
-| `bash` | Write a Bash script | Shebang, header with usage, predicate functions, line width |
+| `bash` | Write a Bash script | Shebang, header with usage, predicate functions |
 | `tsdoc` | Add a function with a hidden outcome to a TypeScript file | `@returns` tag, no echo `@param`, command name |
 | `mindiff` | Add a function to a file that breaks several rules | Every existing line stays as it was |
 | `react` | Add a component to a Next.js app | The React skill and its references, header first, no needless `"use client"`, no inline styles, own CSS file |
@@ -68,7 +68,7 @@ A model does not answer the same way twice. Repeat a scenario (`cut2:1 cut2:2 cu
 | `metadata` | Make a link preview show up, without naming Open Graph | It finds social-metadata.md; `metadata` export, `metadataBase` from the env, the four `openGraph` fields, no `<head>` |
 | `config` | Turn on strict mode in `tsconfig.json` | The base skill does not load for a configuration-only edit |
 | `question` | Ask what a function returns | The base skill does not load for a question, and nothing changes |
-| `override` | Write a module in a project whose `CLAUDE.md` sets 80 columns | The project convention wins over the skill's 120 |
+| `override` | Write a module in a project whose `CLAUDE.md` sets 80 columns | The project convention wins over the skill's no-wrap rule |
 | `audit` | "Does legacy.ts follow my conventions?" | It reads every reference and `details/` file and changes nothing |
 | `copy` | Write the UI texts of a list | No typographic symbols, emoji or generic labels, and a loading message |
 | `readme` | Write a README for a module | markdown.md rules: one title, fenced blocks with a language, ASCII only |

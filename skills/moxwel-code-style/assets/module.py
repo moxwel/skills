@@ -1,6 +1,5 @@
 """
-Item store on disk: items kept as JSON files in one folder. Reads the folder on every call instead of caching,
-because other processes write to it too.
+Item store on disk: items kept as JSON files in one folder. Reads the folder on every call instead of caching, because other processes write to it too.
 """
 
 import json

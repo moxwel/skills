@@ -215,7 +215,7 @@ diff --git a/slugify.ts b/slugify.ts
 NARROW_CLAUDE_MD = """\
 # Project conventions
 
-- Lines are at most 80 columns, not 120.
+- Lines are at most 80 columns: wrap longer ones.
 """
 
 # One entry per scenario: the files the session starts with, the prompt, and what it must read on top of

@@ -1,14 +1,13 @@
 """
 check_style.py: the mechanical part of the style references. Checks .ts/.tsx/.js/.jsx/.mjs/.css/.py/.sh files for:
 
-- lines over 120 columns (readability.md rule 4);
 - non-ASCII characters inside comments (comments-and-docs.md rule 1); strings may keep accents;
 - a missing header comment (comments-and-docs.md rule 2): a /* */ block in TS/JS/CSS, a module docstring
   in Python, a # block in Bash. Only a shebang or a Python encoding line may come before it.
 
 And documentation .md files for typographic symbols and emojis outside code spans and fenced blocks
-(markdown.md rules 3 and 4). Letters, accents and numbers of any language pass. Markdown skips the column and
-header checks: a paragraph is one line however long (markdown.md rule 2). Emojis the user asked for are still
+(markdown.md rules 3 and 4). Letters, accents and numbers of any language pass. Markdown skips the header
+check. Emojis the user asked for are still
 reported. Agent files are not documentation and are skipped: AGENT_FILES and any .md inside a skill folder.
 
 Comment detection reads line by line and skips markers inside one-line string literals ("image/*" is not
@@ -24,7 +23,6 @@ import re
 import sys
 import unicodedata
 
-MAX_COLUMNS = 120
 C_STYLE_EXTENSIONS = (".ts", ".tsx", ".js", ".jsx", ".mjs", ".css")
 PYTHON_EXTENSION = ".py"
 SHELL_EXTENSION = ".sh"
@@ -259,9 +257,6 @@ def check_file(path: str) -> list[str]:
         problems.append(f"{path}:1: missing header comment")
     block = NO_BLOCK
     for line_number, line in enumerate(lines, start=1):
-        is_too_long = len(line) > MAX_COLUMNS
-        if is_too_long:
-            problems.append(f"{path}:{line_number}: {len(line)} columns (max {MAX_COLUMNS})")
         comment, block = scan_comment_line(line, extension, block)
         if not comment.isascii():
             problems.append(f"{path}:{line_number}: non-ASCII character in a comment")

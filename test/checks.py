@@ -10,7 +10,6 @@ import re
 from alignment import alignment_problems, assignment_problems, block_problems, rows_of
 from scenarios import HEADER_SCENARIOS, LEGACY_TS, REVIEWS_TS, SCENARIOS, TSCONFIG_JSON, UNALIGNED_START_SCENARIOS
 
-MAX_COLUMNS = 120
 # Files checked for assignment alignment, at the top level of the session folder.
 SOURCE_SUFFIXES = (".ts", ".tsx", ".py")
 # A comparison or compound condition written straight into an if or while (readability.md rule 1).
@@ -162,7 +161,6 @@ def check_bash(work_dir: Path) -> list[str]:
         "header has no usage section": bool(header) and not has_usage,
         "compound test inline in an if (should be a predicate function)": compound_test,
         f"function names not snake_case: {functions}": any(name != name.lower() for name in functions),
-        f"line over {MAX_COLUMNS} columns": any(len(line) > MAX_COLUMNS for line in lines),
         "non-ASCII character": re.search(r"[^\x00-\x7f]", text),
     })
 

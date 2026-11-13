@@ -48,4 +48,4 @@ When a doc tag or language convention is in doubt, check [links.md](references/l
 - `module.py`: the same in Python (docstrings, `snake_case`).
 - `script.sh`: a Bash script (header with usage, flags, documented functions).
 
-[scripts/check_style.py](scripts/check_style.py) checks line width, ASCII comments and file headers, plus typographic symbols and emojis in documentation Markdown (`python3 scripts/check_style.py <folder>`, prints nothing when clean).
+[scripts/check_style.py](scripts/check_style.py) checks ASCII comments and file headers, plus typographic symbols and emojis in documentation Markdown (`python3 scripts/check_style.py <folder>`, prints nothing when clean).
