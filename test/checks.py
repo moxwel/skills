@@ -8,7 +8,7 @@ from pathlib import Path
 import re
 
 from alignment import alignment_problems, assignment_problems, block_problems, rows_of
-from scenarios import HEADER_SCENARIOS, LEGACY_TS, REVIEWS_TS, SCENARIOS, UNALIGNED_START_SCENARIOS
+from scenarios import HEADER_SCENARIOS, LEGACY_TS, REVIEWS_TS, SCENARIOS, TSCONFIG_JSON, UNALIGNED_START_SCENARIOS
 
 MAX_COLUMNS = 120
 # Files checked for assignment alignment, at the top level of the session folder.
@@ -20,6 +20,14 @@ SINGLE_LETTER_TS    = re.compile(r"\(\s*[a-hj-z]\s*\)\s*=>|\(\s*[a-hj-z]\s*,|(co
 PREDICATE_NAME      = re.compile(r"(is|has|can|should|was)[A-Z]")
 GOOGLE_DOC_SECTION  = re.compile(r"^\s+(Args|Returns|Raises):\s*$", re.M)
 IMPORT_GROUPS       = ["external", "relative", "type"]
+# Typographic symbols copy.md and markdown.md forbid: dashes, curly quotes, ellipsis, arrows, bullets.
+TYPOGRAPHIC_SYMBOL = re.compile("[\u2013\u2014\u2018\u2019\u201c\u201d\u2022\u2026\u2190-\u21ff]")
+EMOJI              = re.compile("[\U0001f300-\U0001faff\u2600-\u27bf]")
+GENERIC_LABEL      = re.compile(r"get started|learn more|try now|explore|discover|oops", re.I)
+SQL_STATEMENT      = re.compile(r"\b(SELECT|INSERT|UPDATE|DELETE)\b")
+CONVENTIONAL_SUBJECT = re.compile(r"[a-z]+(\([\w-]+\))?!?: \S")
+# A git trailer such as the Co-Authored-By line the harness asks for: a footer, not a body.
+GIT_TRAILER = re.compile(r"[\w-]+: \S")
 
 
 def read_output(work_dir: Path, file_name: str) -> str:
@@ -184,23 +192,156 @@ def check_mindiff(work_dir: Path) -> list[str]:
     return unchanged_problems(LEGACY_TS, text) + problems
 
 
+def new_sources(work_dir: Path, pattern: str, starting_files: dict[str, str]) -> list[Path]:
+    """Lists the files matching the glob pattern that the session created, outside node_modules."""
+    created = [path for path in sorted(work_dir.glob(pattern)) if "node_modules" not in path.parts]
+    return [path for path in created if str(path.relative_to(work_dir)) not in starting_files]
+
+
+def header_first_problems(text: str, file_name: str) -> list[str]:
+    """The file header comes first, before any "use client" or "use server" directive (code-style.md rule 1)."""
+    return found({f"{file_name} does not start with a /* */ header": not text.lstrip().startswith("/*")})
+
+
 def check_react(work_dir: Path) -> list[str]:
-    """Checks nothing in the output: this scenario only verifies which files the session read."""
-    return []
+    components = [path for path in new_sources(work_dir, "**/*.tsx", SCENARIOS["react"]["files"])
+                  if "ItemCount" in path.read_text(encoding="utf-8")]
+    if not components:
+        return ["no new .tsx file with ItemCount"]
+    component = components[0]
+    text      = component.read_text(encoding="utf-8")
+    has_css   = any(new_sources(work_dir, "**/*.css", {}))
+    return header_first_problems(text, component.name) + found({
+        "\"use client\" in a component that needs no state, effects or handlers": '"use client"' in text,
+        "inline style attribute instead of a CSS class": "style={" in text,
+        "no CSS file for the component's own styles": not has_css,
+        "dangerouslySetInnerHTML": "dangerouslySetInnerHTML" in text,
+    })
+
+
+def check_action(work_dir: Path) -> list[str]:
+    actions = [path for path in new_sources(work_dir, "**/*.ts", SCENARIOS["action"]["files"])
+               if '"use server"' in path.read_text(encoding="utf-8")]
+    if not actions:
+        return ["no new .ts file with \"use server\""]
+    action = actions[0]
+    text   = action.read_text(encoding="utf-8")
+    auth_at   = text.find("requireUser(")
+    delete_at = text.find("softDeleteItem(")
+    is_auth_first = 0 <= auth_at < delete_at
+    return header_first_problems(text, action.name) + found({
+        "action outside actions/": "actions" not in action.relative_to(work_dir).parts,
+        "requireUser() missing or called after the delete": not is_auth_first,
+        "SQL written outside lib/db": SQL_STATEMENT.search(text),
+        "deletes through something other than softDeleteItem": delete_at < 0,
+        "no refresh() after changing data": "refresh(" not in text,
+        "lib/db/items.ts was changed": (work_dir / "lib/db/items.ts").read_text(encoding="utf-8")
+                                       != SCENARIOS["action"]["files"]["lib/db/items.ts"],
+    })
+
+
+def check_metadata(work_dir: Path) -> list[str]:
+    sources = sorted(work_dir.glob("app/**/*.tsx"))
+    text    = "\n".join(path.read_text(encoding="utf-8") for path in sources)
+    has_metadata_export = re.search(r"export (const metadata|(async )?function generateMetadata)", text)
+    open_graph_fields   = ["title", "type", "url", "siteName"]
+    missing_fields      = [field for field in open_graph_fields if not re.search(rf"\b{field}:", text)]
+    return found({
+        "hand-written <head> or <meta> tags": re.search(r"<head|<meta", text),
+        "no metadata or generateMetadata export": not has_metadata_export,
+        "no metadataBase": "metadataBase" not in text,
+        "metadataBase not read from SITE_URL": "SITE_URL" not in text,
+        "no openGraph block": "openGraph" not in text,
+        f"openGraph fields missing: {missing_fields}": missing_fields,
+    })
+
+
+def check_config(work_dir: Path) -> list[str]:
+    text = read_output(work_dir, "tsconfig.json")
+    return found({
+        "strict is not true": not re.search(r'"strict":\s*true', text),
+        "other tsconfig lines changed": len(unchanged_problems(TSCONFIG_JSON, text)) > 1,
+    })
+
+
+def check_question(work_dir: Path) -> list[str]:
+    return unchanged_problems(LEGACY_TS, read_output(work_dir, "legacy.ts"))
+
+
+def check_override(work_dir: Path) -> list[str]:
+    lines = read_output(work_dir, "links.ts").splitlines()
+    long_lines = [line for line in lines if len(line) > 80]
+    return found({f"{len(long_lines)} lines over the 80 columns the project CLAUDE.md sets": long_lines})
+
+
+def check_audit(work_dir: Path) -> list[str]:
+    """An audit reports and applies nothing until the user picks the findings."""
+    return unchanged_problems(LEGACY_TS, read_output(work_dir, "legacy.ts"))
+
+
+def check_copy(work_dir: Path) -> list[str]:
+    text = read_output(work_dir, "itemMessages.ts")
+    return found({
+        "typographic symbol (dash, curly quote, ellipsis, arrow or bullet)": TYPOGRAPHIC_SYMBOL.search(text),
+        "emoji": EMOJI.search(text),
+        "generic label or filler (Get started, Learn more, Explore, Oops)": GENERIC_LABEL.search(text),
+        "no loading message": not re.search(r"loading", text, re.I),
+    })
+
+
+def prose_of(markdown: str) -> str:
+    """The Markdown without its fenced code blocks, whose content stays literal."""
+    return re.sub(r"^```.*?^```", "", markdown, flags=re.M | re.S)
+
+
+def check_readme(work_dir: Path) -> list[str]:
+    text   = read_output(work_dir, "README.md")
+    prose  = prose_of(text)
+    fences = re.findall(r"^```(.*)$", text, re.M)
+    opening_fences = fences[0::2]
+    titles = re.findall(r"^# ", prose, re.M)
+    return found({
+        "typographic symbol outside code": TYPOGRAPHIC_SYMBOL.search(prose),
+        "emoji": EMOJI.search(text),
+        f"expected one # title, got {len(titles)}": len(titles) != 1,
+        "fenced code block without a language": any(not fence.strip() for fence in opening_fences),
+        "slugify.ts was changed": unchanged_problems(SCENARIOS["readme"]["files"]["slugify.ts"],
+                                                     read_output(work_dir, "slugify.ts")),
+    })
+
+
+def check_commitmsg(work_dir: Path) -> list[str]:
+    lines      = read_output(work_dir, "COMMIT_MSG.txt").strip().splitlines()
+    subject    = lines[0] if lines else ""
+    body_lines = [line for line in lines[1:] if line.strip() and not GIT_TRAILER.match(line)]
+    return found({
+        f"subject is not Conventional Commits: {subject!r}": not CONVENTIONAL_SUBJECT.match(subject),
+        f"has a body the user did not ask for: {body_lines}": body_lines,
+        "a commit was made": (work_dir / ".git").exists(),
+    })
 
 
 CHECKS = {
-    "align":   check_align,
-    "cut":     check_cut,
-    "cut2":    check_cut2,
-    "imports": check_imports,
-    "robust":  check_robust,
-    "naming":  check_naming,
-    "doc":     check_doc,
-    "bash":    check_bash,
-    "tsdoc":   check_tsdoc,
-    "mindiff": check_mindiff,
-    "react":   check_react,
+    "align":     check_align,
+    "cut":       check_cut,
+    "cut2":      check_cut2,
+    "imports":   check_imports,
+    "robust":    check_robust,
+    "naming":    check_naming,
+    "doc":       check_doc,
+    "bash":      check_bash,
+    "tsdoc":     check_tsdoc,
+    "mindiff":   check_mindiff,
+    "react":     check_react,
+    "action":    check_action,
+    "metadata":  check_metadata,
+    "config":    check_config,
+    "question":  check_question,
+    "override":  check_override,
+    "audit":     check_audit,
+    "copy":      check_copy,
+    "readme":    check_readme,
+    "commitmsg": check_commitmsg,
 }
 
 

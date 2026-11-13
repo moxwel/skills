@@ -105,7 +105,11 @@ def session_facts(log_path: Path) -> dict:
 
 def missing_skill_files(scenario: dict, facts: dict) -> list[str]:
     """Lists the skill files the scenario requires that the session never read."""
-    references             = BASE_REFERENCES + scenario.get("references", [])
+    is_skill_expected = scenario.get("skill", True)
+    if not is_skill_expected:
+        return []
+    base_references        = BASE_REFERENCES if scenario.get("base", True) else []
+    references             = base_references + scenario.get("references", [])
     react_references       = [f"react:{name}" for name in scenario.get("react", [])]
     is_react_skill_missing = "react" in scenario and REACT_SKILL not in facts["skills"]
     missing = [f"details/{name}" for name in scenario["details"] if name not in facts["details"]]

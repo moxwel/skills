@@ -63,7 +63,16 @@ A model does not answer the same way twice. Repeat a scenario (`cut2:1 cut2:2 cu
 | `bash` | Write a Bash script | Shebang, header with usage, predicate functions, line width |
 | `tsdoc` | Add a function with a hidden outcome to a TypeScript file | `@returns` tag, no echo `@param`, command name |
 | `mindiff` | Add a function to a file that breaks several rules | Every existing line stays as it was |
-| `react` | Add a component to a Next.js app | Only that the session loaded the React skill and read its references |
+| `react` | Add a component to a Next.js app | The React skill and its references, header first, no needless `"use client"`, no inline styles, own CSS file |
+| `action` | Add a server action that deletes an item | `requireUser()` before the delete, no SQL outside `lib/db`, soft delete, `refresh()`, file under `actions/` |
+| `metadata` | Make a link preview show up, without naming Open Graph | It finds social-metadata.md; `metadata` export, `metadataBase` from the env, the four `openGraph` fields, no `<head>` |
+| `config` | Turn on strict mode in `tsconfig.json` | The base skill does not load for a configuration-only edit |
+| `question` | Ask what a function returns | The base skill does not load for a question, and nothing changes |
+| `override` | Write a module in a project whose `CLAUDE.md` sets 80 columns | The project convention wins over the skill's 120 |
+| `audit` | "Does legacy.ts follow my conventions?" | It reads every reference and `details/` file and changes nothing |
+| `copy` | Write the UI texts of a list | No typographic symbols, emoji or generic labels, and a loading message |
+| `readme` | Write a README for a module | markdown.md rules: one title, fenced blocks with a language, ASCII only |
+| `commitmsg` | Write a commit message for a diff | Conventional Commits subject, no body, no commit made |
 
 ## Files
 
@@ -73,4 +82,6 @@ A model does not answer the same way twice. Repeat a scenario (`cut2:1 cut2:2 cu
 - `session_log.py`: reads a session log to find the skills loaded and the files read.
 - `run_scenarios.py`: starts the sessions and prints the verdicts.
 
-To add a scenario, add an entry to `SCENARIOS` in `scenarios.py` and a `check_<name>` function to `CHECKS` in `checks.py`.
+To add a scenario, add an entry to `SCENARIOS` in `scenarios.py` and a `check_<name>` function to `CHECKS` in `checks.py`. A scenario for a task that writes no code sets `"base": False`, so the session does not have to read the references every code change reads; one that must not load the base skill at all sets `"skill": False`.
+
+The agents in `agents/` are not covered: the sessions load the skills from `~/.claude/skills`, not as plugins, so they always take the path without agents.
