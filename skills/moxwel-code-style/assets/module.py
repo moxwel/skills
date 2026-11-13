@@ -13,7 +13,7 @@ from format_bytes import format_bytes
 ITEMS_DIR = os.environ.get("ITEMS_DIR", "./items")
 # Cap on one listing, so a huge folder can't flood the caller.
 MAX_LISTED_ITEMS = 500
-ITEM_EXTENSION = ".json"
+ITEM_EXTENSION   = ".json"
 # Lowercase letters, digits and _, so a name is always a safe file name; 48 keeps paths short.
 NAME_PATTERN = re.compile(r"^[a-z0-9_]{1,48}$")
 
@@ -23,9 +23,9 @@ def list_items(query: str) -> list[dict]:
 
     :raises OSError: If the folder or an item file cannot be read (invalid JSON raises json.JSONDecodeError).
     """
-    item_files = [name for name in os.listdir(ITEMS_DIR) if name.endswith(ITEM_EXTENSION)]
-    items = [read_item(os.path.join(ITEMS_DIR, file_name)) for file_name in item_files]
-    is_filtered = query != ""
+    item_files     = [name for name in os.listdir(ITEMS_DIR) if name.endswith(ITEM_EXTENSION)]
+    items          = [read_item(os.path.join(ITEMS_DIR, file_name)) for file_name in item_files]
+    is_filtered    = query != ""
     matching_items = [item for item in items if query in item["name"]] if is_filtered else items
     matching_items.sort(key=lambda item: item["created_at"], reverse=True)
     return matching_items[:MAX_LISTED_ITEMS]

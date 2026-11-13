@@ -14,7 +14,7 @@ import type { Item } from "./types";
 const ITEMS_DIR = process.env.ITEMS_DIR ?? "./items";
 /** Cap on one listing, so a huge folder can't flood the caller. */
 const MAX_LISTED_ITEMS = 500;
-const ITEM_EXTENSION = ".json";
+const ITEM_EXTENSION   = ".json";
 /** Lowercase letters, digits and _, so a name is always a safe file name; 48 keeps paths short. */
 const NAME_PATTERN = /^[a-z0-9_]{1,48}$/;
 
@@ -23,12 +23,12 @@ const NAME_PATTERN = /^[a-z0-9_]{1,48}$/;
  * @throws If the folder or an item file cannot be read or parsed.
  */
 export async function listItems(query: string): Promise<Item[]> {
-  const fileNames = await readdir(ITEMS_DIR);
-  const itemFiles = fileNames.filter((fileName) => fileName.endsWith(ITEM_EXTENSION));
-  const items = await Promise.all(itemFiles.map((fileName) => readItem(join(ITEMS_DIR, fileName))));
-  const isFiltered = query !== "";
+  const fileNames     = await readdir(ITEMS_DIR);
+  const itemFiles     = fileNames.filter((fileName) => fileName.endsWith(ITEM_EXTENSION));
+  const items         = await Promise.all(itemFiles.map((fileName) => readItem(join(ITEMS_DIR, fileName))));
+  const isFiltered    = query !== "";
   const matchingItems = isFiltered ? items.filter((item) => item.name.includes(query)) : items;
-  const newestItems = matchingItems.sort((first, second) => second.created_at - first.created_at);
+  const newestItems   = matchingItems.sort((first, second) => second.created_at - first.created_at);
   return newestItems.slice(0, MAX_LISTED_ITEMS);
 }
 
@@ -40,7 +40,7 @@ export async function renameItem(name: string, newName: string): Promise<boolean
   const isValidName = NAME_PATTERN.test(newName);
   if (!isValidName) return false;
   const fileNames = await readdir(ITEMS_DIR);
-  const isTaken = fileNames.includes(newName + ITEM_EXTENSION);
+  const isTaken   = fileNames.includes(newName + ITEM_EXTENSION);
   if (isTaken) return false;
   await rename(join(ITEMS_DIR, name + ITEM_EXTENSION), join(ITEMS_DIR, newName + ITEM_EXTENSION));
   return true;
