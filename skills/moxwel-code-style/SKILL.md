@@ -27,7 +27,7 @@ When a doc tag or language convention is in doubt, check [links.md](references/l
 ## Always
 
 - Edit this skill only when the user explicitly asks to change the skill. Project conventions go to the project `CLAUDE.md`/`AGENTS.md`.
-- New code matches these rules; existing code is changed only where the task touches it, unless the user asks for a sweep.
+- New code matches these rules. Existing lines that break a rule stay exactly as they are (file header, comments, names, alignment, formatting, order of blocks): change a line only when the task needs that line changed, or when your change makes its comment wrong, unless the user asks for a sweep (git-conventions.md rule 7).
 - A style audit reports findings (rule, `path:line`, problem, fix) and applies nothing until the user picks which ones.
 - Before saying "done", go through the Checklist of every reference you read.
 
