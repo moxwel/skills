@@ -9,7 +9,7 @@
 
 `moxwel-code-style` is the base layer and `moxwel-standard-react-frontend` builds on it, so install both for frontend work.
 
-In Claude Code, the optional `moxwel-agents` plugin adds two generic agents that both skills delegate to: `moxwel-auditor` (read-only, one per area of an audit) and `moxwel-sweeper` (applies a change the user already picked across many files). Without it, and in other agents, the skills run the same steps themselves.
+In Claude Code, the optional `moxwel-agents` plugin adds two generic agents that both skills delegate to: `moxwel-auditor` (read-only, one per area of an audit) and `moxwel-sweeper` (applies the exact edits of the findings the user picked, on Haiku). Without it, and in other agents, the skills run the same steps themselves.
 
 ## Install
 
