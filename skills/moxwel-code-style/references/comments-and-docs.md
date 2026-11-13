@@ -9,9 +9,17 @@ Covers every source file in any language: the language of code and text, file he
 3. **Inline comments explain *why*, never what the next line does.** Every non-obvious workaround gets one. No emojis. A line, variable or constant whose name already says it gets no comment.
 4. **A doc comment goes on a function only when its name and signature do not say enough:** complex logic, an outcome the signature hides (a `false` that means "already taken", a deliberate throw, a side effect) or a parameter that is not obvious. A self-descriptive function (`formatBytes`, `describeItem`) gets none.
 5. **A doc comment is short:** two lines at most, and tags (`@param`, `@returns`, `@throws` or the language's equivalent) only for what the name and the type do not already say. A comment that echoes the name, the type or the signature is deleted.
+   - **Doc tags:**
+     - `param` only for a parameter the name and type leave unclear (a unit, a format, an accepted range). One line each; an options object documents only its non-obvious fields.
+     - `returns` when the value has outcomes the type does not show (`true if it marked it; false if it doesn't exist or was already reviewed.`). The special case never goes in the summary line.
+     - `throws` when the function throws or rethrows on purpose, or calls a function whose doc has `throws` without catching it. Say when it throws in the tag, never in prose.
+     - No `@` inside the text: tag parsers read it as a new tag.
+     - A summary-only doc is one line (`/** Number of active items. */`).
+   - **Constants** that need explaining get a one-line doc comment above them (`/** … */`, `#` in Python/Bash), never a trailing comment. A constant with a descriptive name needs none.
+   - **Shared types** get `@property name - Desc.` lines in the type's doc for non-obvious fields, never comments inside the type.
 6. **Short inline comments are lowercase fragments:** one line, no capital at the start, no period at the end, as few words as it takes (`// retry once, the socket may be stale`). The tone rules of copy.md apply to every comment and doc.
 
-Details and gotchas, binding too: [details/comments-and-docs.md](details/comments-and-docs.md).
+Per-language forms, worked examples and gotchas, binding too: [details/comments-and-docs.md](details/comments-and-docs.md).
 
 ## Checklist
 

@@ -7,11 +7,14 @@ Covers names of variables, constants, functions, types and booleans, and the ide
 1. **Casing:** PascalCase for types, classes and components; UPPER_CASE for module-level constants (values fixed when the module loads: literals and values derived from them or from the environment); camelCase for everything else. Languages with their own convention follow it ([details](details/naming.md)). Exceptions: names a framework or protocol fixes, and record types that mirror an external schema, which keep its field names (`created_at`).
 2. **No single-letter names,** except the loop index `i`. Not in callbacks either: `items.map((item) => …)`, `catch (error)`.
 3. **Booleans are named `is*`/`has*`/`can*`/`should*`/`was*`:** variables, state, function results, parameters, fields and predicates (`isTaken()`, `hasPendingItems()`). Exceptions: names fixed by a platform or library (`disabled`, `open`), fields of records that mirror an external schema (rule 1), and commands that report success (`insertItem()` returning `boolean`).
+   - **Booleans read as a question:** `if (isEmpty)`, `if (canDelete)`. A negated name (`isNotReady`) is only for fields that already exist that way; prefer the positive form and `!`.
 4. **Values are named after their content,** not their type or origin: `visibleItems`, `retryDelayMs`, not `list2`, `data` or `result`. Handlers and commands are named after the action (`confirmDelete`, `syncFiles`).
+   - **Units in the name** when a number has one and the type doesn't say it: `timeoutMs`, `sizeBytes`, `durationSec`.
+   - **Function names:** verb + subject (`listItems`, `findItem`, `countItems`, `formatBytes`). A function whose job is to answer a yes/no question is a predicate and takes the prefix; a command that returns a success flag keeps its verb name (rule 3 exception).
 5. **Non-obvious literals become named constants** at the top of the file (`MAX_RETRIES = 3`), or in a shared constants module when several files use them.
 6. **Records tied to a user or made public are identified by a UUID, never by an ascending number,** unless the user explicitly asks for numbers. That covers users and their content (posts, files, uploads, collections) and anything whose id reaches a URL, a file name, an API payload or another user, in any storage (SQL, document store, files). The UUID is the record's primary key and every reference to it uses the same UUID. Sequential integers stay for technical data that never leaves the system (row ids, page numbers, counters).
 
-Details and gotchas, binding too: [details/naming.md](details/naming.md).
+Per-language forms, worked examples and gotchas, binding too: [details/naming.md](details/naming.md).
 
 ## Checklist
 

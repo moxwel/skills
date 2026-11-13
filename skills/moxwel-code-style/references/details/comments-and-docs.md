@@ -14,14 +14,6 @@ Details and gotchas for the rules in [../comments-and-docs.md](../comments-and-d
 | Bash | `#` block after the shebang, with a usage section for scripts | `#` lines right above the function | prose: what it takes, what it prints or returns |
 
 - **Does it need a doc comment?** Read the name and the signature as a stranger would. If they answer what it does, what it takes and what it returns, stop. Otherwise write only the missing part: the unexpected outcome, the edge case, the throw.
-- **Doc tags:**
-  - `param` only for a parameter the name and type leave unclear (a unit, a format, an accepted range). One line each; an options object documents only its non-obvious fields.
-  - `returns` when the value has outcomes the type does not show (`true if it marked it; false if it doesn't exist or was already reviewed.`). The special case never goes in the summary line.
-  - `throws` when the function throws or rethrows on purpose, or calls a function whose doc has `throws` without catching it. Say when it throws in the tag, never in prose.
-  - No `@` inside the text: tag parsers read it as a new tag.
-  - A summary-only doc is one line (`/** Number of active items. */`).
-- **Constants** that need explaining get a one-line doc comment above them (`/** … */`, `#` in Python/Bash), never a trailing comment. A constant with a descriptive name needs none.
-- **Shared types** get `@property name - Desc.` lines in the type's doc for non-obvious fields, never comments inside the type.
 - **Inline comment form:**
   - An inline comment is a `//` or `#` comment inside a body or after a line of code. File headers, doc comments and the usage block of a script keep full sentences (capital, final period).
   - Names, acronyms and proper nouns keep their case (`the API returns null`, `Plasma ignores it`), and a tool directive or marker stays as the tool expects it (`// eslint-disable-next-line`, `# noqa`, `shortcut: ...`).

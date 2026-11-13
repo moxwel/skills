@@ -5,22 +5,24 @@ description: ALWAYS load this skill before writing or editing code, in any langu
 
 # moxwel's code style
 
-**The references are the standard. This file states no coding rules: it routes you to the references that hold them.** Each style reference (all but links.md) holds its **Rules** and **Checklist**; its Details and Gotchas live in `references/details/<file>.md` and are binding too, split out only so they load on demand. A convention declared in the project `CLAUDE.md`/`AGENTS.md` overrides this skill and its references; otherwise, if anything here seems to disagree with a reference, the reference wins.
+**The references are the standard. This file states no coding rules: it routes you to the references that hold them.** Each style reference (all but links.md) opens with its **Rules**, followed by Details (binding too), and Gotchas and a Checklist where present: read the whole file. Four references keep the part that only some tasks need (per-language forms, worked examples, gotchas) in `references/details/<file>.md`; it is binding too, and the table below says exactly when to read it. A convention declared in the project `CLAUDE.md`/`AGENTS.md` overrides this skill and its references; otherwise, if anything here seems to disagree with a reference, the reference wins.
 
 ## Before acting
 
 1. Read the project `CLAUDE.md`/`AGENTS.md`. A convention it declares (another comment language, another line width) is a deliberate deviation, not a mistake to fix. A stack-specific skill in use adds rules on top of these.
-2. **Read in full the references for your task** (table below), every time, before writing, changing or reviewing code. Don't rely on memory of an earlier session: several rules are non-obvious and only the references state them.
-3. **Rules are summaries; the exact mechanics live in `details/`.** Before you edit, list the rules your change touches (a new or changed group of similar lines touches alignment, a new import touches import order, a doc comment touches doc tags, a `try`/`catch` touches error boundaries) and read the `details/` file of each reference that holds one of them. For a style audit read every `details/` file.
+2. **Read in full every file the table lists for your task,** every time, before writing, changing or reviewing code. Go down the table and take every row that matches: the rows add up. Don't rely on memory of an earlier session: several rules are non-obvious and only the references state them.
+3. **A `details/` file in a matching row is required reading, not optional.** If you notice while working that a row applies after all (you end up writing a `try`/`catch`, a UI string, a Python file), stop and read its files before you continue.
+4. When you cannot tell how a rule looks in code, read the worked examples in that reference's `details/` file instead of guessing.
 
-| Task | Read |
+| Your task includes | Read |
 |---|---|
 | Any code change or review | [comments-and-docs.md](references/comments-and-docs.md), [copy.md](references/copy.md), [naming.md](references/naming.md), [readability.md](references/readability.md) |
+| A file in Python, Bash or CSS | + [details/comments-and-docs.md](references/details/comments-and-docs.md), [details/naming.md](references/details/naming.md), [details/readability.md](references/details/readability.md) |
 | Code that handles errors, I/O, network, external input, timeouts or retries | + [robustness.md](references/robustness.md) |
-| Writing or changing Markdown documentation the user asked for (README, docs), not agent files | [markdown.md](references/markdown.md), [copy.md](references/copy.md) |
-| Writing or changing user-facing text: UI strings, button labels, errors, toasts, empty and loading messages | [copy.md](references/copy.md) |
+| Writing or changing user-facing text: UI strings, button labels, errors, toasts, empty and loading messages | + [details/copy.md](references/details/copy.md) |
+| Writing or changing Markdown documentation the user asked for (README, docs), not agent files | [markdown.md](references/markdown.md), [copy.md](references/copy.md), [details/copy.md](references/details/copy.md) |
 | Creating a repository, committing, pushing, writing a commit message or splitting changes into commits | [git-conventions.md](references/git-conventions.md) |
-| Style audit ("does it follow my conventions?") | all references and their `details/` files |
+| Style audit ("does it follow my conventions?") | all references and all their `details/` files |
 
 When a doc tag or language convention is in doubt, check [links.md](references/links.md) (official docs) rather than memory.
 
