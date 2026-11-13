@@ -9,6 +9,7 @@ Agent Skills that teach coding agents moxwel's conventions. They ship as a Claud
 - `references/details/` holds the part of a reference that only some tasks need (per-language forms, worked examples). A part moves there only when the SKILL.md table can name a condition for reading it that is known before the work starts; anything a change can hit mid-work stays in the Rules.
 - `assets/` holds complete template files that follow every rule.
 - `scripts/` holds checkers for the mechanical rules.
+- `test/` holds scenarios that run each skill in fresh headless sessions and check what the model read and wrote (see [test/README.md](test/README.md)). Run them after changing a `SKILL.md` description or table, a rule, or what lives in `details/`.
 
 `moxwel-code-style` is the base layer and `moxwel-standard-react-frontend` builds on it.
 
