@@ -326,6 +326,12 @@ SCENARIOS = {
                   "URL, the item slug, the UTM source, the UTM medium and the UTM campaign.",
         "details": [],
     },
+    "nowrap": {
+        "files":  {},
+        "prompt": "Create links.ts with an exported function that builds the share URL of an item from the site base "
+                  "URL, the item slug, the UTM source, the UTM medium and the UTM campaign.",
+        "details": [],
+    },
     "audit": {
         "files":      {"legacy.ts": LEGACY_TS},
         "prompt":     "Does legacy.ts follow my conventions?",

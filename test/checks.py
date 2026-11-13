@@ -272,6 +272,13 @@ def check_override(work_dir: Path) -> list[str]:
     return found({f"{len(long_lines)} lines over the 80 columns the project CLAUDE.md sets": long_lines})
 
 
+def check_nowrap(work_dir: Path) -> list[str]:
+    """Without a project width, a long signature or call stays on one line (readability.md rule 4)."""
+    text    = read_output(work_dir, "links.ts")
+    wrapped = re.findall(r"^.*[(,]$", text, re.M)
+    return found({f"lines wrapped for length: {wrapped}": wrapped})
+
+
 def check_audit(work_dir: Path) -> list[str]:
     """An audit reports and applies nothing until the user picks the findings."""
     return unchanged_problems(LEGACY_TS, read_output(work_dir, "legacy.ts"))
@@ -336,6 +343,7 @@ CHECKS = {
     "config":    check_config,
     "question":  check_question,
     "override":  check_override,
+    "nowrap":    check_nowrap,
     "audit":     check_audit,
     "copy":      check_copy,
     "readme":    check_readme,

@@ -69,6 +69,7 @@ A model does not answer the same way twice. Repeat a scenario (`cut2:1 cut2:2 cu
 | `config` | Turn on strict mode in `tsconfig.json` | The base skill does not load for a configuration-only edit |
 | `question` | Ask what a function returns | The base skill does not load for a question, and nothing changes |
 | `override` | Write a module in a project whose `CLAUDE.md` sets 80 columns | The project convention wins over the skill's no-wrap rule |
+| `nowrap` | Write a module with a long signature, with no project width | The signature and calls stay on one line |
 | `audit` | "Does legacy.ts follow my conventions?" | It reads every reference and `details/` file and changes nothing |
 | `copy` | Write the UI texts of a list | No typographic symbols, emoji or generic labels, and a loading message |
 | `readme` | Write a README for a module | markdown.md rules: one title, fenced blocks with a language, ASCII only |
