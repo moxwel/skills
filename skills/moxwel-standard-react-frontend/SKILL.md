@@ -5,15 +5,14 @@ description: Use this skill when building, changing, styling, reviewing or audit
 
 # moxwel's standard for React frontends
 
-**The references are the standard. This file states no coding rules: it routes you to the references that hold them.** Each reference holds its **Rules** and **Checklist**; its Details and Gotchas live in `references/details/<file>.md` and are binding too, split out only so they load on demand. If anything here seems to disagree with a reference, the reference wins.
+**The references are the standard. This file states no coding rules: it routes you to the references that hold them.** Each reference opens with its **Rules**, followed by Details (binding too), and Gotchas and a Checklist where present: read the whole file. If anything here seems to disagree with a reference, the reference wins.
 
 ## Before acting
 
 1. Read the project `CLAUDE.md`/`AGENTS.md`. A convention it declares is a deliberate deviation and wins over this skill.
-2. **Also load the base `moxwel-code-style` skill** (comments, naming, readability, copy, git): its rules apply here and are not repeated. If it is not installed, stop and ask the user to install it (`npx skills add moxwel/skills`). Only if the user declines, read the base references you need from `https://raw.githubusercontent.com/moxwel/skills/main/skills/moxwel-code-style/references/<file>.md` (`comments-and-docs.md`, `copy.md`, `naming.md`, `readability.md`, `git-conventions.md`), and their details from `references/details/<file>.md`.
+2. **Also load the base `moxwel-code-style` skill** (comments, naming, readability, copy, git): its rules apply here and are not repeated. If it is not installed, stop and ask the user to install it (`npx skills add moxwel/skills`). Only if the user declines, read the base references you need from `https://raw.githubusercontent.com/moxwel/skills/main/skills/moxwel-code-style/references/<file>.md` (`comments-and-docs.md`, `copy.md`, `naming.md`, `readability.md`, `git-conventions.md`).
 3. **Read in full the references for your task** (table below), every time, before writing, changing or reviewing code. Don't rely on memory of an earlier session: the standard has many non-obvious rules and gotchas that only the references state.
-4. **Rules are summaries; the exact mechanics live in `details/`.** Before you edit, list the rules your change touches (a new component touches component shape and styling, a server action touches security, a query touches the database rules) and read the `details/` file of each reference that holds one of them. For an audit read every `details/` file.
-5. If the repo ships `node_modules/next/dist/docs/`, read the relevant Next.js guide too.
+4. If the repo ships `node_modules/next/dist/docs/`, read the relevant Next.js guide too.
 
 | Task | Read |
 |---|---|
@@ -24,7 +23,7 @@ description: Use this skill when building, changing, styling, reviewing or audit
 | Page metadata, Open Graph, link previews, video or image embeds | + [social-metadata.md](references/social-metadata.md) |
 | Any data access or schema | + [database.md](references/database.md), [security-management.md](references/security-management.md) |
 | New project, dependencies, config, Docker, deploy | + [stack-and-setup.md](references/stack-and-setup.md), [security-management.md](references/security-management.md) |
-| Audit or "find and fix inconsistencies" | all references and their `details/` files |
+| Audit or "find and fix inconsistencies" | all references |
 
 When an API is in doubt, check [links.md](references/links.md) (official docs) rather than memory.
 

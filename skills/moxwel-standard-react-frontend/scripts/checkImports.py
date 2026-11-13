@@ -1,5 +1,5 @@
 """
-checkImports.py: import order from references/details/code-style.md, "Import order". Groups in this order:
+checkImports.py: import order from references/code-style.md, Details "Import order". Groups in this order:
 external, @/actions, @/components, @/features, @/lib, relative, import type, CSS. Inside each
 group, alphabetical by module path (external included: next/... before node:... before react).
 The import type lines follow the same group order inside; the CSS goes shared first (shared.css),

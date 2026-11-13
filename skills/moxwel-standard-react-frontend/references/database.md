@@ -8,13 +8,42 @@ Covers `lib/db`, query functions, injection safety, soft deletes, transactions, 
 2. **Values are always parameters, never interpolated.** A dynamic identifier is allowed only after checking it against the engine catalog, and then quoted. Mongo values must be primitives of the expected type.
 3. **Read only what's needed:** explicit columns or a projection, and a `LIMIT` on every list (plus offset or cursor when paginated). Secret fields never leave `lib/`. Return plain, app-typed objects.
 4. **Invariants go in the filter** (`AND status = 'pending' AND deleted_at IS NULL`), and writes report whether they matched.
-5. **Domain deletes are soft:** `softDelete<Thing>(id)` sets `deleted_at`, and every read, joins included, filters `deleted_at IS NULL` (Mongo: [details](details/database.md)). A real `DELETE` is only for technical data (sessions, caches), justified in the file header.
+5. **Domain deletes are soft:** `softDelete<Thing>(id)` sets `deleted_at`, and every read, joins included, filters `deleted_at IS NULL` (Mongo: Details). A real `DELETE` is only for technical data (sessions, caches), justified in the file header.
 6. **All-or-nothing writes are one transaction inside one `lib/db` function,** even across tables. File side effects are ordered or compensated, since the transaction doesn't cover them.
 7. **Expected outcomes are return values** (a duplicate makes `insert*` return `false`). Catch only the specific expected error code and rethrow everything else.
 8. **The schema constrains too:** `NOT NULL`, `UNIQUE`, `CHECK`, foreign keys (Mongo: unique indexes, `$jsonSchema`). Dates are stored in UTC.
 9. **Entities tied to a user or made public are identified by a UUID, never by an ascending number,** unless the user explicitly asks for numbers: users, their content (posts, files, clips, collections) and anything whose id reaches a URL, an embed or another user. The UUID is the primary key and every foreign key uses it. Integers stay for technical data (sessions keyed by token, rowids, page numbers).
 
-Details and gotchas, binding too: [details/database.md](details/database.md).
+## Details
+
+- **Engine:** SQLite via `node:sqlite` is the default (one instance, no extra container, no ORM). Use PostgreSQL or MongoDB only for several instances, an existing database, or very large data.
+- **Layout:** `lib/db/` holds `connection.ts`, `types.ts` and one file per table. Template: [dbTable.ts](../assets/dbTable.ts).
+- **Return types:** row types keep the DB column names (naming.md). Convert with `plain()` for `node:sqlite` rows and `toPlain()` for Mongo `ObjectId`/`Date`.
+- **Mongo injection:** `{ username: input }` with `input = { $ne: null }` matches everyone. Never use `$where`/`$function` or keys taken from user input.
+- **UUID ids (rule 9):** a v4 UUID as lowercase text. In SQLite the column is `id TEXT PRIMARY KEY NOT NULL DEFAULT (<uuid v4 expression>) CHECK (length(id) = 36)`, so rows created by SQL or by the admin CRUD get one too; read the new id back with `INSERT … RETURNING id`. When the id must exist before the insert (files named after it), generate it with `crypto.randomUUID()` and pass it. A table with a `TEXT PRIMARY KEY` keeps its implicit `rowid`, which the generic CRUD can still use. The v4 expression for SQLite:
+
+  ```sql
+  lower(hex(randomblob(4))) || '-' || lower(hex(randomblob(2))) || '-4' || substr(lower(hex(randomblob(2))), 2)
+    || '-' || substr('89ab', 1 + (abs(random()) % 4), 1) || substr(lower(hex(randomblob(2))), 2)
+    || '-' || lower(hex(randomblob(6)))
+  ```
+- **Unique among active rows only:** `CREATE UNIQUE INDEX … WHERE deleted_at IS NULL` (Mongo: `isDeleted` + `deletedAt` instead of `deleted_at`; reads filter `isDeleted: false`, and the unique index uses `partialFilterExpression`).
+- **Transactions:** keep them short (no network or file I/O inside). Any error rolls back and rethrows. Example: `setUserPasswordAndCloseSessions`.
+- **Schema changes:** SQLite uses `CREATE TABLE IF NOT EXISTS` on first open with no migrations; changes to an existing deployment are documented manual steps. PostgreSQL uses versioned migrations.
+- **Connection:** one lazy connection per process, never opened during `next build`, cached on `globalThis`.
+
+| | SQLite (`node:sqlite`) | PostgreSQL (`pg`) | MongoDB |
+|---|---|---|---|
+| Connection | `new DatabaseSync(file)`, `PRAGMA journal_mode = WAL; foreign_keys = ON` | `Pool` from `DATABASE_URL` | `MongoClient` from `MONGODB_URI` |
+| Parameters | `?` | `$1, $2` | filter object, `$eq` for untrusted |
+| Transaction | `exec("BEGIN")`/`COMMIT`/`ROLLBACK` | `BEGIN`…`COMMIT` on **the same** `pool.connect()` client, `release()` in `finally` | `session.withTransaction()` (needs a replica set) |
+| Unique violation | `errcode === 2067` | `code === "23505"` | `code === 11000` |
+| Did it match | `run().changes` | `rowCount` | `modifiedCount`/`matchedCount` |
+| Ids from input | `cleanUuid` (entities, rule 9); `cleanId` → number for rowids and pages | `cleanUuid`; `cleanId` for technical ids | 24-hex check, `new ObjectId()` inside `lib/db` |
+
+## Gotchas
+
+- **"Only plain objects can be passed to Client Components".** `node:sqlite` rows have a null prototype, so pass them through `plain()`.
 
 ## Checklist
 
