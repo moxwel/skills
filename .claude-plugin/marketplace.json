@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "moxwel-code-style",
-      "description": "Language-agnostic code style: comments, file headers, doc comments, naming, control flow, robustness and error handling, line length, imports, Markdown documentation, git conventions and copy.",
+      "description": "Language-agnostic code style: comments, file headers, doc comments, naming, control flow, robustness and error handling, line length, imports, Markdown documentation, git conventions, copy and briefs for delegating audits to subagents.",
       "source": "./",
       "strict": false,
       "skills": ["./skills/moxwel-code-style"],

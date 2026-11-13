@@ -23,6 +23,7 @@ description: ALWAYS load this skill before writing or editing code, in any langu
 | Writing or changing Markdown documentation the user asked for (README, docs), not agent files | [markdown.md](references/markdown.md), [copy.md](references/copy.md), [details/copy.md](references/details/copy.md) |
 | Creating a repository, committing, pushing, writing a commit message or splitting changes into commits | [git-conventions.md](references/git-conventions.md) |
 | Style audit ("does it follow my conventions?") | all references and all their `details/` files |
+| An audit, or applying picked fixes, over more than 5 files | + [delegating.md](references/delegating.md) |
 
 When a doc tag or language convention is in doubt, check [links.md](references/links.md) (official docs) rather than memory.
 
