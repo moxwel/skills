@@ -2,7 +2,7 @@
 
 Checks that the skills make a model behave the way they describe. Each scenario gives a small coding task to a fresh headless Claude Code session and then checks three things: the session loaded the skill, it read every file the `SKILL.md` table lists for that task, and the code it wrote follows the rules.
 
-Run it after changing a `SKILL.md` description, a routing table, a rule, or what lives in `references/details/`.
+Run it after changing a `SKILL.md` description, a routing table or a rule.
 
 ## Requirements
 
@@ -26,19 +26,19 @@ All sessions of a round run at the same time with `--model sonnet` and stop afte
 ## Reading the output
 
 ```text
-[PASS] cut2: skill=yes references=['comments-and-docs', 'copy', 'naming', 'readability'] details=[] words=2177
-[PASS] robust: skill=yes references=['comments-and-docs', 'copy', 'naming', 'readability', 'robustness'] details=['comments-and-docs', 'naming', 'readability'] words=4582
+[PASS] cut2: skill=yes references=['comments-and-docs', 'copy', 'naming', 'readability'] words=2177
+[PASS] robust: skill=yes references=['comments-and-docs', 'copy', 'naming', 'readability', 'robustness'] words=4582
 2/2 passed, 0.34 USD. Outputs and logs: /tmp/moxwel-skill-tests/verify
 ```
 
 - `skill` says whether the session loaded `moxwel-code-style`.
-- `references` and `details` list the skill files the session read. A read that was denied or failed does not count.
+- `references` lists the skill files the session read. A read that was denied or failed does not count.
 - `words` is the size of those files, to compare how much a task loads before and after a change.
 
 A run that fails lists its problems below its line:
 
 ```text
-[FAIL] robust:1: skill=yes references=['comments-and-docs', 'copy', 'naming', 'readability', 'robustness'] details=['comments-and-docs', 'naming', 'readability'] words=4541
+[FAIL] robust:1: skill=yes references=['comments-and-docs', 'copy', 'naming', 'readability', 'robustness'] words=4541
     constants: group [(9, 11)] padded past its widest item (missed the 8-column cut?)
 ```
 
@@ -57,7 +57,7 @@ A model does not answer the same way twice. Repeat a scenario (`cut2:1 cut2:2 cu
 | `cut` | Add two fields to an aligned object | The 8-column cut between field names, existing fields untouched |
 | `cut2` | Create four constants with names of very different width | The 8-column cut in new code |
 | `imports` | Add a function that needs three new imports | Import groups and order, type-only import, named conditions |
-| `robust` | Write a Python client for a flaky API | Timeout, domain error with its cause, `Retry-After`, docstring tags, and that it read `robustness.md` and the Python details |
+| `robust` | Write a Python client for a flaky API | Timeout, domain error with its cause, `Retry-After`, docstring tags, and that it read `robustness.md` |
 | `naming` | Add a predicate and a slug function | Boolean prefix, named constant, short doc comments |
 | `doc` | Add a function with a hidden outcome to a Python file | `:returns:` tag, existing unaligned constants untouched |
 | `bash` | Write a Bash script | Shebang, header with usage, predicate functions |
@@ -70,7 +70,7 @@ A model does not answer the same way twice. Repeat a scenario (`cut2:1 cut2:2 cu
 | `question` | Ask what a function returns | The base skill does not load for a question, and nothing changes |
 | `override` | Write a module in a project whose `CLAUDE.md` sets 80 columns | The project convention wins over the skill's no-wrap rule |
 | `nowrap` | Write a module with a long signature, with no project width | The signature and calls stay on one line |
-| `audit` | "Does legacy.ts follow my conventions?" | It reads every reference and `details/` file and changes nothing |
+| `audit` | "Does legacy.ts follow my conventions?" | It reads every reference and changes nothing |
 | `copy` | Write the UI texts of a list | No typographic symbols, emoji or generic labels, and a loading message |
 | `readme` | Write a README for a module | markdown.md rules: one title, fenced blocks with a language, ASCII only |
 | `commitmsg` | Write a commit message for a diff | Conventional Commits subject, no body, no commit made |

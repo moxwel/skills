@@ -11,8 +11,8 @@ import shlex
 REACT_SKILL = "moxwel-standard-react-frontend"
 # References every code change must read (first row of the SKILL.md table of the base skill).
 BASE_REFERENCES = ["comments-and-docs", "copy", "naming", "readability"]
-# A skill reference path: group 1 is the skill, 2 is "details/" when present, 3 is the file name.
-SKILL_FILE = re.compile(r"moxwel-([a-z-]+)/references/(details/)?([a-z-]+)\.md")
+# A skill reference path: group 1 is the skill, 2 is the file name.
+SKILL_FILE = re.compile(r"moxwel-([a-z-]+)/references/([a-z-]+)\.md")
 # Separators between the commands of one Bash call.
 COMMAND_SEPARATOR = re.compile(r"&&|\|\||;|\n")
 SHELL_ASSIGNMENT  = re.compile(r"(\w+)=(\S+)$")
@@ -73,9 +73,9 @@ def content_blocks(event: dict) -> list[dict]:
 def session_facts(log_path: Path) -> dict:
     """Reads a session log: skills loaded, skill files it read with success and their words, cost, clean end.
 
-    :returns: "references" and "details" hold file names without extension, prefixed "react:" for the React skill.
+    :returns: "references" holds file names without extension, prefixed "react:" for the React skill.
     """
-    facts   = {"skills": [], "references": set(), "details": set(), "words": 0, "cost_usd": 0.0, "is_finished": False}
+    facts   = {"skills": [], "references": set(), "words": 0, "cost_usd": 0.0, "is_finished": False}
     targets = {}
     for event in log_events(log_path):
         is_result = event.get("type") == "result"
@@ -96,9 +96,8 @@ def session_facts(log_path: Path) -> dict:
                 continue
             # a denied or failed read does not count: only results that carry the file content
             for match in SKILL_FILE.finditer(targets.get(block.get("tool_use_id"), "")):
-                kind   = "details" if match.group(2) else "references"
                 prefix = "react:" if "react" in match.group(1) else ""
-                facts[kind].add(prefix + match.group(3))
+                facts["references"].add(prefix + match.group(2))
                 facts["words"] += len(json.dumps(block.get("content")).split())
     return facts
 
@@ -112,8 +111,7 @@ def missing_skill_files(scenario: dict, facts: dict) -> list[str]:
     references             = base_references + scenario.get("references", [])
     react_references       = [f"react:{name}" for name in scenario.get("react", [])]
     is_react_skill_missing = "react" in scenario and REACT_SKILL not in facts["skills"]
-    missing = [f"details/{name}" for name in scenario["details"] if name not in facts["details"]]
-    missing += [name for name in references + react_references if name not in facts["references"]]
+    missing = [name for name in references + react_references if name not in facts["references"]]
     missing += ["React skill not loaded"] if is_react_skill_missing else []
     return missing
 
@@ -121,10 +119,10 @@ def missing_skill_files(scenario: dict, facts: dict) -> list[str]:
 def self_check() -> None:
     """Checks resolved_paths on the ways sessions were seen reading the skill files."""
     cases = {
-        "cd /s/moxwel-a && cat references/x.md; cd ../moxwel-b/references && cat details/y.md":
-            ["moxwel-a/references/x.md", "moxwel-b/references/details/y.md"],
-        "D=/s; cat $D/moxwel-a/references/x.md ${D}/moxwel-a/references/details/y.md":
-            ["moxwel-a/references/x.md", "moxwel-a/references/details/y.md"],
+        "cd /s/moxwel-a && cat references/x.md; cd ../moxwel-b && cat references/y.md":
+            ["moxwel-a/references/x.md", "moxwel-b/references/y.md"],
+        "D=/s; cat $D/moxwel-a/references/x.md ${D}/moxwel-a/references/y.md":
+            ["moxwel-a/references/x.md", "moxwel-a/references/y.md"],
         "cat /s/moxwel-a/references/x.md": ["moxwel-a/references/x.md"],
     }
     for command, expected in cases.items():

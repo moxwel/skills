@@ -101,7 +101,7 @@ def evaluate(run_id: str, round_dir: Path, has_timed_out: bool) -> tuple[bool, f
         problems.insert(0, "session ended with an error, see its log")
     is_loaded   = BASE_SKILL in facts["skills"]
     is_expected = SCENARIOS[name].get("skill", True)
-    has_read    = bool(facts["references"] or facts["details"])
+    has_read    = bool(facts["references"])
     # "skill": False allows loading SKILL.md, which costs little, but no reference may be read
     is_skill_as_expected = is_loaded if is_expected else not has_read
     is_pass = is_skill_as_expected and not missing and not problems
@@ -110,7 +110,7 @@ def evaluate(run_id: str, round_dir: Path, has_timed_out: bool) -> tuple[bool, f
     if not is_skill_as_expected:
         problems.insert(0, "skill not loaded" if is_expected else "references read for a task that needs none")
     print(f"[{verdict}] {run_id}: skill={loaded} references={sorted(facts['references'])} "
-          f"details={sorted(facts['details'])} words={facts['words']}")
+          f"words={facts['words']}")
     if missing:
         print(f"    required files not read: {missing}")
     for problem in problems:
