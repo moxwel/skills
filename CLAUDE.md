@@ -6,11 +6,10 @@ Agent Skills that teach coding agents moxwel's conventions. They ship as a Claud
 
 - `skills/<name>/SKILL.md` only routes: it says which references to read for each task and holds no rules of its own.
 - `references/` holds the rules. Each style reference opens with its Rules, then Details, Gotchas and a Checklist.
-- `references/details/` holds the part of a reference that only some tasks need (per-language forms, worked examples). A part moves there only when the SKILL.md table can name a condition for reading it that is known before the work starts; anything a change can hit mid-work stays in the Rules.
 - `assets/` holds complete template files that follow every rule.
 - `scripts/` holds checkers for the mechanical rules.
 - `agents/` holds the generic Claude Code agents both skills delegate to (`moxwel-auditor`, `moxwel-sweeper`), shipped as their own plugin in `marketplace.json`. The auditor takes the rules as reference paths from the caller and returns each fix as exact old and new lines; the sweeper (Haiku) only applies those edits. Neither holds rules of its own, so either skill works without the other, and each skill says what to do when the agents are not installed.
-- `test/` holds scenarios that run each skill in fresh headless sessions and check what the model read and wrote (see [test/README.md](test/README.md)). Run them after changing a `SKILL.md` description or table, a rule, or what lives in `details/`.
+- `test/` holds scenarios that run each skill in fresh headless sessions and check what the model read and wrote (see [test/README.md](test/README.md)). Run them after changing a `SKILL.md` description or table, or a rule.
 
 `moxwel-code-style` is the base layer and `moxwel-standard-react-frontend` builds on it.
 
