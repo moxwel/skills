@@ -18,7 +18,7 @@ Covers the shape of code in any language: conditions, control flow, function bod
 6. **Consecutive lines of the same shape are aligned:** declarations, `key: value` attributes, assignments, expressions that differ only in an operand, one-line `if ... return` and arrow functions are padded with spaces so the same part starts in the same column.
    - A block is consecutive lines with no blank line between them. A blank line starts a new block, and each block is aligned on its own, to its widest item.
    - Declarations: pad the type so the names start in the same column, then pad after the separator (`=` or `:`) so the values start in the same column. `key: value` lines (attributes, object fields) follow the same rule.
-   - Expressions and statements of the same shape: pad so the operator or keyword sits in the same column across the lines (the `=` of assignments, `&&` or `||`, the keyword after `if (...)`, the `=>` of arrow functions). For arrows, pad before the shorter parameter so the `=>` lines up.
+   - Expressions and statements of the same shape: pad so the operator or keyword sits in the same column across the lines (the `=` of assignments, `&&` or `||`, the keyword after `if (...)`, the `=>` of arrow functions). For arrows, pad before the shorter parameter so the `=>` lines up. A declaration (`const url = ...`) and an assignment to a variable or property (`url.search = ...`) are the same shape, even when one value opens a multi-line expression: their `=` line up.
    - Trailing comments on consecutive lines go in the same column, one space after the longest line of the group.
    - **Cut at 8 columns:** a group ends where a line differs by 8 or more columns from the previous one (in the width of the name, or of the code for trailing comments), shorter or longer. The line left out keeps a single space, and each side of the cut aligns on its own. Compare each line with the one right above it, never with the widest of the block: after `PORT = 8080` (a 4-column name), `MAX_CONNECTIONS` (15) jumps by 11, so `PORT` keeps its single space and the aligned group starts at `MAX_CONNECTIONS`.
    - Never aligned: imports, a line alone, and data files (JSON, XML, `.po`, lockfiles).
@@ -66,6 +66,11 @@ const fields = {
   textFromValue: (value) => `${value} s`,
   valueFromText:  (text) => parseInt(text),
 };
+
+const url  = new URL(slug, baseUrl);
+url.search = new URLSearchParams({
+  utm_source: utmSource,
+}).toString();
 ```
 
 ```qml
