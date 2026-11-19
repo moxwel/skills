@@ -65,6 +65,7 @@ A model does not answer the same way twice. Repeat a scenario (`cut2:1 cut2:2 cu
 | `mindiff` | Add a function to a file that breaks several rules | Every existing line stays as it was |
 | `react` | Add a component to a Next.js app | The React skill and its references, header first, no needless `"use client"`, no inline styles, own CSS file |
 | `action` | Add a server action that deletes an item | `requireUser()` before the delete, no SQL outside `lib/db`, soft delete, `refresh()`, file under `actions/` |
+| `const` | Add a second file to `lib/imports/` that needs the limit another file of that folder keeps at its top | It moves `MAX_IMPORT_ROWS` to `lib/imports/const.ts` and no file keeps a copy |
 | `metadata` | Make a link preview show up, without naming Open Graph | It finds social-metadata.md; `metadata` export, `metadataBase` from the env, the four `openGraph` fields, no `<head>` |
 | `config` | Turn on strict mode in `tsconfig.json` | The base skill does not load for a configuration-only edit |
 | `question` | Ask what a function returns | The base skill does not load for a question, and nothing changes |

@@ -108,6 +108,22 @@ PACKAGE_JSON = """\
   }
 }
 """
+PARSE_IMPORT_TS = """\
+/*
+ * parseImport.ts: parses the rows of an item import file.
+ */
+
+const MAX_IMPORT_ROWS = 500;
+
+export function parseImport(text: string): string[] {
+  const rows      = text.split("\\n").filter((row) => row.trim() !== "");
+  const isTooLong = rows.length > MAX_IMPORT_ROWS;
+  if (isTooLong) {
+    throw new Error(`An import holds at most ${MAX_IMPORT_ROWS} rows.`);
+  }
+  return rows;
+}
+"""
 PAGE_TSX = """\
 /*
  * Home page: lists the items.
@@ -288,6 +304,12 @@ SCENARIOS = {
         "prompt": "Add a server action that deletes an item by its id for the logged-in user.",
         "react":   ["code-style", "database", "naming", "project-structure", "security-management",
                     "workflow-and-verification"],
+    },
+    "const": {
+        "files":  {"package.json": PACKAGE_JSON, "lib/imports/parseImport.ts": PARSE_IMPORT_TS},
+        "prompt": "Add lib/imports/countImportBatches.ts with a function that says how many batches of the "
+                  "maximum import size a list of row counts needs.",
+        "react":   ["code-style", "naming", "project-structure", "workflow-and-verification"],
     },
     "metadata": {
         "files":  {"package.json": PACKAGE_JSON, "app/page.tsx": PAGE_TSX, "app/layout.tsx": LAYOUT_TSX},

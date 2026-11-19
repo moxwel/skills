@@ -238,6 +238,20 @@ def check_action(work_dir: Path) -> list[str]:
     })
 
 
+def check_const(work_dir: Path) -> list[str]:
+    """MAX_IMPORT_ROWS moves to lib/imports/const.ts once two files of the folder use it (project-structure.md rule 6)."""
+    const_file  = work_dir / "lib/imports/const.ts"
+    sources     = [path for path in sorted(work_dir.glob("lib/**/*.ts")) if path != const_file]
+    definitions = [path.name for path in sources
+                   if re.search(r"\bMAX_IMPORT_ROWS\s*=", path.read_text(encoding="utf-8"))]
+    has_const   = const_file.exists() and "export const MAX_IMPORT_ROWS" in const_file.read_text(encoding="utf-8")
+    return found({
+        "MAX_IMPORT_ROWS not exported from lib/imports/const.ts": not has_const,
+        f"MAX_IMPORT_ROWS still defined in {definitions}": definitions,
+        "no countImportBatches.ts": not (work_dir / "lib/imports/countImportBatches.ts").exists(),
+    })
+
+
 def check_metadata(work_dir: Path) -> list[str]:
     sources = sorted(work_dir.glob("app/**/*.tsx"))
     text    = "\n".join(path.read_text(encoding="utf-8") for path in sources)
@@ -339,6 +353,7 @@ CHECKS = {
     "mindiff":   check_mindiff,
     "react":     check_react,
     "action":    check_action,
+    "const":     check_const,
     "metadata":  check_metadata,
     "config":    check_config,
     "question":  check_question,
