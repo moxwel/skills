@@ -86,7 +86,7 @@ export async function deleteItem(itemId: string): Promise<ActionState> {
 
 - **`redirect()`/`requireUser()` inside `try/catch`:** the catch swallows the navigation. Call them outside.
 - **Login works on HTTPS but not on LAN HTTP.** Set the cookie's `secure` only when `x-forwarded-proto === "https"`.
-- **`validate.ts` imports nothing,** because `node --test` runs it bare. It keeps its own copy of the enums and limits it checks, each commented with its source.
+- **`validate.ts` has no `@/` imports,** because `node --test` runs it without the Next alias. It imports the enums and limits it checks from `lib/const/` by relative path with the `.ts` extension (`../const/limits.ts`), never a copy (project-structure.md rule 7), and those modules import nothing themselves.
 
 ## Checklist
 

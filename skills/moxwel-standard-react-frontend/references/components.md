@@ -21,7 +21,7 @@ Covers Base UI wrappers (`components/base-ui/`), generic UI pieces (`components/
 - **`render` prop composition:** `BaseAlertDialog.Close render={<Button variant="secondary" />}`. The rendered component must forward its `ref` and spread the props it receives. A button part rendered as a non-`<button>` needs `nativeButton={false}`.
 - **State attributes:** `[data-checked]`, `[data-disabled]`, `[data-popup-open]` (triggers), `[data-open]` (popups/panels), `[data-highlighted]`, `[data-invalid]`.
 - **Catalog:**
-  - Icons: `<Icon path={mdiX} size={ICON_SIZE} />` from `@mdi/react` + `@mdi/js`. Three sizes, all in `lib/const/icons.ts` and in rem (so they don't depend on the surrounding font size):
+  - Icons: `<Icon path={mdiX} size={ICON_SIZE} />` from `@mdi/react` + `@mdi/js`. Three sizes, all in `components/const.ts` and in rem (so they don't depend on the surrounding font size):
     - `ICON_SIZE = "1.5rem"`, the default: buttons, navbar, tabs, toasts, chevrons and every icon that is neither small nor large below.
     - `ICON_SIZE_SMALL = "1rem"`, for icons beside small text and icons inline with text: status rows and badges, the property rows of a record (views, date, author, size), detail lines and icons placed inside a line of text.
     - `ICON_SIZE_LARGE = "3rem"`, for the icon next to a page title (`PageTitle`) and for the large logo.

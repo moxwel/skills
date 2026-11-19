@@ -26,6 +26,7 @@ export function markSuggestionReviewed(id: string, status: ReviewStatus): boolea
 ```
 
 - **Routes** always come from `PAGES`.
+- **A new constant** goes at the closest level that covers every file using it: the top of the file, the folder's `const.ts` or `lib/const/` (project-structure.md rule 6). It is imported from there, never copied.
 - **Component body order:** hooks → derived consts → `render*` helpers → named JSX blocks (`createForm`, `userTable`) → a short `return` that composes them.
 - **JSX details:** render conditionally through a named boolean (`{isEmpty && …}`). Build classes with `cn()`, never by concatenation. Optional data attributes use `data-active={isActive || undefined}`. Lists use a stable `key`.
 - **Client code** imports from `lib/` only Node-free modules (such as `lib/const/*` except `paths`, `lib/ui/*`, `lib/format/*`), plus types via `import type`.
