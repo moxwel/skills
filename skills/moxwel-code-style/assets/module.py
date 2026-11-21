@@ -17,6 +17,11 @@ ITEM_EXTENSION   = ".json"
 NAME_PATTERN = re.compile(r"^[a-z0-9_]{1,48}$")
 
 
+def read_item(path: str) -> dict:
+    with open(path, encoding="utf-8") as item_file:
+        return json.load(item_file)
+
+
 def list_items(query: str) -> list[dict]:
     """Lists the items whose name contains `query` (all if empty), newest first, at most MAX_LISTED_ITEMS.
 
@@ -50,8 +55,3 @@ def describe_item(item: dict) -> str:
     size = format_bytes(item["size_bytes"])
     archived_label = " (archived)" if item["is_archived"] else ""
     return f"{item['name']}, {size}{archived_label}"
-
-
-def read_item(path: str) -> dict:
-    with open(path, encoding="utf-8") as item_file:
-        return json.load(item_file)

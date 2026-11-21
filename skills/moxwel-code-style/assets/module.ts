@@ -17,6 +17,11 @@ const ITEM_EXTENSION   = ".json";
 /** Lowercase letters, digits and _, so a name is always a safe file name; 48 keeps paths short. */
 const NAME_PATTERN = /^[a-z0-9_]{1,48}$/;
 
+async function readItem(path: string): Promise<Item> {
+  const itemJson = await readFile(path, "utf8");
+  return JSON.parse(itemJson) as Item;
+}
+
 /**
  * Lists the items whose name contains `query` (all if empty), newest first, at most MAX_LISTED_ITEMS.
  * @throws If the folder or an item file cannot be read or parsed.
@@ -49,9 +54,4 @@ export function describeItem(item: Item): string {
   const size = formatBytes(item.size_bytes);
   const archivedLabel = item.is_archived ? " (archived)" : "";
   return `${item.name}, ${size}${archivedLabel}`;
-}
-
-async function readItem(path: string): Promise<Item> {
-  const itemJson = await readFile(path, "utf8");
-  return JSON.parse(itemJson) as Item;
 }
