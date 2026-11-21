@@ -8,6 +8,7 @@ import re
 CUT_COLUMNS = 8
 # A plain assignment: group 1 is the indentation, 2 the name with its keyword, 3 the padding before "=".
 ASSIGNMENT = re.compile(r"^(\s*)((?:export const |const |let |local )?[A-Za-z_][\w.]*)(\s+)= \S")
+OPENS_BODY = re.compile(r"(=>|\bfunction\b[^=]*\))\s*\{\s*$")
 
 
 def alignment_problems(rows: list[tuple[int, int]], label: str) -> list[str]:
@@ -55,7 +56,7 @@ def assignment_problems(text: str) -> list[str]:
     """Checks every run of consecutive plain assignments at one indentation; any other line ends the run."""
     problems, run, run_indent = [], [], None
     for line in text.splitlines() + [""]:
-        match       = ASSIGNMENT.match(line)
+        match       = None if OPENS_BODY.search(line) else ASSIGNMENT.match(line)
         is_same_run = match is not None and run_indent in (None, match.group(1))
         has_group   = len(run) >= 2
         if not is_same_run:
@@ -73,8 +74,13 @@ def self_check() -> None:
     cut_missed = "PORT            = 8080\nMAX_CONNECTIONS = 100\n"
     unaligned  = "TIMEOUT_MS = 500\nRETRIES = 3\n"
     aligned    = "TIMEOUT_MS = 500\nRETRIES    = 3\n"
+
+    body_opener    = "const url = 1\nconst onSave = () => {\n"
+    object_literal = "const url = 1\nconst config = {\n"
     assert assignment_problems(cut_kept) == [], "a line 8 columns shorter keeps its single space"
     assert assignment_problems(cut_missed) != [], "padding across an 8-column jump is a problem"
     assert assignment_problems(unaligned) != [], "names of similar width must be aligned"
     assert assignment_problems(aligned) == [], "an aligned group is clean"
+    assert assignment_problems(body_opener) == [], "a line that only opens a body joins no group"
+    assert assignment_problems(object_literal) != [], "an object literal still aligns"
     print("Self-check passed.")

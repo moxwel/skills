@@ -3,12 +3,14 @@ Checks of what a session wrote: one function per scenario, registered in CHECKS 
 plus the checks several scenarios share.
 """
 
+import difflib
 import itertools
 from pathlib import Path
 import re
+import subprocess
 
 from alignment import alignment_problems, assignment_problems, block_problems, rows_of
-from scenarios import HEADER_SCENARIOS, LEGACY_TS, REVIEWS_TS, SCENARIOS, TSCONFIG_JSON, UNALIGNED_START_SCENARIOS
+from scenarios import DOCUMENTED_SCENARIOS, HEADER_SCENARIOS, LEGACY_TS, ORDERS_TS, REVIEWS_TS, SCENARIOS, TSCONFIG_JSON, UNALIGNED_START_SCENARIOS
 
 # Files checked for assignment alignment, at the top level of the session folder.
 SOURCE_SUFFIXES = (".ts", ".tsx", ".py")
@@ -25,8 +27,18 @@ EMOJI              = re.compile("[\U0001f300-\U0001faff\u2600-\u27bf]")
 GENERIC_LABEL      = re.compile(r"get started|learn more|try now|explore|discover|oops", re.I)
 SQL_STATEMENT      = re.compile(r"\b(SELECT|INSERT|UPDATE|DELETE)\b")
 CONVENTIONAL_SUBJECT = re.compile(r"[a-z]+(\([\w-]+\))?!?: \S")
-# A git trailer such as the Co-Authored-By line the harness asks for: a footer, not a body.
-GIT_TRAILER = re.compile(r"[\w-]+: \S")
+# Footers git-conventions.md keeps: not a body.
+GIT_FOOTER     = re.compile(r"(Refs|BREAKING CHANGE): \S")
+AI_ATTRIBUTION = re.compile(r"co-authored-by:|generated with", re.I)
+
+COMMENTED_SUFFIXES = (".ts", ".tsx", ".js", ".css", ".py", ".sh")
+SLASH_COMMENT      = re.compile(r"(^|\s|\{)(//|/\*)|^\s*\*")
+HASH_COMMENT       = re.compile(r'(^|\s)#|"""|\'\'\'')
+TOOL_DIRECTIVE     = re.compile(r"eslint-|@ts-|prettier-ignore|noqa|type: ignore|shellcheck|shortcut:|ponytail:")
+INLINE_COMMENT_TS  = re.compile(r"(?:^|\s)//\s*(.*)$")
+INLINE_COMMENT_PY  = re.compile(r"\S\s+#\s*(.*)$")
+
+HELPER_MOVE_LINE_COUNT = 8
 
 
 def read_output(work_dir: Path, file_name: str) -> str:
@@ -106,7 +118,6 @@ def check_robust(work_dir: Path) -> list[str]:
     has_domain_error = re.search(r"class \w+\((\w*Error|Exception)\)", text)
     is_cause_dropped = re.search(r"raise \w+\(", text) and " from " not in text
     problems = found({
-        "no module docstring header": not text.lstrip().startswith('"""'),
         "request without timeout":    "timeout=" not in text,
         "bare or swallowing except":  re.search(r"except\s*:|except Exception[^\n]*:\s*\n\s*pass", text),
         "no domain error: library errors reach the caller": not has_domain_error,
@@ -129,9 +140,7 @@ def check_naming(work_dir: Path) -> list[str]:
         f"boolean function not named is/has/can/should/was: {functions}": not has_predicate_name,
         "inline comparison in a condition": INLINE_CONDITION_TS.search(text),
         "single-letter name": SINGLE_LETTER_TS.search(text),
-        "max length 40 is not a named constant":   re.search(r"\b40\b", body) and not has_length_constant,
-        "doc comment longer than two lines":       has_long_doc(text),
-        "@param that echoes an obvious parameter": re.search(r"@param (slug|items|title)\b", text),
+        "max length 40 is not a named constant": re.search(r"\b40\b", body) and not has_length_constant,
     })
 
 
@@ -196,11 +205,6 @@ def new_sources(work_dir: Path, pattern: str, starting_files: dict[str, str]) ->
     return [path for path in created if str(path.relative_to(work_dir)) not in starting_files]
 
 
-def header_first_problems(text: str, file_name: str) -> list[str]:
-    """The file header comes first, before any "use client" or "use server" directive (code-style.md rule 1)."""
-    return found({f"{file_name} does not start with a /* */ header": not text.lstrip().startswith("/*")})
-
-
 def check_react(work_dir: Path) -> list[str]:
     components = [path for path in new_sources(work_dir, "**/*.tsx", SCENARIOS["react"]["files"])
                   if "ItemCount" in path.read_text(encoding="utf-8")]
@@ -209,7 +213,7 @@ def check_react(work_dir: Path) -> list[str]:
     component = components[0]
     text      = component.read_text(encoding="utf-8")
     has_css   = any(new_sources(work_dir, "**/*.css", {}))
-    return header_first_problems(text, component.name) + found({
+    return found({
         "\"use client\" in a component that needs no state, effects or handlers": '"use client"' in text,
         "inline style attribute instead of a CSS class": "style={" in text,
         "no CSS file for the component's own styles": not has_css,
@@ -227,7 +231,7 @@ def check_action(work_dir: Path) -> list[str]:
     auth_at   = text.find("requireUser(")
     delete_at = text.find("softDeleteItem(")
     is_auth_first = 0 <= auth_at < delete_at
-    return header_first_problems(text, action.name) + found({
+    return found({
         "action outside actions/": "actions" not in action.relative_to(work_dir).parts,
         "requireUser() missing or called after the delete": not is_auth_first,
         "SQL written outside lib/db": SQL_STATEMENT.search(text),
@@ -289,7 +293,7 @@ def check_override(work_dir: Path) -> list[str]:
 def check_nowrap(work_dir: Path) -> list[str]:
     """Without a project width, a long signature or call stays on one line (readability.md rule 4)."""
     text    = read_output(work_dir, "links.ts")
-    wrapped = re.findall(r"^.*[(,]$", text, re.M)
+    wrapped = re.findall(r"^(?!\s*[\w\"']+:\s).*[(,]$", text, re.M)
     return found({f"lines wrapped for length: {wrapped}": wrapped})
 
 
@@ -329,14 +333,55 @@ def check_readme(work_dir: Path) -> list[str]:
     })
 
 
-def check_commitmsg(work_dir: Path) -> list[str]:
-    lines      = read_output(work_dir, "COMMIT_MSG.txt").strip().splitlines()
-    subject    = lines[0] if lines else ""
-    body_lines = [line for line in lines[1:] if line.strip() and not GIT_TRAILER.match(line)]
+def message_problems(message: str) -> list[str]:
+    lines        = message.strip().splitlines()
+    subject      = lines[0] if lines else ""
+    attributions = [line for line in lines if AI_ATTRIBUTION.search(line)]
+    body_lines   = [line for line in lines[1:] if line.strip() and not GIT_FOOTER.match(line) and line not in attributions]
     return found({
         f"subject is not Conventional Commits: {subject!r}": not CONVENTIONAL_SUBJECT.match(subject),
         f"has a body the user did not ask for: {body_lines}": body_lines,
-        "a commit was made": (work_dir / ".git").exists(),
+        f"AI attribution line: {attributions}": attributions,
+    })
+
+
+def check_commitmsg(work_dir: Path) -> list[str]:
+    message = read_output(work_dir, "COMMIT_MSG.txt")
+    return message_problems(message) + found({"a commit was made": (work_dir / ".git").exists()})
+
+
+def run_git(work_dir: Path, *arguments: str) -> str:
+    return subprocess.run(["git", *arguments], cwd=work_dir, check=True, capture_output=True, text=True).stdout
+
+
+def check_commit(work_dir: Path) -> list[str]:
+    messages     = [message for message in run_git(work_dir, "log", "--format=%B%x00").split("\0") if message.strip()]
+    is_committed = len(messages) == 2
+    is_clean     = not run_git(work_dir, "status", "--porcelain").strip()
+    problems     = message_problems(messages[0]) if is_committed else [f"expected 1 new commit, got {len(messages) - 1}"]
+    return problems + found({"the change was left uncommitted": not is_clean})
+
+
+def changed_line_count(original: str, text: str) -> int:
+    diff = difflib.unified_diff(original.splitlines(), text.splitlines(), lineterm="", n=0)
+    return sum(1 for line in diff if line[:1] in "+-" and line[:3] not in ("+++", "---"))
+
+
+def check_order(work_dir: Path) -> list[str]:
+    text  = read_output(work_dir, "orders.ts")
+    lines = text.splitlines()
+
+    helper_at   = next((index for index, line in enumerate(lines) if "function lineTotal" in line), -1)
+    caller_at   = next((index for index, line in enumerate(lines) if "function orderTotal" in line), -1)
+    constant_at = next((index for index, line in enumerate(lines) if "const TAX_RATE" in line), -1)
+
+    is_reordered_only = sorted(filter(str.strip, lines)) == sorted(filter(str.strip, ORDERS_TS.splitlines()))
+    changed_count     = changed_line_count(ORDERS_TS, text)
+    return found({
+        "lines changed besides their order": not is_reordered_only,
+        "lineTotal still defined below orderTotal": helper_at > caller_at,
+        "constants no longer above the functions": constant_at > min(helper_at, caller_at),
+        f"{changed_count} lines changed, moving lineTotal up takes {HELPER_MOVE_LINE_COUNT}": changed_count > HELPER_MOVE_LINE_COUNT,
     })
 
 
@@ -363,6 +408,8 @@ CHECKS = {
     "copy":      check_copy,
     "readme":    check_readme,
     "commitmsg": check_commitmsg,
+    "commit":    check_commit,
+    "order":     check_order,
 }
 
 
@@ -371,6 +418,45 @@ def header_problems(name: str, work_dir: Path) -> list[str]:
     headers  = {file_name: content.split("*/")[0] for file_name, content in SCENARIOS[name]["files"].items()}
     reworded = [file_name for file_name, header in headers.items() if header not in read_output(work_dir, file_name)]
     return [f"existing header of {file_name} was reworded" for file_name in reworded]
+
+
+def comment_pattern(path: Path) -> re.Pattern:
+    is_hash_language = path.suffix in (".py", ".sh")
+    return HASH_COMMENT if is_hash_language else SLASH_COMMENT
+
+
+def is_written_source(path: Path, work_dir: Path) -> bool:
+    is_outside = not {"node_modules", ".git"} & set(path.relative_to(work_dir).parts)
+    is_test    = path.name.startswith("test_") or ".test." in path.name or ".spec." in path.name
+    return path.suffix in COMMENTED_SUFFIXES and is_outside and not is_test
+
+
+def new_comment_problems(name: str, work_dir: Path) -> list[str]:
+    starting_files = SCENARIOS[name]["files"] | SCENARIOS[name].get("changes", {})
+    problems       = []
+    for path in sorted(work_dir.rglob("*")):
+        if not is_written_source(path, work_dir):
+            continue
+        relative_path = str(path.relative_to(work_dir))
+        lines = path.read_text(encoding="utf-8").splitlines()
+        starting_lines = set(starting_files.get(relative_path, "").splitlines())
+        is_shebang     = lines[:1] and lines[0].startswith("#!")
+        added          = [line for line in lines[1 if is_shebang else 0:] if line not in starting_lines]
+        comments       = [line.strip() for line in added if comment_pattern(path).search(line) and not TOOL_DIRECTIVE.search(line)]
+        problems      += [f"{relative_path}: comment the user did not ask for: {comment!r}" for comment in comments[:3]]
+    return problems
+
+
+def comment_form_problems(name: str, work_dir: Path) -> list[str]:
+    problems = []
+    for file_name, starting_text in SCENARIOS[name]["files"].items():
+        is_python      = file_name.endswith(".py")
+        pattern        = INLINE_COMMENT_PY if is_python else INLINE_COMMENT_TS
+        starting_lines = set(starting_text.splitlines())
+        added    = [line for line in read_output(work_dir, file_name).splitlines() if line not in starting_lines]
+        comments = [match.group(1) for match in map(pattern.search, added) if match]
+        problems += [f"{file_name}: inline comment ends with a period: {comment!r}" for comment in comments if comment.endswith(".")]
+    return problems
 
 
 def is_checked_source(path: Path) -> bool:
@@ -390,5 +476,7 @@ def output_problems(name: str, work_dir: Path) -> list[str]:
     problems        = CHECKS[name](work_dir)
     for source in checked_sources:
         problems += assignment_problems(source.read_text(encoding="utf-8"))
+    is_documented = name in DOCUMENTED_SCENARIOS
     problems += header_problems(name, work_dir) if is_header_checked else []
+    problems += comment_form_problems(name, work_dir) if is_documented else new_comment_problems(name, work_dir)
     return problems

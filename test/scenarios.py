@@ -228,6 +228,27 @@ diff --git a/slugify.ts b/slugify.ts
 +    return title.toLowerCase().trim().replace(/\\s+/g, "-").slice(0, MAX_SLUG_LENGTH)
  }
 """
+SLUGIFY_OLD_TS = SLUGIFY_TS.replace(".trim().replace(/\\s+/g", ".replace(/ /g")
+ORDERS_TS      = """\
+export type OrderLine = { price: number; quantity: number }
+
+const TAX_RATE      = 0.19
+const SHIPPING_COST = 5
+
+export function orderTotal(lines: OrderLine[]): number {
+    const isEmpty = lines.length === 0
+    if (isEmpty) {
+        return 0
+    }
+    const subtotal = lines.reduce((sum, line) => sum + lineTotal(line), 0)
+    const taxed    = subtotal * (1 + TAX_RATE)
+    return taxed + SHIPPING_COST
+}
+
+function lineTotal(line: OrderLine): number {
+    return line.price * line.quantity
+}
+"""
 NARROW_CLAUDE_MD = """\
 # Project conventions
 
@@ -238,7 +259,8 @@ NARROW_CLAUDE_MD = """\
 # BASE_REFERENCES (session_log.py). "references" names files of the base skill; "react" names
 # references of the React skill and also requires that skill to load. "base": False drops BASE_REFERENCES for
 # tasks that write no code, and "skill": False expects the session to read no reference of the base skill
-# (loading its SKILL.md alone is allowed).
+# (loading its SKILL.md alone is allowed). "git": True commits "files" to a fresh repository before the session,
+# "changes" are written after that commit, and "tools" are allowed on top of the read-only ones.
 SCENARIOS = {
     "align": {
         "files":  {"config.ts": CONFIG_TS},
@@ -274,18 +296,18 @@ SCENARIOS = {
     "doc": {
         "files":  {"store.py": STORE_PY},
         "prompt": "In store.py add a function that marks an item as reviewed if it is still pending, "
-                  "and tells the caller whether it did.",
+                  "and tells the caller whether it did. Document it.",
     },
     "bash": {
         "files":  {},
         "prompt": "Write sync_folder.sh: copies every file from a source folder to a destination folder (both given "
                   "as arguments) with rsync, and does nothing when both are the same folder or the source does not "
-                  "exist.",
+                  "exist. Document its usage in a header.",
     },
     "tsdoc": {
         "files":  {"reviews.ts": REVIEWS_TS},
         "prompt": "In reviews.ts add a function that marks an item as reviewed if it is still pending, "
-                  "and tells the caller whether it did.",
+                  "and tells the caller whether it did. Document it.",
     },
     "mindiff": {
         "files":   {"legacy.ts": LEGACY_TS},
@@ -359,9 +381,25 @@ SCENARIOS = {
         "references": ["git-conventions"],
         "base":       False,
     },
+    "commit": {
+        "files":      {"slugify.ts": SLUGIFY_OLD_TS},
+        "changes":    {"slugify.ts": SLUGIFY_TS},
+        "git":        True,
+        "tools":      ["Bash(git status:*)", "Bash(git diff:*)", "Bash(git log:*)", "Bash(git add:*)",
+                       "Bash(git commit:*)"],
+        "prompt":     "Commit the change in slugify.ts.",
+        "references": ["git-conventions"],
+        "base":       False,
+    },
+    "order": {
+        "files":  {"orders.ts": ORDERS_TS},
+        "prompt": "Fix the order of the code in orders.ts so it follows my conventions. Change nothing else.",
+    },
 }
 
 # Scenarios whose starting files hold unaligned assignments that must stay as they are.
 UNALIGNED_START_SCENARIOS = ("doc", "mindiff", "cut", "question", "audit")
 # Scenarios whose starting file headers are compared with the output.
 HEADER_SCENARIOS = ("naming", "imports", "cut")
+# Scenarios whose prompt asks for documentation: every other one must add no comment, doc comment or header.
+DOCUMENTED_SCENARIOS = ("doc", "tsdoc", "bash")

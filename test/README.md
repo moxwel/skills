@@ -57,13 +57,13 @@ A model does not answer the same way twice. Repeat a scenario (`cut2:1 cut2:2 cu
 | `cut` | Add two fields to an aligned object | The 8-column cut between field names, existing fields untouched |
 | `cut2` | Create four constants with names of very different width | The 8-column cut in new code |
 | `imports` | Add a function that needs three new imports | Import groups and order, type-only import, named conditions |
-| `robust` | Write a Python client for a flaky API | Timeout, domain error with its cause, `Retry-After`, docstring tags, and that it read `robustness.md` |
-| `naming` | Add a predicate and a slug function | Boolean prefix, named constant, short doc comments |
-| `doc` | Add a function with a hidden outcome to a Python file | `:returns:` tag, existing unaligned constants untouched |
-| `bash` | Write a Bash script | Shebang, header with usage, predicate functions |
-| `tsdoc` | Add a function with a hidden outcome to a TypeScript file | `@returns` tag, no echo `@param`, command name |
+| `robust` | Write a Python client for a flaky API | Timeout, domain error with its cause, `Retry-After`, and that it read `robustness.md` |
+| `naming` | Add a predicate and a slug function | Boolean prefix, named constant |
+| `doc` | Add a documented function with a hidden outcome to a Python file | `:returns:` tag, existing unaligned constants untouched |
+| `bash` | Write a Bash script with its usage documented in a header | Shebang, header with usage, predicate functions |
+| `tsdoc` | Add a documented function with a hidden outcome to a TypeScript file | `@returns` tag, no echo `@param`, command name |
 | `mindiff` | Add a function to a file that breaks several rules | Every existing line stays as it was |
-| `react` | Add a component to a Next.js app | The React skill and its references, header first, no needless `"use client"`, no inline styles, own CSS file |
+| `react` | Add a component to a Next.js app | The React skill and its references, no needless `"use client"`, no inline styles, own CSS file |
 | `action` | Add a server action that deletes an item | `requireUser()` before the delete, no SQL outside `lib/db`, soft delete, `refresh()`, file under `actions/` |
 | `const` | Add a second file to `lib/imports/` that needs the limit another file of that folder keeps at its top | It moves `MAX_IMPORT_ROWS` to `lib/imports/const.ts` and no file keeps a copy |
 | `metadata` | Make a link preview show up, without naming Open Graph | It finds social-metadata.md; `metadata` export, `metadataBase` from the env, the four `openGraph` fields, no `<head>` |
@@ -74,7 +74,11 @@ A model does not answer the same way twice. Repeat a scenario (`cut2:1 cut2:2 cu
 | `audit` | "Does legacy.ts follow my conventions?" | It reads every reference and changes nothing |
 | `copy` | Write the UI texts of a list | No typographic symbols, emoji or generic labels, and a loading message |
 | `readme` | Write a README for a module | markdown.md rules: one title, fenced blocks with a language, ASCII only |
-| `commitmsg` | Write a commit message for a diff | Conventional Commits subject, no body, no commit made |
+| `commitmsg` | Write a commit message for a diff | Conventional Commits subject, no body, no AI attribution line, no commit made |
+| `commit` | Commit a change in a repository | One new commit with a Conventional Commits subject, no body and no `Co-Authored-By:` line, even though the harness asks for one |
+| `order` | Fix the order of a file whose helper sits below its caller | The helper moves up (the smaller move), the constants stay first, only the order changes |
+
+Every scenario also checks the alignment of its assignments. A scenario whose prompt does not ask for documentation (all but `doc`, `tsdoc` and `bash`) fails on any comment, doc comment or header the session added; in those three, an added inline comment must not end with a period.
 
 ## Files
 
@@ -84,6 +88,6 @@ A model does not answer the same way twice. Repeat a scenario (`cut2:1 cut2:2 cu
 - `session_log.py`: reads a session log to find the skills loaded and the files read.
 - `run_scenarios.py`: starts the sessions and prints the verdicts.
 
-To add a scenario, add an entry to `SCENARIOS` in `scenarios.py` and a `check_<name>` function to `CHECKS` in `checks.py`. A scenario for a task that writes no code sets `"base": False`, so the session does not have to read the references every code change reads; one that must not load the base skill at all sets `"skill": False`.
+To add a scenario, add an entry to `SCENARIOS` in `scenarios.py` and a `check_<name>` function to `CHECKS` in `checks.py`. A scenario for a task that writes no code sets `"base": False`, so the session does not have to read the references every code change reads; one that must not load the base skill at all sets `"skill": False`. A scenario that needs a repository sets `"git": True`: its `files` are committed first and its `changes` written after, and `"tools"` lists the extra tools the session may use, such as `Bash(git commit:*)`. A prompt that asks for documentation goes in `DOCUMENTED_SCENARIOS`.
 
 The agents in `agents/` are available to the sessions through the symlinks, but no scenario covers delegation yet: every scenario works on fewer than the 6 files that make a skill delegate.

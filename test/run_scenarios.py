@@ -32,6 +32,8 @@ ROUND_TIMEOUT_SEC = 540
 ROUND_NAME = re.compile(r"[\w-]+")
 RUN_ID     = re.compile(r"(\w+)(:\w+)?")
 
+GIT_IDENTITY = {"user.name": "Skill Tests", "user.email": "skill-tests@example.com"}
+
 
 def scenario_name(run_id: str) -> str:
     return run_id.split(":")[0]
@@ -50,6 +52,24 @@ def is_valid_run_id(run_id: str) -> bool:
     return match is not None and match.group(1) in SCENARIOS
 
 
+def write_files(work_dir: Path, files: dict[str, str]) -> None:
+    for file_name, content in files.items():
+        file_path = work_dir / file_name
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+        file_path.write_text(content, encoding="utf-8")
+
+
+def commit_starting_files(work_dir: Path) -> None:
+    def run_git(*arguments: str) -> None:
+        subprocess.run(["git", *arguments], cwd=work_dir, check=True, capture_output=True)
+
+    run_git("init", "-q")
+    for key, value in GIT_IDENTITY.items():
+        run_git("config", key, value)
+    run_git("add", "-A")
+    run_git("commit", "-q", "-m", "add starting files")
+
+
 def start_session(run_id: str, round_dir: Path) -> subprocess.Popen:
     """Writes the starting files of the scenario to a fresh folder and starts a headless session in it."""
     scenario = SCENARIOS[scenario_name(run_id)]
@@ -57,11 +77,12 @@ def start_session(run_id: str, round_dir: Path) -> subprocess.Popen:
     if work_dir.exists():
         shutil.rmtree(work_dir)
     work_dir.mkdir(parents=True)
-    for file_name, content in scenario["files"].items():
-        file_path = work_dir / file_name
-        file_path.parent.mkdir(parents=True, exist_ok=True)
-        file_path.write_text(content, encoding="utf-8")
-    command = ["claude", "-p", scenario["prompt"], "--model", MODEL, *PERMISSION_FLAGS, *OUTPUT_FLAGS]
+    write_files(work_dir, scenario["files"])
+    if scenario.get("git", False):
+        commit_starting_files(work_dir)
+    write_files(work_dir, scenario.get("changes", {}))
+    tools   = scenario.get("tools", [])
+    command = ["claude", "-p", scenario["prompt"], "--model", MODEL, *PERMISSION_FLAGS, *tools, *OUTPUT_FLAGS]
     with log_path_of(work_dir).open("w", encoding="utf-8") as log_file:
         return subprocess.Popen(command, cwd=work_dir, stdout=log_file, stderr=subprocess.STDOUT)
 
