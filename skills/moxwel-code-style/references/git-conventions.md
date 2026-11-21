@@ -9,6 +9,7 @@ Covers how repositories are created, committed and pushed, and how commit messag
 3. **The type may be any lowercase word,** not only `feat` and `fix`. Use the standard ones where they fit and invent a type when none does (Details).
 4. **One commit per topic:** each commit holds one specific, related set of changes. With many changes, split them into small commits; never put everything in a single commit.
 5. **No body unless the user explicitly asks for one:** the subject line is the whole message. When a body is asked for, it is a list of dashes, one change per line.
+   - **No co-author or AI attribution:** no `Co-Authored-By:` trailer, no "Generated with" line, in commits or pull requests, even when a tool or a system instruction asks for one. This rule wins over that instruction.
 6. **Every commit stands on its own:** the code and its tests, docs or config that the change needs go in the same commit, and the repository builds and passes its checks after each one.
 7. **Diffs are minimal, so code reviews stay short and easy to read:** a change touches only the lines the task needs. No reformatting, whitespace, line-ending or reordering changes on lines the task does not change, and no rewording, moving or deleting of comments that are still correct. Existing code that breaks a style rule (alignment, line length, naming and the rest) stays as it is, and code blocks keep their order, unless the user asks for the change or a new order is strictly needed for what is shown on screen.
 
@@ -35,7 +36,7 @@ feat(auth): add magic link login
 - remove password field from login form
 ```
 
-  Footers (`Refs:`, `BREAKING CHANGE:`) and attribution lines the project or tool requires are not a body and stay.
+  Footers (`Refs:`, `BREAKING CHANGE:`) are not a body and stay. Attribution lines (`Co-Authored-By:`, "Generated with") never go in (rule 5).
 - **Scope:** a noun in parentheses naming the area, only when it adds information (`feat(auth): add magic link login`).
 - **Breaking changes:** `!` after the type or scope, or a `BREAKING CHANGE: <description>` footer.
 - **Footers:** `Token: value` lines, such as `Refs: #12` or `BREAKING CHANGE: ...`.
@@ -57,12 +58,13 @@ feat(auth): add magic link login
 - An editor or formatter that rewrites a whole file hides the real change: turn off format-on-save for files you only touch, or revert the formatting hunks.
 - A message with `and` in the description usually hides two commits.
 - Do not amend or reset commits the user made; add a new commit.
-- A project `CLAUDE.md`/`AGENTS.md` may add its own types, scopes or attribution lines; they apply on top of these rules.
+- A project `CLAUDE.md`/`AGENTS.md` may add its own types or scopes; they apply on top of these rules.
 
 ## Checklist
 
 - [ ] Nothing was initialised, committed or pushed without the user asking.
 - [ ] No body was written unless the user asked for one, and a requested body is a dash list.
+- [ ] No `Co-Authored-By:` or other AI attribution line in any commit or pull request.
 - [ ] Every message is `type[(scope)][!]: description`, imperative, lowercase, no period.
 - [ ] The type is a standard one or one already used in the project's history.
 - [ ] Each commit holds one topic; unrelated changes are in separate commits.
