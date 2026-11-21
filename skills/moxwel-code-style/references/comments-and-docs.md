@@ -22,7 +22,7 @@ Covers every source file in any language: when comments are written at all, the 
      - A summary-only doc is one line (`/** Number of active items. */`).
    - **Constants** that need explaining get a one-line doc comment above them (`/** … */`, `#` in Python/Bash), never a trailing comment. A constant with a descriptive name needs none.
    - **Shared types** get `@property name - Desc.` lines in the type's doc for non-obvious fields, never comments inside the type.
-7. **Short inline comments are lowercase fragments:** one line, no capital at the start, no period at the end, as few words as it takes (`// retry once, the socket may be stale`). The tone rules of copy.md apply to every comment and doc.
+7. **Comments in code are line comments, as short as possible:** a single `//` or `#` line, never a `/* */` block or several lines. It starts lowercase, has no final period, and uses the fewest words that keep the fact (`// socket may be stale`, not `// retry once here because the socket may be stale`). Only a header or doc comment the user asked for as documentation takes the forms of rules 3, 5 and 6. The tone rules of copy.md apply to every comment and doc.
 
 ## Details
 
@@ -40,13 +40,14 @@ Covers every source file in any language: when comments are written at all, the 
   - An inline comment is a `//` or `#` comment inside a body or after a line of code. File headers, doc comments and the usage block of a script keep full sentences (capital, final period).
   - Names, acronyms and proper nouns keep their case (`the API returns null`, `Plasma ignores it`), and a tool directive or marker stays as the tool expects it (`// eslint-disable-next-line`, `# noqa`, `shortcut: ...`).
   - Cut the lead-in: `this is needed because`, `note that`, `we need to`. Start at the fact.
-  - A comment that needs several sentences is written as sentences (capital, periods), and is a smell (Gotchas).
+  - A comment that seems to need several sentences is cut to one line: keep the constraint, drop the story (Gotchas).
 
 | Before | After |
 |---|---|
-| `// Retry once, the socket may be stale.` | `// retry once, the socket may be stale` |
-| `// Note that the API returns null for an empty list.` | `// the API returns null for an empty list` |
-| `# This is needed because the file may not exist yet.` | `# the file may not exist yet` |
+| `// Retry once, the socket may be stale.` | `// socket may be stale` |
+| `// Note that the API returns null for an empty list.` | `// API returns null when empty` |
+| `# This is needed because the file may not exist yet.` | `# file may not exist yet` |
+| `/* The model fills a moment after it is enabled, so we sample again here. */` | `// model fills late` |
 
 ```ts
 /**
@@ -76,4 +77,4 @@ def mark_item_reviewed(item_id: str, status: str) -> bool:
 - [ ] A header the user asked for is at most two lines saying what the file is and why it looks that way.
 - [ ] No comment echoes a name, a type or a signature; self-descriptive functions and constants have none.
 - [ ] A doc comment exists where the name hides something (an outcome, a deliberate throw, complex logic), and is two lines at most.
-- [ ] Every short inline comment is one lowercase line with no final period and no lead-in filler.
+- [ ] Every comment in code is one `//` or `#` line, lowercase, no final period, no lead-in filler, as few words as possible.
