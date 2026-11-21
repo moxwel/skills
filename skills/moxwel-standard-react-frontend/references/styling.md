@@ -5,14 +5,14 @@ Covers Tailwind, plain CSS, cascade layers, responsive layout, modals, motion an
 ## Rules
 
 1. **Layout in Tailwind, appearance in CSS, in every layer.** Box properties (display, position/inset, z-index, isolation, overflow, flex and alignment, gap, padding, width/height/min/max, aspect-ratio, object-fit) are Tailwind classes in JSX. Everything visual (colors, background, borders, radius, shadows, outline, typography, list-style, transforms, cursor, opacity, pointer-events, SVG fill) goes in the component's same-named `.css`. Ellipsis: `text-overflow` in CSS, its `overflow-hidden` in JSX. CSS classes are named per [naming.md](naming.md), and appearance state lives in data attributes (`[data-variant="ghost"]`), not modifier classes.
-2. **Layout in CSS only where native Tailwind can't express it,** marked `/* Layout exception: <why> */`: pseudo-elements, attribute-value or `:has()` selectors, Base UI internal markup, Base UI CSS vars, `calc()`/`min()`/`max()`, and percentages other than 100%. Keep only those declarations, never one a utility on the same element also sets. The browser reset in `globals.css` is the other allowed layout in CSS.
+2. **Layout in CSS only where native Tailwind can't express it,** each explained in the reply to the user: pseudo-elements, attribute-value or `:has()` selectors, Base UI internal markup, Base UI CSS vars, `calc()`/`min()`/`max()`, and percentages other than 100%. Keep only those declarations, never one a utility on the same element also sets. The browser reset in `globals.css` is the other allowed layout in CSS.
 3. **No inline `style`** in own code. A runtime value goes through a component prop (Base UI `Progress`/`Meter` `value`) or a data attribute. Inline styles that libraries set are fine.
 4. **Pages (`app/`) have no CSS of their own** besides `globals.css`, and use no color or typography utilities. They render components and pass props.
 5. **Tailwind native values only:** no arbitrary values (`w-[13px]`), no CSS-var shorthands (`max-h-(--var)`), no arbitrary variants (`data-[side=top]:`), no fractions (`basis-1/2`), no color or typography utilities. Spacing uses only the house scale (Details).
-6. **Responsive is mobile-first with a single `md:` breakpoint.** No `@media` in CSS and no `max-*:` variants. `sm:`/`lg:`/`xl:`/`2xl:`/`3xl:` only when the user asks for that screen size, with a comment.
+6. **Responsive is mobile-first with a single `md:` breakpoint.** No `@media` in CSS and no `max-*:` variants. `sm:`/`lg:`/`xl:`/`2xl:`/`3xl:` only when the user asks for that screen size.
 7. **Centered in the window means top on mobile:** the login card, hero, centered empty states, modals and page spinner sit at the top below `md` and are centered from `md`.
-8. **Flexbox + `gap`, no margins.** Every grouping element is flex; padding is only inner fill. Tabular data uses `<table>`. `grid` only where the user asked for a specific column/row arrangement, using native `grid-cols-N`/`md:grid-cols-N`, with a comment saying it was requested.
-9. **Cascade layers.** `globals.css` declares `@layer theme, base, components, utilities;` and imports Tailwind without preflight. Every other CSS file puts that same line right after its header comment and wraps its rules in `@layer components`. Two deliberate unlayered exceptions: the `:root` tokens in `globals.css`, and the field focus-border rule at the end of the file that defines its class (`shared.css`, `select.css`).
+8. **Flexbox + `gap`, no margins.** Every grouping element is flex; padding is only inner fill. Tabular data uses `<table>`. `grid` only where the user asked for a specific column/row arrangement, using native `grid-cols-N`/`md:grid-cols-N`.
+9. **Cascade layers.** `globals.css` declares `@layer theme, base, components, utilities;` and imports Tailwind without preflight. Every other CSS file puts that same line at the top of the file, after the header if there is one, and wraps its rules in `@layer components`. Two deliberate unlayered exceptions: the `:root` tokens in `globals.css`, and the field focus-border rule at the end of the file that defines its class (`shared.css`, `select.css`).
 10. **Overrides go through `className`.** Every component that takes `className` builds its root with `cn("own-class <default layout>", className)`, so the caller's utilities win. Never override a component's layout from CSS.
 11. **Shared layout is a constant** in `components/const.ts`, next to the icon sizes (`BUTTON_LAYOUT` plus `BUTTON_LAYOUT_SMALL` and `BUTTON_LAYOUT_LARGE`, `FIELD_BOX_LAYOUT`, `MODAL_*_LAYOUT`, `FORM_ACTIONS_LAYOUT`), never a shared CSS class. Layout only one component uses stays in that component (project-structure.md rule 6).
 12. **Every component imports every CSS file it uses,** `shared.css` included. Each folder's `shared.css` serves only that folder.
@@ -34,13 +34,13 @@ Covers Tailwind, plain CSS, cascade layers, responsive layout, modals, motion an
   - `components/base-ui/shared.css`: `focus-ring`, `field-box`, `field-label`, `popup-surface`, `modal-*`.
   - `features/shared.css`: `feature-muted`, `feature-sm`, `feature-empty`.
   - `components/ui/shared.css`: created once two `ui/` pieces share a class.
-  - A piece in another folder that needs a shared class repeats it, with a comment naming the original.
+  - A piece in another folder that needs a shared class repeats it, and the reply to the user names the original.
 - **Native defaults:** `<fieldset>` gets `p-0 min-w-0` + `border: none`. `<legend>` is floated (`float-left w-full p-0`) so it joins the `gap`. A `<p>` with mixed inline content stays block.
 - **Button-styled links** use `ButtonLink` (Next `Link` + `.button` + the same `size` prop and `BUTTON_LAYOUT*` constants as Button). Explicit exception to the per-folder `shared.css` rule: it imports `@/components/base-ui/button.css`, since it is the link form of Button.
 - **When animation is asked:** `transition: <property> 150ms ease-out` on that property only, never `all`. Keyframes go in `@layer components`, named per naming.md. Deleting the transition must leave a correct, instant UI.
 - **Visual language (defaults for new projects):**
   - Theme: dark with an orange accent (`#f08a24`). Radius 3px except circles. Dials: ENERGY 1 / RHYTHM 1 / MOTION 1 (calm, uniform, static; workflow-and-verification.md).
-  - `.button`: solid background + darker 3px bottom stripe. Variants `primary`/`secondary`/`danger`/`ghost` (ghost: no stripe, accent border on hover). Disabled at 50% opacity. Sizes (prop `size`): `default` is `h-11` (44 px, the minimum touch target), `small` is `h-9` with its touch area extended to 44 px by a `::after` (a Layout exception), `large` is `h-14`. Icon-only is a square of the same size.
+  - `.button`: solid background + darker 3px bottom stripe. Variants `primary`/`secondary`/`danger`/`ghost` (ghost: no stripe, accent border on hover). Disabled at 50% opacity. Sizes (prop `size`): `default` is `h-11` (44 px, the minimum touch target), `small` is `h-9` with its touch area extended to 44 px by a `::after` (a rule 2 exception), `large` is `h-14`. Icon-only is a square of the same size.
   - Fields: `h-11`, 1px `--border-strong` border, accent on focus.
   - Popups: 1px accent border + soft shadow. Notice: 3px warning left border.
   - Toasts: a bottom-right list, newest at the bottom (`flex-col-reverse`), no stacked deck.
@@ -59,7 +59,7 @@ Covers Tailwind, plain CSS, cascade layers, responsive layout, modals, motion an
 ## Checklist
 
 - [ ] No arbitrary values, fractions, off-scale steps, color/typography utilities or inline `style` (`grep -rn "style={" src`).
-- [ ] No margins. No layout in `.css` except the reset and commented exceptions.
+- [ ] No margins. No layout in `.css` except the reset and the exceptions of rule 2.
 - [ ] Only `md:` breakpoints (others only where asked) and no `@media`. Window-centered elements are at the top on mobile.
 - [ ] Every new CSS file has the layer-order line, and each component imports what it uses.
 - [ ] No animation or grid unless asked (`grep -rnE "transition|animate-|@keyframes|grid" src`).

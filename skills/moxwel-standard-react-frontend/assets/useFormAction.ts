@@ -13,7 +13,7 @@ export function useFormAction(action: FormAction) {
   const [state, dispatch, isPending] = useActionState(action, {} as ActionState);
   const formRef = useRef<HTMLFormElement>(null);
 
-  // On error it is not cleared: the user fixes it without retyping everything
+  // kept on error, so the user only fixes it
   useEffect(() => {
     const wasSaved = Boolean(state.ok);
     if (wasSaved) formRef.current?.reset();

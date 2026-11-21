@@ -31,7 +31,7 @@ export function ItemManager({ items }: Props) {
   const [isDeleting, startTransition] = useTransition();
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const toast = useActionToast();
-  // Braces: the effect must not return whatever toast() returns
+  // braces, the effect must return nothing
   useEffect(() => {
     toast(state);
   }, [state, toast]);

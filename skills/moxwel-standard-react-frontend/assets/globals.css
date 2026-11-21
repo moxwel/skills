@@ -34,10 +34,9 @@
   --mono: ui-monospace, "SFMono-Regular", Menlo, monospace;
 }
 
-/* Browser reset: the only layout in CSS outside the commented "Layout exception" cases, because it only neutralizes
-   browser defaults. In the base layer: utilities override it. */
+/* browser reset, the only layout in CSS besides styling.md rule 2 */
 @layer base {
-  /* Dark theme by default for native controls and scrollbars */
+  /* dark native controls and scrollbars */
   :root {
     color-scheme: dark;
   }
@@ -48,7 +47,7 @@
     box-sizing: border-box;
   }
 
-  /* No default margins: spacing comes from the gap of each flex container */
+  /* no margins, spacing comes from flex gap */
   html,
   body,
   h1,
@@ -70,15 +69,14 @@
     margin: 0;
   }
 
-  /* Lists (navigation, cards) are used for their meaning, not for the bullets */
+  /* lists carry meaning, not bullets */
   ul,
   ol {
     padding: 0;
     list-style: none;
   }
 
-  /* Appearance only: the body layout (relative for Base UI backdrops on iOS, flex column with min height of the screen)
-     goes with Tailwind in app/layout.tsx */
+  /* appearance only, body layout is Tailwind in app/layout.tsx */
   body {
     background: var(--bg);
     color: var(--text);

@@ -8,7 +8,7 @@ Covers `lib/db`, query functions, injection safety, soft deletes, transactions, 
 2. **Values are always parameters, never interpolated.** A dynamic identifier is allowed only after checking it against the engine catalog, and then quoted. Mongo values must be primitives of the expected type.
 3. **Read only what's needed:** explicit columns or a projection, and a `LIMIT` on every list (plus offset or cursor when paginated). Secret fields never leave `lib/`. Return plain, app-typed objects.
 4. **Invariants go in the filter** (`AND status = 'pending' AND deleted_at IS NULL`), and writes report whether they matched.
-5. **Domain deletes are soft:** `softDelete<Thing>(id)` sets `deleted_at`, and every read, joins included, filters `deleted_at IS NULL` (Mongo: Details). A real `DELETE` is only for technical data (sessions, caches), justified in the file header.
+5. **Domain deletes are soft:** `softDelete<Thing>(id)` sets `deleted_at`, and every read, joins included, filters `deleted_at IS NULL` (Mongo: Details). A real `DELETE` is only for technical data (sessions, caches), explained in the reply to the user.
 6. **All-or-nothing writes are one transaction inside one `lib/db` function,** even across tables. File side effects are ordered or compensated, since the transaction doesn't cover them.
 7. **Expected outcomes are return values** (a duplicate makes `insert*` return `false`). Catch only the specific expected error code and rethrow everything else.
 8. **The schema constrains too:** `NOT NULL`, `UNIQUE`, `CHECK`, foreign keys (Mongo: unique indexes, `$jsonSchema`). Dates are stored in UTC.

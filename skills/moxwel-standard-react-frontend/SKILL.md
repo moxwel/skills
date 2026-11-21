@@ -43,7 +43,7 @@ When an API is in doubt, check [links.md](references/links.md) (official docs) r
 
 ## Templates
 
-[assets/](assets/) holds complete files in the placeholder `items`/`Badge` domain. Copy their shape, rename them, and create any imported module they don't provide.
+[assets/](assets/) holds complete files in the placeholder `items`/`Badge` domain. Copy their shape, rename them, and create any imported module they don't provide. Their headers, doc comments and inline comments show the form to use when the user asks for documentation; without that request, leave them out.
 
 - Global CSS and helpers: `globals.css`, `cn.ts`, `useFormAction.ts`.
 - Components: `component.tsx`/`.css` (a `ui/` piece), `feature.tsx`/`.css` (a client feature with form, list and confirm dialog).

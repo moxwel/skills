@@ -17,13 +17,13 @@ import type { ActionState } from "@/actions/types";
  * @throws If the DB fails for a reason other than the UNIQUE constraint (insertItem rethrows it).
  */
 export async function createItem(_prev: ActionState, formData: FormData): Promise<ActionState> {
-  // Every action is a public endpoint: validate here even if only a protected page uses it
+  // any client can call an action, so validate here
   const session = await requireUser();
 
   const name = cleanSlug(str(formData.get("name")));
   if (!name) return { errors: { name: NAME_RULES } };
 
-  // No owner check: on create there is no existing object (update/delete do it here)
+  // no owner check on create, update and delete do it
   const itemId      = itemsDb.insertItem(name, session.userId);
   const isDuplicate = itemId === null;
   if (isDuplicate) return { errors: { name: "That item already exists." } };

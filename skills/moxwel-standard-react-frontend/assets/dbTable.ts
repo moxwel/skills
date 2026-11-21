@@ -14,7 +14,7 @@ const MAX_LISTED_ITEMS = 200;
 export function listItems(): ItemRow[] {
   const rows = db()
     .prepare(
-      // UUIDs carry no order: newest first goes by date, with rowid breaking ties
+      // UUIDs carry no order, rowid breaks date ties
       `SELECT id, name, owner_id, created_at FROM items WHERE deleted_at IS NULL
        ORDER BY created_at DESC, rowid DESC LIMIT ?`,
     )

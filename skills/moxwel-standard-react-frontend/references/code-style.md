@@ -1,10 +1,10 @@
 # Code style
 
-Covers every `.ts`/`.tsx` file (headers and line length also cover CSS) where React differs from the base skill: comments, JSX composition, client vs server, forms and imports.
+Covers every `.ts`/`.tsx` file (comments and line length also cover CSS) where React differs from the base skill: comments, JSX composition, client vs server, forms and imports.
 
 ## Rules
 
-1. **Language, headers and doc comments follow the base `moxwel-code-style` skill** (`comments-and-docs.md`, `copy.md`). In React code that also means: the header goes before `"use client"`/`"use server"` (config files need none), `aria-label`, `title`, errors and toasts are UI strings, and route segments follow the UI language.
+1. **Language, comments and doc comments follow the base `moxwel-code-style` skill** (`comments-and-docs.md`, `copy.md`), with no exception: no comment, doc comment or header unless the user asks for one, and a reason a rule of this skill asks for goes in the reply to the user. In React code that also means: a header the user asked for goes before `"use client"`/`"use server"` (config files need none), `aria-label`, `title`, errors and toasts are UI strings, and route segments follow the UI language.
 2. **Readability follows the base skill** (`readability.md`): no line length limit and no wrapping, named conditions, flat control flow, derived values named before the return, grouped and sorted imports. React adds the `render*` helpers and import groups in Details.
 3. **Names follow [naming.md](naming.md):** casing, booleans, functions, hooks, callback props, files, CSS classes and constants all live there.
 4. **Props live in a local type** right before the component, never inline in the signature (its name is in naming.md).
@@ -15,7 +15,7 @@ Covers every `.ts`/`.tsx` file (headers and line length also cover CSS) where Re
 
 ## Details
 
-- **Doc comments in React code:** a component documents only the props that `Props` does not make obvious (`[props.x=default]` when optional). `@throws` applies when the function throws on purpose or calls one whose JSDoc has it without catching; Next's `redirect()`/`notFound()` are control flow, not throws.
+- **Doc comments in React code,** when the user asks for documentation: a component documents only the props that `Props` does not make obvious (`[props.x=default]` when optional). `@throws` applies when the function throws on purpose or calls one whose JSDoc has it without catching; Next's `redirect()`/`notFound()` are control flow, not throws.
 
 ```ts
 /**

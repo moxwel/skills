@@ -6,7 +6,7 @@ Covers entry points (pages, server actions, route handlers), auth, sessions, val
 
 1. **Every page, server action and route handler is a trust boundary.** Server actions are public HTTP endpoints, even when only an admin page renders the form.
 2. **Each entry point runs five steps, in order:**
-   1. `requireUser()`/`requireAdmin()` (route handlers: `getSession()` → 401/403). Public pages and the `login` action skip this step and say so in their header.
+   1. `requireUser()`/`requireAdmin()` (route handlers: `getSession()` → 401/403). Public pages and the `login` action skip this step, and the reply to the user says so.
    2. Sanitize every input, typed action args included.
    3. Check everything that can be checked up front (access, state, existence, uniqueness, limits) before any side effect or slow work; late guards (UNIQUE, row counts) stay for races.
    4. Call `lib/`.
@@ -90,6 +90,6 @@ export async function deleteItem(itemId: string): Promise<ActionState> {
 
 ## Checklist
 
-- [ ] Every new page, action or route runs the five steps in order; public ones say so in their header.
+- [ ] Every new page, action or route runs the five steps in order; public ones are named in the reply to the user.
 - [ ] Every new kind of input has a sanitizer + test. No secret field or internal path reaches the client.
 - [ ] Files use a constant base + sanitized segment; processes use `execFile` with a timeout.

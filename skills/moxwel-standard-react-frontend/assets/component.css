@@ -4,8 +4,7 @@
  * components/ui/shared.css (created when two pieces share a class), and each component imports it explicitly.
  */
 
-/* Layer order repeated in every file: the first CSS the browser loads may be this one, and the order is set by the
-   first declaration. In components, Tailwind utilities win over it */
+/* layer order repeated, the first CSS loaded sets it */
 @layer theme, base, components, utilities;
 @layer components {
   .badge {
