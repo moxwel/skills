@@ -10,13 +10,13 @@ description: ALWAYS load this skill before writing or editing code, in any langu
 ## Before acting
 
 1. Read the project `CLAUDE.md`/`AGENTS.md`. A convention it declares (another comment language, another line width) is a deliberate deviation, not a mistake to fix. A stack-specific skill in use adds rules on top of these.
-2. **Read in full every file the table lists for your task,** every time, before writing, changing or reviewing code. Go down the table and take every row that matches: the rows add up. Don't rely on memory of an earlier session: several rules are non-obvious and only the references state them.
+2. **Read in full every file the table lists for your task,** every time, before writing, changing or reviewing code. Go down the table and take every row that matches: the rows add up. The first row is the minimum for any task that touches code, however narrow it looks (only the order, only a name, a one-line fix): every rule applies to each line written or moved, so the narrowest task still reads all of that row. Don't rely on memory of an earlier session: several rules are non-obvious and only the references state them.
 3. If you notice while working that a row applies after all (you end up writing a `try`/`catch` or a commit), stop and read its files before you continue.
 4. When you cannot tell how a rule looks in code, read the per-language forms and worked examples in that reference's Details instead of guessing.
 
 | Your task includes | Read |
 |---|---|
-| Any code change or review | [comments-and-docs.md](references/comments-and-docs.md), [copy.md](references/copy.md), [naming.md](references/naming.md), [readability.md](references/readability.md) |
+| Any code change or review, however small or narrow (a reorder, a rename, a one-line fix) | [comments-and-docs.md](references/comments-and-docs.md), [copy.md](references/copy.md), [naming.md](references/naming.md), [readability.md](references/readability.md) |
 | Code that handles errors, I/O, network, external input, timeouts or retries | + [robustness.md](references/robustness.md) |
 | Writing or changing Markdown documentation the user asked for (README, docs), not agent files | [markdown.md](references/markdown.md), [copy.md](references/copy.md) |
 | Creating a repository, committing, pushing, writing a commit message or splitting changes into commits | [git-conventions.md](references/git-conventions.md) |
