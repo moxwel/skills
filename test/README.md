@@ -76,6 +76,7 @@ A model does not answer the same way twice. Repeat a scenario (`cut2:1 cut2:2 cu
 | `readme` | Write a README for a module | markdown.md rules: one title, fenced blocks with a language, ASCII only |
 | `commitmsg` | Write a commit message for a diff | Conventional Commits subject, no body, no AI attribution line, no commit made |
 | `commit` | Commit a change in a repository | One new commit with a Conventional Commits subject, no body and no `Co-Authored-By:` line, even though the harness asks for one |
+| `jsxorder` | Fix the order of a component file whose subcomponent sits below its caller | The React skill loads; the subcomponent moves up with its props type (the smaller move), `Props` stays right before the exported component, only the order changes |
 | `order` | Fix the order of a file whose helper sits below its caller | The helper moves up (the smaller move), the constants stay first, only the order changes |
 
 Every scenario also checks the alignment of its assignments. A scenario whose prompt does not ask for documentation (all but `doc`, `tsdoc` and `bash`) fails on any comment, doc comment or header the session added; in those three, an added inline comment must not end with a period.

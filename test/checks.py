@@ -10,7 +10,7 @@ import re
 import subprocess
 
 from alignment import alignment_problems, assignment_problems, block_problems, rows_of
-from scenarios import DOCUMENTED_SCENARIOS, HEADER_SCENARIOS, LEGACY_TS, ORDERS_TS, REVIEWS_TS, SCENARIOS, TSCONFIG_JSON, UNALIGNED_START_SCENARIOS
+from scenarios import DOCUMENTED_SCENARIOS, HEADER_SCENARIOS, ITEM_LIST_TSX, LEGACY_TS, ORDERS_TS, REVIEWS_TS, SCENARIOS, TSCONFIG_JSON, UNALIGNED_START_SCENARIOS
 
 # Files checked for assignment alignment, at the top level of the session folder.
 SOURCE_SUFFIXES = (".ts", ".tsx", ".py")
@@ -38,7 +38,8 @@ TOOL_DIRECTIVE     = re.compile(r"eslint-|@ts-|prettier-ignore|noqa|type: ignore
 INLINE_COMMENT_TS  = re.compile(r"(?:^|\s)//\s*(.*)$")
 INLINE_COMMENT_PY  = re.compile(r"\S\s+#\s*(.*)$")
 
-HELPER_MOVE_LINE_COUNT = 8
+HELPER_MOVE_LINE_COUNT   = 8
+ITEM_ROW_MOVE_LINE_COUNT = 12
 
 
 def read_output(work_dir: Path, file_name: str) -> str:
@@ -385,6 +386,27 @@ def check_order(work_dir: Path) -> list[str]:
     })
 
 
+def check_jsxorder(work_dir: Path) -> list[str]:
+    text  = read_output(work_dir, "features/items/itemList.tsx")
+    lines = text.splitlines()
+
+    row_at       = next((index for index, line in enumerate(lines) if "function ItemRow" in line), -1)
+    row_props_at = next((index for index, line in enumerate(lines) if "type ItemRowProps" in line), -1)
+    list_at      = next((index for index, line in enumerate(lines) if "function ItemList" in line), -1)
+    props_at     = next((index for index, line in enumerate(lines) if "type Props" in line), -1)
+
+    is_reordered_only = sorted(filter(str.strip, lines)) == sorted(filter(str.strip, ITEM_LIST_TSX.splitlines()))
+    is_props_adjacent = 0 <= props_at and list_at - props_at <= 2
+    changed_count     = changed_line_count(ITEM_LIST_TSX, text)
+    return found({
+        "lines changed besides their order": not is_reordered_only,
+        "ItemRow still defined below ItemList": row_at > list_at,
+        "ItemRowProps not above ItemRow": row_props_at > row_at,
+        "Props no longer right before ItemList": not is_props_adjacent,
+        f"{changed_count} lines changed, moving ItemRow up takes {ITEM_ROW_MOVE_LINE_COUNT}": changed_count > ITEM_ROW_MOVE_LINE_COUNT,
+    })
+
+
 CHECKS = {
     "align":     check_align,
     "cut":       check_cut,
@@ -410,6 +432,7 @@ CHECKS = {
     "commitmsg": check_commitmsg,
     "commit":    check_commit,
     "order":     check_order,
+    "jsxorder":  check_jsxorder,
 }
 
 

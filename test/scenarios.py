@@ -249,6 +249,23 @@ function lineTotal(line: OrderLine): number {
     return line.price * line.quantity
 }
 """
+ITEM_LIST_TSX = """\
+type Props = { items: string[] };
+
+export function ItemList({ items }: Props) {
+  return (
+    <ul>
+      {items.map((item) => <ItemRow key={item} name={item} />)}
+    </ul>
+  );
+}
+
+type ItemRowProps = { name: string };
+
+function ItemRow({ name }: ItemRowProps) {
+  return <li>{name}</li>;
+}
+"""
 NARROW_CLAUDE_MD = """\
 # Project conventions
 
@@ -390,6 +407,11 @@ SCENARIOS = {
         "prompt":     "Commit the change in slugify.ts.",
         "references": ["git-conventions"],
         "base":       False,
+    },
+    "jsxorder": {
+        "files":  {"package.json": PACKAGE_JSON, "features/items/itemList.tsx": ITEM_LIST_TSX},
+        "prompt": "Fix the order of the code in features/items/itemList.tsx so it follows my conventions. Change nothing else.",
+        "react":  ["code-style", "naming", "workflow-and-verification"],
     },
     "order": {
         "files":  {"orders.ts": ORDERS_TS},
