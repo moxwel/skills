@@ -19,6 +19,7 @@ Covers the shape of code in any language: conditions, control flow, function bod
    - A block is consecutive lines with no blank line between them. A blank line starts a new block, and each block is aligned on its own, to its widest item.
    - Declarations: pad the type so the names start in the same column, then pad after the separator (`=` or `:`) so the values start in the same column. `key: value` lines (attributes, object fields) follow the same rule.
    - Expressions and statements of the same shape: pad so the operator or keyword sits in the same column across the lines (the `=` of assignments, `&&` or `||`, the keyword after `if (...)`, the `=>` of arrow functions). For arrows, pad before the shorter parameter so the `=>` lines up. A declaration (`const url = ...`) and an assignment to a variable or property (`url.search = ...`) are the same shape, even when one value opens a multi-line expression: their `=` line up.
+   - A line that only opens a body is not part of any group: the body of a function, handler or callback (`onFilled: {`, `onLineLaidOut: line => {`, `const onSave = () => {`) or a child object of a declarative tree (`contentItem: Item {`). It keeps a single space and does not count when measuring the group. A value that is an expression continuing on the next lines still aligns: a call (`url.search = new URLSearchParams({`), an object literal (`const config = {`) or an array literal (`const items = [`).
    - Trailing comments on consecutive lines go in the same column, one space after the longest line of the group.
    - **Cut at 8 columns:** a group ends where a line differs by 8 or more columns from the previous one (in the width of the name, or of the code for trailing comments), shorter or longer. The line left out keeps a single space, and each side of the cut aligns on its own. Compare each line with the one right above it, never with the widest of the block: after `PORT = 8080` (a 4-column name), `MAX_CONNECTIONS` (15) jumps by 11, so `PORT` keeps its single space and the aligned group starts at `MAX_CONNECTIONS`.
    - Never aligned: imports, a line alone, and data files (JSON, XML, `.po`, lockfiles).
@@ -89,7 +90,7 @@ Item {
     readonly property alias stopError: stopper.stopError
 
     Plasma5Support.DataSource {
-        id: launcher
+        id:     launcher
         engine: "executable"
     }
 
@@ -110,7 +111,7 @@ Item {
     }
 
     Timer {
-        repeat: true
+        repeat:      true
         onTriggered: monitor.sample()
     }
 }
@@ -149,11 +150,16 @@ url.search = new URLSearchParams({
 }).toString();
 ```
 
+  In QML, `showAlphaChannel` (16 columns) is 9 wider than `enabled`, so the cut leaves it a single space. `onClicked: {` only opens a handler body, so it does not join `showAlphaChannel` either.
+
 ```qml
 Button {
     id:      saveButton
     enabled: canSave
     showAlphaChannel: false
+    onClicked: {
+        save();
+    }
 }
 ```
 
@@ -171,6 +177,6 @@ Button {
 - [ ] Derived values are named before the result.
 - [ ] No line broken only because it was long; a hard-to-read line was shortened by naming its parts.
 - [ ] Imports grouped, sorted and taken from their defining module.
-- [ ] Consecutive lines of the same shape are aligned per block, groups cut at 8 columns, trailing comments aligned.
+- [ ] Consecutive lines of the same shape are aligned per block, groups cut at 8 columns, trailing comments aligned; lines that only open a body are left out.
 - [ ] Variables, fields and properties (aliases too) first; every object, element and function defined above its first use (calls, reads, handlers, bindings by name), the entry point last.
 - [ ] In existing code, only the smaller of the two candidate moves for each break, meaningful orders untouched, and the sorted lines unchanged.
