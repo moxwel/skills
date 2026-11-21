@@ -2,12 +2,9 @@
 check_style.py: the mechanical part of the style references. Checks .ts/.tsx/.js/.jsx/.mjs/.css/.py/.sh files for:
 
 - non-ASCII characters inside comments (comments-and-docs.md rule 1); strings may keep accents;
-- a missing header comment (comments-and-docs.md rule 2): a /* */ block in TS/JS/CSS, a module docstring
-  in Python, a # block in Bash. Only a shebang or a Python encoding line may come before it.
 
 And documentation .md files for typographic symbols and emojis outside code spans and fenced blocks
-(markdown.md rules 3 and 4). Letters, accents and numbers of any language pass. Markdown skips the header
-check. Emojis the user asked for are still
+(markdown.md rules 3 and 4). Letters, accents and numbers of any language pass. Emojis the user asked for are still
 reported. Agent files are not documentation and are skipped: AGENT_FILES and any .md inside a skill folder.
 
 Comment detection reads line by line and skips markers inside one-line string literals ("image/*" is not
@@ -42,9 +39,6 @@ BLOCK_END = "*/"
 HASH_COMMENT = "#"
 # Block state carried from one line to the next.
 NO_BLOCK, COMMENT_BLOCK, STRING_BLOCK = "", "comment", "string"
-# PEP 263: the encoding declaration must be on line 1 or 2.
-MAX_ENCODING_LINE = 2
-ENCODING_PATTERN = re.compile(r"^#.*coding[:=]")
 # A fence opens with 3+ backticks or tildes and closes with the same character, at least as many times.
 FENCE_PATTERN = re.compile(r"^(`{3,}|~{3,})")
 INLINE_CODE_PATTERN = re.compile(r"(`+).*?\1")
@@ -211,31 +205,6 @@ def check_markdown(path: str, lines: list[str]) -> list[str]:
     return problems
 
 
-def has_header(lines: list[str], extension: str) -> bool:
-    """Tells whether the file opens with the header comment form of its language.
-
-    :param lines: Lines of the file.
-    :param extension: File extension, with the dot.
-    :returns: True if the first line after the allowed preamble opens the header; True for an empty file.
-    """
-    is_c_style = extension in C_STYLE_EXTENSIONS
-    is_python = extension == PYTHON_EXTENSION
-    for line_number, line in enumerate(lines, start=1):
-        stripped = line.strip()
-        is_shebang = line_number == 1 and stripped.startswith("#!")
-        is_encoding_position = is_python and line_number <= MAX_ENCODING_LINE
-        is_encoding_line = is_encoding_position and ENCODING_PATTERN.match(stripped) is not None
-        is_preamble = stripped == "" or is_shebang or is_encoding_line
-        if is_preamble:
-            continue
-        if is_c_style:
-            return stripped.startswith(BLOCK_START)
-        if is_python:
-            return stripped.startswith(DOCSTRING_QUOTES)
-        return stripped.startswith(HASH_COMMENT)
-    return True
-
-
 def check_file(path: str) -> list[str]:
     """Runs every check on one source or Markdown file.
 
@@ -253,8 +222,6 @@ def check_file(path: str) -> list[str]:
     if is_markdown:
         return check_markdown(path, lines)
     problems = []
-    if not has_header(lines, extension):
-        problems.append(f"{path}:1: missing header comment")
     block = NO_BLOCK
     for line_number, line in enumerate(lines, start=1):
         comment, block = scan_comment_line(line, extension, block)

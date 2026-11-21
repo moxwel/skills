@@ -4,7 +4,7 @@ Covers how code handles failure, in any language and in scripts: which errors ar
 
 ## Rules
 
-1. **Catch where the failure can be handled, never everywhere.** A catch belongs to the boundary that knows what to do with the failure: one unit of work in a batch, one request, one job, one command. A catch that does nothing is a defect, unless a comment says why dropping the error is safe.
+1. **Catch where the failure can be handled, never everywhere.** A catch belongs to the boundary that knows what to do with the failure: one unit of work in a batch, one request, one job, one command. A catch that does nothing is a defect, unless dropping the error is safe: say why in the reply to the user (a comment only if the user asks for one, comments-and-docs.md rule 2).
 2. **Name the expected failures.** Every external call (network, disk, database, subprocess, parser, third-party API) has known failure modes: timeouts, rate limits (429), server errors (5xx), missing files, malformed input. Catch those by their kind (a named error type, a status code, an exit code) and turn them into a domain error that says what failed. Anything else is unexpected and stays unexpected.
 3. **Log by kind.** An expected failure is logged as a warning with its message only. An unexpected failure is logged as an error with the full trace (stack, or the failing command and line in a script). Expected failures that repeat on every run must not drown the real errors.
 4. **Isolate each unit of work.** One bad item (a subreddit, a file, a row, a message, a request in a batch) does not stop the rest. Continue, collect the outcome, and report it at the end of the run.
