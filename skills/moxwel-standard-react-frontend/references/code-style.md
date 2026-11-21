@@ -5,7 +5,7 @@ Covers every `.ts`/`.tsx` file (comments and line length also cover CSS) where R
 ## Rules
 
 1. **Language, comments and doc comments follow the base `moxwel-code-style` skill** (`comments-and-docs.md`, `copy.md`), with no exception: no comment, doc comment or header unless the user asks for one, and a reason a rule of this skill asks for goes in the reply to the user. In React code that also means: a header the user asked for goes before `"use client"`/`"use server"` (config files need none), `aria-label`, `title`, errors and toasts are UI strings, and route segments follow the UI language.
-2. **Readability follows the base skill** (`readability.md`): no line length limit and no wrapping, named conditions, flat control flow, derived values named before the return, grouped and sorted imports. React adds the `render*` helpers and import groups in Details.
+2. **Readability follows the base skill** (`readability.md`): no line length limit and no wrapping, named conditions, flat control flow, derived values named before the return, every name defined above its first use (variables first), grouped and sorted imports. React adds the file and component body order, the `render*` helpers and import groups in Details.
 3. **Names follow [naming.md](naming.md):** casing, booleans, functions, hooks, callback props, files, CSS classes and constants all live there.
 4. **Props live in a local type** right before the component, never inline in the signature (its name is in naming.md).
 5. **`"use client"` only when needed:** state or effects (including hooks built on them), event handlers the component creates, or browser APIs. Pages and layouts stay server components. Hooks and helpers imported only by client code need no directive.
@@ -27,7 +27,8 @@ export function markSuggestionReviewed(id: string, status: ReviewStatus): boolea
 
 - **Routes** always come from `PAGES`.
 - **A new constant** goes at the closest level that covers every file using it: the top of the file, the folder's `const.ts` or `lib/const/` (project-structure.md rule 6). It is imported from there, never copied.
-- **Component body order:** hooks → derived consts → `render*` helpers → named JSX blocks (`createForm`, `userTable`) → a short `return` that composes them.
+- **File order** (base `readability.md` rule 7): imports, module constants, then each private helper or subcomponent with its `Props` type, above the first code that uses it, and the exported component last. In an existing file, move the smaller block, as the base rule says.
+- **Component body order:** hooks and state → derived consts → handlers → `render*` helpers → named JSX blocks (`createForm`, `userTable`) → a short `return` that composes them. Each one sits below what it uses, and JSX children keep their rendered order.
 - **JSX details:** render conditionally through a named boolean (`{isEmpty && …}`). Build classes with `cn()`, never by concatenation. Optional data attributes use `data-active={isActive || undefined}`. Lists use a stable `key`.
 - **Client code** imports from `lib/` only Node-free modules (such as `lib/const/*` except `paths`, `lib/ui/*`, `lib/format/*`), plus types via `import type`.
 - **Forms** ([useFormAction template](../assets/useFormAction.ts)):
@@ -65,6 +66,7 @@ useEffect(() => {
 ## Checklist
 
 - [ ] The base skill's checklists pass (comments, naming, readability, copy), and naming.md for the React names.
+- [ ] Every name is defined above its first use: constants first, helpers and subcomponents above their callers, the exported component last.
 - [ ] No inline prop types.
 - [ ] `"use client"` only where needed. No `<Form action=` (`grep -rn "<Form action=" src`).
 - [ ] Forms validate fully before processing or sending.
