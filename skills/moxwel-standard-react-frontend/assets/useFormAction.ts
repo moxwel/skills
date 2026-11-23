@@ -7,7 +7,7 @@ import { startTransition, useActionState, useEffect, useRef } from "react";
 import type { FormEvent } from "react";
 import type { ActionState } from "@/actions/types";
 
-type FormAction = (prevState: ActionState, formData: FormData) => Promise<ActionState>;
+type FormAction = (previousState: ActionState, formData: FormData) => Promise<ActionState>;
 
 export function useFormAction(action: FormAction) {
   const [state, dispatch, isPending] = useActionState(action, {} as ActionState);

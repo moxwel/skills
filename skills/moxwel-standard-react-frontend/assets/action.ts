@@ -9,18 +9,18 @@ import { refresh } from "next/cache";
 import { requireUser } from "@/lib/auth/requireUser";
 import { NAME_RULES } from "@/lib/const/messages";
 import * as itemsDb from "@/lib/db/items";
-import { cleanSlug, str } from "@/lib/validation/validate";
+import { cleanSlug, formText } from "@/lib/validation/validate";
 import type { ActionState } from "@/actions/types";
 
 /**
  * Creates the user's item; returns `errors.name` if the name is invalid or already exists.
  * @throws If the DB fails for a reason other than the UNIQUE constraint (insertItem rethrows it).
  */
-export async function createItem(_prev: ActionState, formData: FormData): Promise<ActionState> {
+export async function createItem(_previousState: ActionState, formData: FormData): Promise<ActionState> {
   // any client can call an action, so validate here
   const session = await requireUser();
 
-  const name = cleanSlug(str(formData.get("name")));
+  const name = cleanSlug(formText(formData.get("name")));
   if (!name) return { errors: { name: NAME_RULES } };
 
   // no owner check on create, update and delete do it

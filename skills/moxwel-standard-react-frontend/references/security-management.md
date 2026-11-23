@@ -63,7 +63,7 @@ export async function deleteItem(itemId: string): Promise<ActionState> {
 
 | Input | Pattern |
 |---|---|
-| any `FormData` field | `str(value)`: a missing field or `File` gives `""` |
+| any `FormData` field | `formText(value)`: a missing field or `File` gives `""` |
 | username | trim, `^[a-zA-Z0-9_.-]{3,32}$` |
 | password | **no trim**, length 8–128 |
 | file/folder name | lowercase, spaces → `_`, `^[a-z0-9_]{1,48}$` |
