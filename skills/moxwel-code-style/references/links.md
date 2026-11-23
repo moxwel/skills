@@ -11,3 +11,10 @@ Check the source when a tag or convention is in doubt. Where these guides disagr
 - Conventional Commits 1.0.0: https://www.conventionalcommits.org/en/v1.0.0/
 - Writing on GitHub: https://docs.github.com/en/get-started/writing-on-github
 - GitHub Markdown syntax: https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax
+
+## Background
+
+Videos behind some rules, for the reasoning. The references hold the rules and win where these differ.
+
+- "Don't Write Comments": named constants and conditions, predicate functions, types instead of comments and sentinels (comments-and-docs.md rule 2, naming.md rule 5, readability.md rules 1 and 8): https://www.youtube.com/watch?v=Bf7vDBBOBUA
+- Naming things: no single letters, no abbreviations, no types in names, units in names, no `utils` modules (naming.md rules 2, 4 and 7, readability.md rule 8): https://www.youtube.com/watch?v=-J3wNP6u5YU
