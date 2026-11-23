@@ -44,6 +44,9 @@ ITEM_ROW_MOVE_LINE_COUNT = 12
 CHECK_STYLE_SCRIPT = Path(__file__).resolve().parent.parent / "skills/moxwel-code-style/scripts/check_style.py"
 ELSE_AFTER_LEAVE   = re.compile(r"\b(return|continue|break|throw)\b[^\n]*\n\s*\}\s*else\b")
 NESTED_TERNARY     = re.compile(r"\?[^:;\n]*:[^;\n]*\?[^.?\n]")
+ABBREVIATIONS      = {"cfg", "fmt", "conf", "msg", "btn", "err", "req", "res", "ctx", "tmp", "idx", "val", "str", "num", "arr", "obj", "evt", "cnt", "len", "src", "dst", "fn", "cb", "opts", "args", "prev", "curr", "elem", "el", "util", "utils"}
+GRAB_BAG_NAMES     = {"util", "utils", "helper", "helpers", "common", "misc"}
+TYPED_TYPE_NAME    = re.compile(r"\b(interface|class|type)\s+(I[A-Z]\w*|Base[A-Z]\w*|Abstract[A-Z]\w*)")
 SENTINEL_RETURN    = re.compile(r"\breturn\s+(-1|0|\"\"|'')\s*;?\s*$", re.M)
 PREDICATE_FUNCTION = re.compile(r"function\s+(is|has|can|should)[A-Z]\w*\s*\(|const\s+(is|has|can|should)[A-Z]\w*\s*=\s*\(")
 
@@ -425,6 +428,28 @@ def check_nesting(work_dir: Path) -> list[str]:
     })
 
 
+def identifier_parts(text: str) -> set[str]:
+    """The lowercased camelCase and snake_case parts of every identifier outside string literals."""
+    code        = re.sub(r"\"[^\"\n]*\"|'[^'\n]*'|`[^`]*`", "", text)
+    identifiers = re.findall(r"[A-Za-z_]\w*", code)
+    return {part.lower() for identifier in identifiers for part in re.findall(r"[A-Z]?[a-z]+|[A-Z]+(?![a-z])", identifier)}
+
+
+def check_names(work_dir: Path) -> list[str]:
+    """No abbreviations, no type in a type name and no grab-bag module (naming.md rules 2, 4 and 7)."""
+    sources       = new_sources(work_dir, "**/*.ts", SCENARIOS["names"]["files"])
+    texts         = [source.read_text(encoding="utf-8") for source in sources]
+    abbreviations = sorted(set().union(*(identifier_parts(text) for text in texts)) & ABBREVIATIONS)
+    grab_bags     = [str(source.relative_to(work_dir)) for source in sources if GRAB_BAG_NAMES & {source.stem.lower(), source.parent.name.lower()}]
+    typed_names   = [match.group(2) for text in texts for match in TYPED_TYPE_NAME.finditer(text)]
+    return found({
+        "no .ts file written": not sources,
+        f"abbreviated names: {abbreviations}": abbreviations,
+        f"grab-bag modules: {grab_bags}": grab_bags,
+        f"type names with I, Base or Abstract: {typed_names}": typed_names,
+    })
+
+
 def check_types(work_dir: Path) -> list[str]:
     """No sentinel for a missing value, and the refund condition is a predicate function (readability.md rules 1 and 8)."""
     text = read_output(work_dir, "orders.ts")
@@ -463,6 +488,7 @@ CHECKS = {
     "jsxorder":  check_jsxorder,
     "nesting":   check_nesting,
     "types":     check_types,
+    "names":     check_names,
 }
 
 

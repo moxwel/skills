@@ -417,6 +417,14 @@ SCENARIOS = {
         "files":  {"orders.ts": ORDERS_TS},
         "prompt": "Fix the order of the code in orders.ts so it follows my conventions. Change nothing else.",
     },
+    "names": {
+        "files":  {},
+        "prompt": "Add the helper functions this TypeScript app needs, in whatever files fit: one that formats a byte "
+                  "count as text (B, KB, MB), one that turns a caught error into a message for the user, one that "
+                  "reads a numeric query parameter from a URL with a default value, and one that returns the position "
+                  "of the first item in a list whose name matches a query. Also add an interface for a storage "
+                  "backend (save and load a string by key) with an in-memory implementation.",
+    },
     "types": {
         "files":  {},
         "prompt": "Create orders.ts with three exported functions over a list of orders (each with an id, a "

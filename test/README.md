@@ -78,6 +78,7 @@ A model does not answer the same way twice. Repeat a scenario (`cut2:1 cut2:2 cu
 | `commit` | Commit a change in a repository | One new commit with a Conventional Commits subject, no body and no `Co-Authored-By:` line, even though the harness asks for one |
 | `jsxorder` | Fix the order of a component file whose subcomponent sits below its caller | The React skill loads; the subcomponent moves up with its props type (the smaller move), `Props` stays right before the exported component, only the order changes |
 | `order` | Fix the order of a file whose helper sits below its caller | The helper moves up (the smaller move), the constants stay first, only the order changes |
+| `names` | Write four small helpers and a storage interface, with free choice of files | No abbreviated identifier, no `utils`/`helpers`/`common`/`misc` file or folder, no `I`, `Base` or `Abstract` type name |
 | `types` | Write order lookups by id and a refund filter with a compound condition | No `-1`, `0` or `""` returned for a missing order, `null` or `undefined` in a return type, the refund condition as an `is*`/`can*` predicate function |
 | `nesting` | Write a function over warehouses, shelves and items, and a label with three outcomes | No block past level 3 of nesting (`check_style.py`), no `else` after a block that leaves, no nested ternary |
 
