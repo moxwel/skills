@@ -115,9 +115,9 @@ def main() -> int:
     should_fix = "--fix" in sys.argv
     problems = 0
     for root, _, names in os.walk(folder):
-        for name in sorted(names):
-            if name.endswith(CODE_EXTENSIONS):
-                problems += check_file(os.path.join(root, name), should_fix)
+        code_names = [name for name in sorted(names) if name.endswith(CODE_EXTENSIONS)]
+        for name in code_names:
+            problems += check_file(os.path.join(root, name), should_fix)
     return 1 if problems else 0
 
 

@@ -38,15 +38,16 @@ export function ItemManager({ items }: Props) {
 
   const isEmpty = items.length === 0;
 
+  const confirmDelete = (itemId: string) => {
+    setDeletingId(itemId);
+    startTransition(async () => {
+      toast(await deleteItem(itemId));
+    });
+  };
+
   const renderItem = (item: ItemRow) => {
     const deleteTitle    = `Delete ${item.name}?`;
     const isDeletingThis = isDeleting && deletingId === item.id;
-    const confirmDelete = () => {
-      setDeletingId(item.id);
-      startTransition(async () => {
-        toast(await deleteItem(item.id));
-      });
-    };
     return (
       <li key={item.id} className="itemManager-item flex items-center gap-3 py-2">
         <b className="flex-1">{item.name}</b>
@@ -61,7 +62,7 @@ export function ItemManager({ items }: Props) {
           confirmLabel="Delete"
           disabled={isDeleting}
           isLoading={isDeletingThis}
-          onConfirm={confirmDelete}
+          onConfirm={() => confirmDelete(item.id)}
         />
       </li>
     );
