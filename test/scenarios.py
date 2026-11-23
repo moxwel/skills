@@ -417,6 +417,14 @@ SCENARIOS = {
         "files":  {"orders.ts": ORDERS_TS},
         "prompt": "Fix the order of the code in orders.ts so it follows my conventions. Change nothing else.",
     },
+    "nesting": {
+        "files":  {},
+        "prompt": "Create stock.ts with an exported function that takes a list of warehouses (each with a name, "
+                  "an isOpen flag and a list of shelves; each shelf has an isBlocked flag and a list of items with "
+                  "a sku and a quantity) and returns the skus with quantity zero, only from open warehouses and "
+                  "shelves that are not blocked. Also export a function that returns the label of a warehouse: "
+                  "\"Closed\" when it is not open, \"Empty\" when it has no shelves, otherwise its name.",
+    },
 }
 
 # Scenarios whose starting files hold unaligned assignments that must stay as they are.

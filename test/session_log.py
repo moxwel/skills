@@ -70,6 +70,25 @@ def content_blocks(event: dict) -> list[dict]:
     return [block for block in blocks if isinstance(block, dict)]
 
 
+def record_block(block: dict, facts: dict, targets: dict[str, str]) -> None:
+    arguments      = block.get("input") or {}
+    is_tool_call   = block.get("type") == "tool_use"
+    is_skill_call  = is_tool_call and block.get("name") == "Skill"
+    is_good_result = block.get("type") == "tool_result" and not block.get("is_error")
+    if is_skill_call:
+        facts["skills"].append(arguments.get("skill"))
+    if is_tool_call:
+        target = str(arguments.get("file_path") or "") or resolved_paths(str(arguments.get("command") or ""))
+        targets[block.get("id")] = target
+    if not is_good_result:
+        return
+    # a denied or failed read does not count: only results that carry the file content
+    for match in SKILL_FILE.finditer(targets.get(block.get("tool_use_id"), "")):
+        prefix = "react:" if "react" in match.group(1) else ""
+        facts["references"].add(prefix + match.group(2))
+        facts["words"] += len(json.dumps(block.get("content")).split())
+
+
 def session_facts(log_path: Path) -> dict:
     """Reads a session log: skills loaded, skill files it read with success and their words, cost, clean end.
 
@@ -83,22 +102,7 @@ def session_facts(log_path: Path) -> dict:
             facts["cost_usd"]    = event.get("total_cost_usd") or 0.0
             facts["is_finished"] = not event.get("is_error")
         for block in content_blocks(event):
-            arguments      = block.get("input") or {}
-            is_tool_call   = block.get("type") == "tool_use"
-            is_skill_call  = is_tool_call and block.get("name") == "Skill"
-            is_good_result = block.get("type") == "tool_result" and not block.get("is_error")
-            if is_skill_call:
-                facts["skills"].append(arguments.get("skill"))
-            if is_tool_call:
-                target = str(arguments.get("file_path") or "") or resolved_paths(str(arguments.get("command") or ""))
-                targets[block.get("id")] = target
-            if not is_good_result:
-                continue
-            # a denied or failed read does not count: only results that carry the file content
-            for match in SKILL_FILE.finditer(targets.get(block.get("tool_use_id"), "")):
-                prefix = "react:" if "react" in match.group(1) else ""
-                facts["references"].add(prefix + match.group(2))
-                facts["words"] += len(json.dumps(block.get("content")).split())
+            record_block(block, facts, targets)
     return facts
 
 

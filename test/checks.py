@@ -41,6 +41,10 @@ INLINE_COMMENT_PY  = re.compile(r"\S\s+#\s*(.*)$")
 HELPER_MOVE_LINE_COUNT   = 8
 ITEM_ROW_MOVE_LINE_COUNT = 12
 
+CHECK_STYLE_SCRIPT = Path(__file__).resolve().parent.parent / "skills/moxwel-code-style/scripts/check_style.py"
+ELSE_AFTER_LEAVE   = re.compile(r"\b(return|continue|break|throw)\b[^\n]*\n\s*\}\s*else\b")
+NESTED_TERNARY     = re.compile(r"\?[^:;\n]*:[^;\n]*\?[^.?\n]")
+
 
 def read_output(work_dir: Path, file_name: str) -> str:
     return (work_dir / file_name).read_text(encoding="utf-8")
@@ -407,6 +411,18 @@ def check_jsxorder(work_dir: Path) -> list[str]:
     })
 
 
+def check_nesting(work_dir: Path) -> list[str]:
+    """At most 3 levels of nesting, no else after a block that leaves, no nested ternary (readability.md rule 2)."""
+    text       = read_output(work_dir, "stock.ts")
+    style_run  = subprocess.run(["python3", str(CHECK_STYLE_SCRIPT), str(work_dir)], capture_output=True, text=True)
+    deep_lines = [line for line in style_run.stdout.splitlines() if "nesting depth" in line]
+    return found({
+        f"nested too deep: {deep_lines}": deep_lines,
+        "else after a block that returns, continues, breaks or throws": ELSE_AFTER_LEAVE.search(text),
+        "nested ternary": NESTED_TERNARY.search(text),
+    })
+
+
 CHECKS = {
     "align":     check_align,
     "cut":       check_cut,
@@ -433,6 +449,7 @@ CHECKS = {
     "commit":    check_commit,
     "order":     check_order,
     "jsxorder":  check_jsxorder,
+    "nesting":   check_nesting,
 }
 
 
