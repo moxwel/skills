@@ -5,7 +5,7 @@ Covers every source file in any language: when comments are written at all, the 
 ## Rules
 
 1. **Language:** code, comments, doc comments, user-facing strings, logs and docs are in English. When the project names another language for user-facing strings, comments or docs (an override, see SKILL.md), those use it. Comments stay ASCII (drop accents) and identifiers stay English whatever that language; user-facing strings keep full orthography.
-2. **No new comments unless the user asks for them:** write a comment, doc comment or file header only where the user explicitly asks for an explanation or documentation. Names, named conditions and small functions carry the intent instead. The rest of this file sets the form of the comments the user asked for and of the ones already in the code.
+2. **No new comments unless the user asks for them:** write a comment, doc comment or file header only where the user explicitly asks for an explanation or documentation. Names, named conditions, types (readability.md rule 8) and small functions carry the intent instead. The rest of this file sets the form of the comments the user asked for and of the ones already in the code.
    - Existing comments stay. One that a change makes wrong is corrected, or deleted if it no longer applies (SKILL.md).
    - Code moved to another file keeps its existing comments, so the move adds none.
    - Tool directives and markers are not comments in this sense (`// eslint-disable-next-line`, `# noqa`, `shortcut: ...`) and go wherever the tool needs them.

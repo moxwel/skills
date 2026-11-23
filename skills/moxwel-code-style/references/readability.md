@@ -1,10 +1,11 @@
 # Readability
 
-Covers the shape of code in any language: conditions, control flow and nesting depth, function body order, definition order, line length, alignment and imports.
+Covers the shape of code in any language: conditions, control flow and nesting depth, function body order, definition order, line length, alignment, imports, and the types that say what a comment would.
 
 ## Rules
 
 1. **Named conditions:** a comparison or compound condition used in an `if`, ternary or markup template (JSX, HTML templates) becomes a named boolean first (naming.md rule 3). A plain boolean variable or a single predicate call needs no new name, and neither does a language idiom that is the condition itself (`if __name__ == "__main__":`). Filter callbacks and comprehension clauses are not covered.
+   - **A condition that still reads badly after naming its parts** becomes a predicate function named after the question it answers (`isRefundable(order)`, naming.md rule 4), defined above its caller (rule 7), in any language.
 2. **Flat control flow: at most 3 levels of nesting.** The body of a function is level 1, and each block inside it adds one: `if`, `else`, `for`, `while`, `try`, `catch`, `switch`, and the body of a callback or a nested function. Code that would reach level 4 is flattened:
    - **Inversion first:** flip the condition and leave early (`return`, `continue`, `break`, `throw`), so the main path stays at the shallowest level. The guards sit together at the top (rule 3, body order).
    - **Extraction second:** when inversion is not enough, move the inner block into its own function, named after what it does and defined above its caller (rule 7).
@@ -42,6 +43,9 @@ Covers the shape of code in any language: conditions, control flow and nesting d
      - A file that already complies is not reshuffled.
      - For each break, move either the block used too early (up) or the code that uses it (down), whichever changes fewer lines against the original file.
      - Move a block whole, with the comment above it, and nothing else in the same change.
+8. **Types say what a comment would:** a value that may be missing has the language's type for absence (`T | null`, `T | undefined`, `Optional[T]`, `T | None`), never a sentinel such as `-1`, `""` or `0` that the caller has to know about. A fixed set of states is a union or enum type, not a free string or number.
+   - A library or built-in that returns a sentinel (`indexOf`, `str.find`) is read through a named condition right where it is called (`const isFound = index !== -1`), and the sentinel goes no further than that line.
+   - Bash has no types: a function reports a missing value with its exit status and an empty output, never with a magic string.
 
 ## Details
 
@@ -119,6 +123,18 @@ function exportItems(items: Item[]): void {
 ```ts
 const editorOrViewer = isEditor ? "Editor" : "Viewer";
 const roleLabel      = isAdmin ? "Admin" : editorOrViewer;
+```
+
+- **Predicate function** (rule 1): the condition named part by part still takes three lines to read, so it becomes a function and the `if` reads as the question.
+
+```ts
+function isRefundable(order: Order): boolean {
+  const isRecent       = daysSince(order.boughtAt) <= REFUND_WINDOW_DAYS;
+  const isCostlyOrGift = order.priceCents > MIN_REFUND_CENTS || order.isGift;
+  return isRecent && !order.isUsed && isCostlyOrGift;
+}
+
+if (isRefundable(order)) refund(order);
 ```
 
 - **Flat control flow by language** (rule 2):
@@ -204,6 +220,18 @@ Item {
 }
 ```
 
+- **Types instead of sentinels** (rule 8): absence and states live in the return type, so the caller cannot miss them.
+
+```ts
+type ReviewStatus = "pending" | "reviewed";
+
+function lastReviewedAt(item: Item): Date | null {
+  return item.reviews.at(-1)?.reviewedAt ?? null;
+}
+```
+
+  In Python the same function returns `datetime | None`, and a missing setting is `None`, never `""`.
+
 - **Picking the smallest move** (rule 7): for each break, compare two candidates against the original file and keep the one with fewer changed lines (`diff original new | grep -c '^[<>]'`).
   - Two callers (16 lines) sit above the helper they call, which sits next to its own helper (18 lines together). Moving the two callers down beats moving the two helpers up.
   - A one-line handler uses an element declared five lines below it. Moving the handler line down beats moving the element up.
@@ -264,9 +292,11 @@ Button {
 
 - [ ] No comparison or compound condition inline in an `if`, ternary or markup template; no nested ternaries; guards return early.
 - [ ] No new or rewritten code past level 3 of nesting: inversion first, extraction second, `continue` in loops, no `else` after a block that leaves.
+- [ ] A condition that still reads badly after naming its parts is a predicate function.
 - [ ] Derived values are named before the result.
 - [ ] No line broken only because it was long; a hard-to-read line was shortened by naming its parts.
 - [ ] Imports grouped, sorted and taken from their defining module.
 - [ ] Consecutive lines of the same shape are aligned per block, groups cut at 8 columns, trailing comments aligned; lines that only open a body are left out.
 - [ ] Variables, fields and properties (aliases too) first; every object, element and function defined above its first use (calls, reads, handlers, bindings by name), the entry point last.
+- [ ] A value that may be missing uses the type for absence and a fixed set of states uses a union or enum; no new sentinel such as `-1` or `""`.
 - [ ] In existing code, only the smaller of the two candidate moves for each break, meaningful orders untouched, and the sorted lines unchanged.
