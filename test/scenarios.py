@@ -417,6 +417,14 @@ SCENARIOS = {
         "files":  {"orders.ts": ORDERS_TS},
         "prompt": "Fix the order of the code in orders.ts so it follows my conventions. Change nothing else.",
     },
+    "types": {
+        "files":  {},
+        "prompt": "Create orders.ts with three exported functions over a list of orders (each with an id, a "
+                  "priceCents, a boughtAt Date, an isUsed flag and an isGift flag): one that returns the position "
+                  "of the first order with a given id, one that returns the price of the order with a given id, "
+                  "and one that keeps the orders that can be refunded: bought at most 30 days ago, not used, and "
+                  "either over 1000 cents or a gift.",
+    },
     "nesting": {
         "files":  {},
         "prompt": "Create stock.ts with an exported function that takes a list of warehouses (each with a name, "
