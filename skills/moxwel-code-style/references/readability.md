@@ -46,6 +46,7 @@ Covers the shape of code in any language: conditions, control flow and nesting d
 8. **Types say what a comment would:** a value that may be missing has the language's type for absence (`T | null`, `T | undefined`, `Optional[T]`, `T | None`), never a sentinel such as `-1`, `""` or `0` that the caller has to know about. A fixed set of states is a union or enum type, not a free string or number.
    - A library or built-in that returns a sentinel (`indexOf`, `str.find`) is read through a named condition right where it is called (`const isFound = index !== -1`), and the sentinel goes no further than that line.
    - Bash has no types: a function reports a missing value with its exit status and an empty output, never with a magic string.
+   - A unit goes in the type when the language or the project already has one for it (`timedelta` in Python, `Duration` in Kotlin or Rust). A plain number keeps the unit in its name instead (naming.md rule 4).
 
 ## Details
 
