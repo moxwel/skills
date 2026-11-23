@@ -2,6 +2,11 @@
 check_style.py: the mechanical part of the style references. Checks .ts/.tsx/.js/.jsx/.mjs/.css/.py/.sh files for:
 
 - non-ASCII characters inside comments (comments-and-docs.md rule 1); strings may keep accents;
+- nesting deeper than MAX_NESTING_DEPTH blocks (readability.md rule 2), not in .css. One problem per block that
+  crosses the limit. TS/JS counts each { that opens a code block (after a condition, a parameter list, =>, else,
+  try, finally, do or a return type), not objects, types, class bodies or JSX. Python counts indented blocks except
+  class bodies and case arms, and skips a file it cannot tokenize. Bash counts if, for, while, until, case and {.
+  Regex literals in TS/JS, multi-line strings and heredocs in Bash are not understood: they can give false results.
 
 And documentation .md files for typographic symbols and emojis outside code spans and fenced blocks
 (markdown.md rules 3 and 4). Letters, accents and numbers of any language pass. Emojis the user asked for are still
@@ -15,9 +20,11 @@ Usage: python3 check_style.py <folder>. With no problems it prints nothing; with
 path:line: problem and exits with code 1.
 """
 
+import io
 import os
 import re
 import sys
+import tokenize
 import unicodedata
 
 C_STYLE_EXTENSIONS = (".ts", ".tsx", ".js", ".jsx", ".mjs", ".css")
@@ -47,6 +54,19 @@ LANGUAGE_CATEGORIES = ("L", "M", "N")
 # Spanish inverted question and exclamation marks open a sentence; they are orthography, not typography.
 ALLOWED_SYMBOLS = {"\u00bf", "\u00a1"}
 
+MAX_NESTING_DEPTH = 3
+JS_EXTENSIONS     = (".ts", ".tsx", ".js", ".jsx", ".mjs")
+JS_OPENERS        = (LINE_COMMENT, BLOCK_START) + STRING_QUOTES
+JS_CLOSERS        = {LINE_COMMENT: "\n", BLOCK_START: BLOCK_END, '"': '"', "'": "'", "`": "`"}
+NON_NEWLINE       = re.compile(r"[^\n]")
+STATEMENT_BREAK   = re.compile(r"[{};]")
+BLOCK_OPENING_END = re.compile(r"(\)|=>|\belse|\btry|\bfinally|\bdo|\)\s*:[^=;]*)$")
+LINE_START_TOKENS = (tokenize.INDENT, tokenize.DEDENT, tokenize.NL, tokenize.COMMENT)
+UNCOUNTED_PYTHON_BLOCKS = ("class", "case")
+SHELL_STRING         = re.compile(r'"(\\.|[^"\\])*"|\'[^\']*\'')
+SHELL_WORD_SEPARATOR = re.compile(r"[\s;&|()]+")
+SHELL_DEPTH_CHANGES  = {"if": 1, "for": 1, "while": 1, "until": 1, "case": 1, "{": 1, "fi": -1, "done": -1, "esac": -1, "}": -1}
+
 
 def find_marker(text: str, markers: tuple[str, ...]) -> tuple[int, str]:
     """Finds the first marker that sits outside one-line string literals.
@@ -66,9 +86,10 @@ def find_marker(text: str, markers: tuple[str, ...]) -> tuple[int, str]:
             index += 2 if is_escape else 1
             open_quote = "" if is_closing else open_quote
             continue
-        for marker in markers:
-            if text.startswith(marker, index):
-                return index, marker
+        marker    = next((marker for marker in markers if text.startswith(marker, index)), "")
+        is_marker = marker != ""
+        if is_marker:
+            return index, marker
         open_quote = char if char in STRING_QUOTES else ""
         index += 1
     return -1, ""
@@ -205,6 +226,128 @@ def check_markdown(path: str, lines: list[str]) -> list[str]:
     return problems
 
 
+def next_js_state(text: str, index: int, state: str) -> tuple[str, int]:
+    is_in_code = state == NO_BLOCK
+    if is_in_code:
+        opener = next((marker for marker in JS_OPENERS if text.startswith(marker, index)), NO_BLOCK)
+        return opener, max(len(opener), 1)
+    is_escape = state in STRING_QUOTES and text[index] == "\\"
+    if is_escape:
+        return state, 2
+    closer    = JS_CLOSERS[state]
+    is_closed = text.startswith(closer, index)
+    if not is_closed:
+        return state, 1
+    is_line_end = closer == "\n"
+    return NO_BLOCK, 0 if is_line_end else len(closer)
+
+
+def strip_js_code(text: str) -> str:
+    code_parts = []
+    state      = NO_BLOCK
+    index      = 0
+    while index < len(text):
+        next_state, length = next_js_state(text, index, state)
+        token   = text[index:index + length]
+        is_code = state == NO_BLOCK and next_state == NO_BLOCK
+        code_parts.append(token if is_code else NON_NEWLINE.sub(" ", token))
+        state  = next_state
+        index += length
+    return "".join(code_parts)
+
+
+def deep_js_lines(text: str) -> list[int]:
+    code          = strip_js_code(text)
+    open_blocks   = []
+    deep_lines    = []
+    segment_start = 0
+    for match in STATEMENT_BREAK.finditer(code):
+        segment       = code[segment_start:match.start()].rstrip()
+        segment_start = match.end()
+        is_close      = match.group() == "}"
+        is_open       = match.group() == "{"
+        open_blocks   = open_blocks[:-1] if is_close else open_blocks
+        if not is_open:
+            continue
+        is_block = BLOCK_OPENING_END.search(segment) is not None
+        open_blocks.append(is_block)
+        is_crossing = is_block and sum(open_blocks) == MAX_NESTING_DEPTH + 1
+        if is_crossing:
+            deep_lines.append(code.count("\n", 0, match.start()) + 1)
+    return deep_lines
+
+
+def python_block_edges(text: str) -> list[tuple[int, int, str]]:
+    edges         = []
+    header_word   = ""
+    is_line_start = True
+    for token in tokenize.generate_tokens(io.StringIO(text).readline):
+        is_edge       = token.type in (tokenize.INDENT, tokenize.DEDENT)
+        is_first_word = is_line_start and token.type in (tokenize.NAME, tokenize.OP)
+        if is_edge:
+            edges.append((token.type, token.start[0], header_word))
+        header_word   = token.string if is_first_word else header_word
+        is_line_start = token.type == tokenize.NEWLINE or (is_line_start and token.type in LINE_START_TOKENS)
+    return edges
+
+
+def deep_python_lines(text: str) -> list[int]:
+    try:
+        edges = python_block_edges(text)
+    except (SyntaxError, tokenize.TokenError):
+        return []
+    open_blocks = []
+    deep_lines  = []
+    for edge_type, line_number, header_word in edges:
+        is_dedent = edge_type == tokenize.DEDENT
+        if is_dedent:
+            open_blocks.pop()
+            continue
+        is_counted = header_word not in UNCOUNTED_PYTHON_BLOCKS
+        open_blocks.append(is_counted)
+        is_crossing = is_counted and sum(open_blocks) == MAX_NESTING_DEPTH + 1
+        if is_crossing:
+            deep_lines.append(line_number)
+    return deep_lines
+
+
+def shell_line_depths(words: list[str], depth: int) -> tuple[int, int]:
+    peak_depth = depth
+    for word in words:
+        depth      = max(depth + SHELL_DEPTH_CHANGES.get(word, 0), 0)
+        peak_depth = max(peak_depth, depth)
+    return depth, peak_depth
+
+
+def deep_shell_lines(lines: list[str]) -> list[int]:
+    depth      = 0
+    deep_lines = []
+    for line_number, line in enumerate(lines, start=1):
+        unquoted          = SHELL_STRING.sub('""', line).strip()
+        comment           = scan_shell_line(unquoted)
+        words             = SHELL_WORD_SEPARATOR.split(unquoted[:len(unquoted) - len(comment)])
+        start_depth       = depth
+        depth, peak_depth = shell_line_depths(words, depth)
+        is_crossing       = start_depth <= MAX_NESTING_DEPTH < peak_depth
+        if is_crossing:
+            deep_lines.append(line_number)
+    return deep_lines
+
+
+def deep_lines_of(extension: str, lines: list[str]) -> list[int]:
+    text      = "\n".join(lines) + "\n"
+    is_js     = extension in JS_EXTENSIONS
+    is_python = extension == PYTHON_EXTENSION
+    is_shell  = extension == SHELL_EXTENSION
+    if is_js:
+        return deep_js_lines(text)
+    if is_python:
+        return deep_python_lines(text)
+    if is_shell:
+        return deep_shell_lines(lines)
+    return []
+
+
 def check_file(path: str) -> list[str]:
     """Runs every check on one source or Markdown file.
 
@@ -227,6 +370,8 @@ def check_file(path: str) -> list[str]:
         comment, block = scan_comment_line(line, extension, block)
         if not comment.isascii():
             problems.append(f"{path}:{line_number}: non-ASCII character in a comment")
+    deep_lines = deep_lines_of(extension, lines)
+    problems  += [f"{path}:{line_number}: nesting depth over {MAX_NESTING_DEPTH}" for line_number in deep_lines]
     return problems
 
 
@@ -272,9 +417,9 @@ def main() -> int:
             # Normalized because commonpath drops a leading "./" from what it returns
             skill_roots.append(os.path.normpath(root))
         is_in_skill = any(os.path.commonpath([root, skill_root]) == skill_root for skill_root in skill_roots)
-        for file_name in sorted(file_names):
-            if is_checked_file(file_name, is_in_skill):
-                problems.extend(check_file(os.path.join(root, file_name)))
+        checked_names = [file_name for file_name in sorted(file_names) if is_checked_file(file_name, is_in_skill)]
+        for file_name in checked_names:
+            problems.extend(check_file(os.path.join(root, file_name)))
     for problem in problems:
         print(problem)
     has_problems = len(problems) > 0

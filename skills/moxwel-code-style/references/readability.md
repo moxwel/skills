@@ -1,11 +1,18 @@
 # Readability
 
-Covers the shape of code in any language: conditions, control flow, function body order, definition order, line length, alignment and imports.
+Covers the shape of code in any language: conditions, control flow and nesting depth, function body order, definition order, line length, alignment and imports.
 
 ## Rules
 
 1. **Named conditions:** a comparison or compound condition used in an `if`, ternary or markup template (JSX, HTML templates) becomes a named boolean first (naming.md rule 3). A plain boolean variable or a single predicate call needs no new name, and neither does a language idiom that is the condition itself (`if __name__ == "__main__":`). Filter callbacks and comprehension clauses are not covered.
-2. **Flat control flow:** early returns over nested `if`s, and no nested ternaries (use a named const, an early return or a tiny helper).
+2. **Flat control flow: at most 3 levels of nesting.** The body of a function is level 1, and each block inside it adds one: `if`, `else`, `for`, `while`, `try`, `catch`, `switch`, and the body of a callback or a nested function. Code that would reach level 4 is flattened:
+   - **Inversion first:** flip the condition and leave early (`return`, `continue`, `break`, `throw`), so the main path stays at the shallowest level. The guards sit together at the top (rule 3, body order).
+   - **Extraction second:** when inversion is not enough, move the inner block into its own function, named after what it does and defined above its caller (rule 7).
+   - **Loops skip with `continue`:** a condition that skips an item is an inverted guard at the top of the body, never an `if` that wraps the rest of it.
+   - **No `else` after a block that returns, continues, breaks or throws:** the code after it already is the else.
+   - **No nested ternaries:** name the inner one as its own const first, or use an early return or a tiny helper. In markup (JSX, templates) the conditional values are named above the `return`.
+   - **Not a level:** object and type literals, class bodies, `case` arms, markup elements, and a callback with an expression body (`items.map((item) => item.name)`).
+   - Code the task adds or rewrites stays within level 3. Deeper code that already exists stays as it is (SKILL.md).
 3. **The result reads like a template:** derived values (computed strings, filtered lists, conditional texts) live in named consts before the `return` or the output, and a big result is split into named pieces composed at the end.
    - **Body order:** inputs and guards (early returns) → derived values → local helpers → named pieces → a short final `return` or output that composes them. A guard that needs a derived value comes right after it.
    - **One concept per line.** Chained operations that each do something different get their own line or their own named value.
@@ -39,6 +46,86 @@ Covers the shape of code in any language: conditions, control flow, function bod
 ## Details
 
 - **Bash:** a single `[ … ]` test counts as the predicate itself; a compound test becomes a function named like a predicate (`is_same_file`), called in the `if`.
+
+- **Inversion** (rule 2), worked example. The nested version reaches level 4 at `publish(item)`:
+
+```ts
+function publishItem(item: Item | null, userId: string): string {
+  if (item) {
+    const isOwner = item.ownerId === userId;
+    if (isOwner) {
+      if (!item.isPublished) {
+        publish(item);
+        return "Published.";
+      }
+      return "Already published.";
+    }
+    return "Not yours.";
+  }
+  return "Missing item.";
+}
+```
+
+  Each condition flipped into a guard keeps the main path at level 1:
+
+```ts
+function publishItem(item: Item | null, userId: string): string {
+  if (!item) return "Missing item.";
+  const isOwner = item.ownerId === userId;
+  if (!isOwner) return "Not yours.";
+  if (item.isPublished) return "Already published.";
+  publish(item);
+  return "Published.";
+}
+```
+
+- **Extraction** (rule 2), worked example. Inverting the `if` into a `continue` still leaves the row loop at level 4, so the part loop moves into a function defined above its caller:
+
+```ts
+function exportItems(items: Item[]): void {
+  for (const item of items) {
+    if (item.isValid) {
+      for (const part of item.parts) {
+        for (const row of part.rows) {
+          writeRow(row);
+        }
+      }
+    }
+  }
+}
+```
+
+```ts
+function exportPart(part: Part): void {
+  for (const row of part.rows) {
+    writeRow(row);
+  }
+}
+
+function exportItems(items: Item[]): void {
+  for (const item of items) {
+    if (!item.isValid) continue;
+    for (const part of item.parts) {
+      exportPart(part);
+    }
+  }
+}
+```
+
+- **No `else` after a return** (rule 2): `if (isEmpty) { return "No items."; } else { return label; }` becomes `if (isEmpty) return "No items.";` followed by `return label;`.
+
+- **Nested ternary** (rule 2): `isAdmin ? "Admin" : isEditor ? "Editor" : "Viewer"` becomes two named values.
+
+```ts
+const editorOrViewer = isEditor ? "Editor" : "Viewer";
+const roleLabel      = isAdmin ? "Admin" : editorOrViewer;
+```
+
+- **Flat control flow by language** (rule 2):
+  - **Python:** the guard keeps its body on its own line (`if not is_owner:`, then `return None`), loops skip with `continue`, and a nested `def` is a level like a callback.
+  - **Bash:** a guard is one line, `[ -d "$source" ] || return 1`, and a loop skips with `[ -f "$file" ] || continue`. A function body is level 1, and `if`, `for`, `while`, `until`, `case` and a `{ ... }` group each add one.
+
+- **The checker** (rule 2): `scripts/check_style.py` reports each block that reaches level 4 in TS/JS, Python and Bash. It counts braces, indentation and keywords, not the syntax tree, so a regex literal in TS/JS or a heredoc in Bash can make it report a block that is not there. Read the reported line before flattening, and tell the user about a false report instead of reshaping correct code.
 
 - **Body order** (rule 3), worked example:
 
@@ -169,11 +256,14 @@ Button {
 - **A formatter can strip the padding.** If the project's formatter removes it, the formatter wins for those lines.
 - **An element looks positioned but is not.** In a declarative UI, a tooltip, menu, dialog or non-visual object declared among laid-out children takes no place in the layout, so it can move below what it reads; a laid-out sibling cannot.
 - **A scripted reorder cuts a block wrong.** Text tools that cut from one marker to the next can split a function or drop its comment. Check the sorted lines afterwards (Details, picking the smallest move).
+- **Extraction that only renames the depth.** Moving a nested block into an inline callback (`items.forEach((item) => { ... })`) keeps every level it had. Extract a named function at the top level of the file, or invert first.
+- **A guard with no main path.** Two branches of equal weight that pick one of two values are a named const with a ternary, not a guard and a fallthrough.
 - **A named condition evaluated too early.** Naming `const isOwner = item.ownerId === userId` before the `item` guard throws on a missing item. Keep each named condition after the guard it depends on.
 
 ## Checklist
 
 - [ ] No comparison or compound condition inline in an `if`, ternary or markup template; no nested ternaries; guards return early.
+- [ ] No new or rewritten code past level 3 of nesting: inversion first, extraction second, `continue` in loops, no `else` after a block that leaves.
 - [ ] Derived values are named before the result.
 - [ ] No line broken only because it was long; a hard-to-read line was shortened by naming its parts.
 - [ ] Imports grouped, sorted and taken from their defining module.
