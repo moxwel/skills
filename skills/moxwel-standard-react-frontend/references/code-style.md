@@ -48,7 +48,7 @@ useEffect(() => {
 </Form>
 ```
 
-- **Form behavior:**
+- **Form behavior** (what the user sees in return follows [user-experience.md](user-experience.md)):
   - Field errors come back in `state.errors`, keyed by field name, and `ok`/`error` messages go to a toast.
   - A generic error with no field (login) moves no focus, so that form focuses its first field itself.
   - Non-form actions (delete, toggle) use `useTransition` + the busy row's id.

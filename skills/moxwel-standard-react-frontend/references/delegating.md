@@ -22,6 +22,7 @@ Covers what a React audit or sweep hands to subagents: the areas, the references
 | Styling | `<react>/references/styling.md` | always |
 | Semantic HTML | `<react>/references/semantic-html.md` | always |
 | Components | `<react>/references/components.md` | always |
+| User experience | `<react>/references/user-experience.md` | always |
 | Security | `<react>/references/security-management.md` | always |
 | Database | `<react>/references/database.md` | the project has `lib/db` |
 | Metadata | `<react>/references/social-metadata.md` | the project has public pages |

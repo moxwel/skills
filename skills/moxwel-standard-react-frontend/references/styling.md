@@ -17,7 +17,7 @@ Covers Tailwind, plain CSS, cascade layers, responsive layout, modals, motion an
 11. **Shared layout is a constant** in `components/const.ts`, next to the icon sizes (`BUTTON_LAYOUT` plus `BUTTON_LAYOUT_SMALL` and `BUTTON_LAYOUT_LARGE`, `FIELD_BOX_LAYOUT`, `MODAL_*_LAYOUT`, `FORM_ACTIONS_LAYOUT`), never a shared CSS class. Layout only one component uses stays in that component (project-structure.md rule 6).
 12. **Every component imports every CSS file it uses,** `shared.css` included. Each folder's `shared.css` serves only that folder.
 13. **No animations unless the user asks for that element:** no `transition`, `animation`, `@keyframes`, `[data-starting-style]`/`[data-ending-style]` rules, or Tailwind `transition-*`/`animate-*`/`duration-*` utilities. State changes apply instantly. When asked, animate only that element and property, in the CSS of the component that renders it; if that component is shared, only the instances asked, through a data attribute the caller sets.
-14. **Every view that shows data has three states:** loading, error and empty, each perceivable and saying what is happening and what to do next (copy.md rule 6 of the base skill). Loading is a server `loading.tsx` in the route-group segment (Tailwind only, top on mobile and centered from `md`) with the spinner and a text naming what loads. Error is an `error.tsx` in the same segment with a retry action. Empty is part of the component that renders the list.
+14. **Loading, error and empty states, and every other reaction to a user action,** follow [user-experience.md](user-experience.md).
 15. **Contrast is computed, never eyeballed:** text needs 4.5:1 (large text 3:1), and the edge of a control or a status indicator needs 3:1 against the colors next to it, in every theme. Fields, selects, checkboxes, radios and switches use `--border-strong` for their edge; `--border` is only for dividers and card edges that do not identify a control. Check each new color pair with the WCAG formula or a contrast tool.
 
 ## Details
@@ -63,5 +63,4 @@ Covers Tailwind, plain CSS, cascade layers, responsive layout, modals, motion an
 - [ ] Only `md:` breakpoints (others only where asked) and no `@media`. Window-centered elements are at the top on mobile.
 - [ ] Every new CSS file has the layer-order line, and each component imports what it uses.
 - [ ] No animation or grid unless asked (`grep -rnE "transition|animate-|@keyframes|grid" src`).
-- [ ] Every data view has loading, error and empty states that say what happens and what to do.
 - [ ] Contrast checked: text 4.5:1, control edges and indicators 3:1, in every theme.

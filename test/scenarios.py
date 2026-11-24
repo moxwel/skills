@@ -335,7 +335,7 @@ SCENARIOS = {
         "prompt": "Add an ItemCount component that shows how many items there are (or a message when there are "
                   "none), with its own styles, and use it in the home page.",
         "react":   ["code-style", "components", "naming", "project-structure", "semantic-html", "styling",
-                    "workflow-and-verification"],
+                    "user-experience", "workflow-and-verification"],
     },
     "action": {
         "files":  {"package.json": PACKAGE_JSON, "lib/db/items.ts": ITEMS_DB_TS,
