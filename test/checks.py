@@ -212,7 +212,7 @@ def check_mindiff(work_dir: Path) -> list[str]:
 def new_sources(work_dir: Path, pattern: str, starting_files: dict[str, str]) -> list[Path]:
     """Lists the files matching the glob pattern that the session created, outside node_modules."""
     created = [path for path in sorted(work_dir.glob(pattern)) if "node_modules" not in path.parts]
-    return [path for path in created if str(path.relative_to(work_dir)) not in starting_files]
+    return [path for path in created if path.relative_to(work_dir).as_posix() not in starting_files]
 
 
 def check_react(work_dir: Path) -> list[str]:
@@ -440,7 +440,7 @@ def check_names(work_dir: Path) -> list[str]:
     sources       = new_sources(work_dir, "**/*.ts", SCENARIOS["names"]["files"])
     texts         = [source.read_text(encoding="utf-8") for source in sources]
     abbreviations = sorted(set().union(*(identifier_parts(text) for text in texts)) & ABBREVIATIONS)
-    grab_bags     = [str(source.relative_to(work_dir)) for source in sources if GRAB_BAG_NAMES & {source.stem.lower(), source.parent.name.lower()}]
+    grab_bags     = [source.relative_to(work_dir).as_posix() for source in sources if GRAB_BAG_NAMES & {source.stem.lower(), source.parent.name.lower()}]
     typed_names   = [match.group(2) for text in texts for match in TYPED_TYPE_NAME.finditer(text)]
     return found({
         "no .ts file written": not sources,
@@ -516,7 +516,7 @@ def new_comment_problems(name: str, work_dir: Path) -> list[str]:
     for path in sorted(work_dir.rglob("*")):
         if not is_written_source(path, work_dir):
             continue
-        relative_path = str(path.relative_to(work_dir))
+        relative_path = path.relative_to(work_dir).as_posix()
         lines = path.read_text(encoding="utf-8").splitlines()
         starting_lines = set(starting_files.get(relative_path, "").splitlines())
         is_shebang     = lines[:1] and lines[0].startswith("#!")

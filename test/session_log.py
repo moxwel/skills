@@ -79,7 +79,7 @@ def record_block(block: dict, facts: dict, targets: dict[str, str]) -> None:
         facts["skills"].append(arguments.get("skill"))
     if is_tool_call:
         target = str(arguments.get("file_path") or "") or resolved_paths(str(arguments.get("command") or ""))
-        targets[block.get("id")] = target
+        targets[block.get("id")] = target.replace("\\", "/")  # Windows paths use backslashes
     if not is_good_result:
         return
     # a denied or failed read does not count: only results that carry the file content
