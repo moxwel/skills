@@ -3,14 +3,17 @@ Skill test harness: runs each scenario in a fresh headless `claude -p` session, 
 the session read and whether the code it wrote follows the rules. Usage is in README.md.
 """
 
+from datetime import datetime
 from pathlib import Path
 import re
+import shlex
 import shutil
 import subprocess
 import sys
 import tempfile
 import time
 import traceback
+from typing import TextIO
 
 from alignment import self_check
 from checks import output_problems
@@ -25,6 +28,8 @@ OUTPUT_FLAGS     = ["--output-format", "stream-json", "--verbose"]
 BASE_SKILL       = "moxwel-code-style"
 # Sessions run outside the repo, so its CLAUDE.md cannot tell them which style to follow.
 RUNS_DIR = Path(tempfile.gettempdir()) / "moxwel-skill-tests"
+TEST_DIR = Path(__file__).resolve().parent
+LOGS_DIR = TEST_DIR / "logs"
 # All sessions of a round share this limit; the ones still running when it ends are killed.
 ROUND_TIMEOUT_SEC = 540
 
@@ -50,6 +55,49 @@ def log_path_of(work_dir: Path) -> Path:
 def is_valid_run_id(run_id: str) -> bool:
     match = RUN_ID.fullmatch(run_id)
     return match is not None and match.group(1) in SCENARIOS
+
+
+def report(line: str, log_file: TextIO) -> None:
+    print(line)
+    log_file.write(line + "\n")
+
+
+def session_command(scenario: dict) -> list[str]:
+    tools = scenario.get("tools", [])
+    return ["claude", "-p", scenario["prompt"], "--model", MODEL, *PERMISSION_FLAGS, *tools, *OUTPUT_FLAGS]
+
+
+def describe_skills_version() -> str:
+    def run_git(*arguments: str) -> str:
+        completed = subprocess.run(["git", *arguments], cwd=TEST_DIR, check=True, capture_output=True, text=True)
+        return completed.stdout.strip()
+
+    try:
+        commit      = run_git("rev-parse", "--short", "HEAD")
+        has_changes = run_git("status", "--porcelain", "--", "../skills", "../agents") != ""
+    except (OSError, subprocess.CalledProcessError) as error:
+        return f"unknown, git failed: {error}"
+    state = "with uncommitted changes" if has_changes else "clean"
+    return f"{commit} ({state})"
+
+
+def write_round_header(log_file: TextIO, started_at: datetime, round_dir: Path, run_ids: list[str]) -> None:
+    commands = [f"{run_id}: {shlex.join(session_command(SCENARIOS[scenario_name(run_id)]))}" for run_id in run_ids]
+    header   = [
+        f"started:   {started_at.isoformat(timespec='seconds')}",
+        f"command:   {shlex.join([sys.executable, *sys.argv])}",
+        f"skills:    {describe_skills_version()}",
+        f"model:     {MODEL}",
+        f"timeout:   {ROUND_TIMEOUT_SEC} s",
+        f"outputs:   {round_dir}",
+        f"scenarios: {', '.join(run_ids)}",
+        "",
+        "sessions:",
+        *commands,
+        "",
+        "results:",
+    ]
+    log_file.write("\n".join(header) + "\n")
 
 
 def write_files(work_dir: Path, files: dict[str, str]) -> None:
@@ -81,8 +129,7 @@ def start_session(run_id: str, round_dir: Path) -> subprocess.Popen:
     if scenario.get("git", False):
         commit_starting_files(work_dir)
     write_files(work_dir, scenario.get("changes", {}))
-    tools   = scenario.get("tools", [])
-    command = ["claude", "-p", scenario["prompt"], "--model", MODEL, *PERMISSION_FLAGS, *tools, *OUTPUT_FLAGS]
+    command = session_command(scenario)
     with log_path_of(work_dir).open("w", encoding="utf-8") as log_file:
         return subprocess.Popen(command, cwd=work_dir, stdout=log_file, stderr=subprocess.STDOUT)
 
@@ -102,7 +149,7 @@ def wait_for_sessions(sessions: dict[str, subprocess.Popen]) -> list[str]:
     return timed_out
 
 
-def evaluate(run_id: str, round_dir: Path, has_timed_out: bool) -> tuple[bool, float]:
+def evaluate(run_id: str, round_dir: Path, has_timed_out: bool, log_file: TextIO) -> tuple[bool, float]:
     """Prints the verdict of one run. Returns whether it passed and what its session cost in USD."""
     name     = scenario_name(run_id)
     work_dir = work_dir_of(run_id, round_dir)
@@ -114,7 +161,7 @@ def evaluate(run_id: str, round_dir: Path, has_timed_out: bool) -> tuple[bool, f
         problems = [f"expected file missing: {error.filename}"]
     except Exception:
         # one broken check must not stop the round: show the trace and fail this run only
-        traceback.print_exc()
+        report(traceback.format_exc().rstrip(), log_file)
         problems = ["the check crashed, see the trace above"]
     if has_timed_out:
         problems.insert(0, f"session killed after {ROUND_TIMEOUT_SEC} s")
@@ -130,12 +177,12 @@ def evaluate(run_id: str, round_dir: Path, has_timed_out: bool) -> tuple[bool, f
     loaded  = "yes" if is_loaded else "no"
     if not is_skill_as_expected:
         problems.insert(0, "skill not loaded" if is_expected else "references read for a task that needs none")
-    print(f"[{verdict}] {run_id}: skill={loaded} references={sorted(facts['references'])} "
-          f"words={facts['words']}")
+    report(f"[{verdict}] {run_id}: skill={loaded} references={sorted(facts['references'])} "
+           f"words={facts['words']}", log_file)
     if missing:
-        print(f"    required files not read: {missing}")
+        report(f"    required files not read: {missing}", log_file)
     for problem in problems:
-        print(f"    {problem}")
+        report(f"    {problem}", log_file)
     return is_pass, facts["cost_usd"]
 
 
@@ -159,14 +206,21 @@ def main() -> None:
         sys.exit(f"Unknown scenarios: {', '.join(unknown_run_ids)}. Pick from: {', '.join(SCENARIOS)}.")
     if not has_claude:
         sys.exit("The claude command is not on the PATH. Install Claude Code and run this again.")
-    round_dir      = RUNS_DIR / round_name
-    sessions       = {run_id: start_session(run_id, round_dir) for run_id in run_ids}
-    timed_out      = wait_for_sessions(sessions)
-    outcomes       = [evaluate(run_id, round_dir, run_id in timed_out) for run_id in run_ids]
-    passed_count   = sum(is_pass for is_pass, cost_usd in outcomes)
-    total_cost_usd = sum(cost_usd for is_pass, cost_usd in outcomes)
-    has_failures   = passed_count < len(run_ids)
-    print(f"{passed_count}/{len(run_ids)} passed, {total_cost_usd:.2f} USD. Outputs and logs: {round_dir}")
+    round_dir  = RUNS_DIR / round_name
+    started_at = datetime.now()
+    log_path   = LOGS_DIR / f"{started_at:%Y%m%d-%H%M%S}-{round_name}.log"
+    LOGS_DIR.mkdir(exist_ok=True)
+    with log_path.open("w", encoding="utf-8", buffering=1) as log_file:
+        write_round_header(log_file, started_at, round_dir, run_ids)
+        sessions       = {run_id: start_session(run_id, round_dir) for run_id in run_ids}
+        timed_out      = wait_for_sessions(sessions)
+        outcomes       = [evaluate(run_id, round_dir, run_id in timed_out, log_file) for run_id in run_ids]
+        passed_count   = sum(is_pass for is_pass, cost_usd in outcomes)
+        total_cost_usd = sum(cost_usd for is_pass, cost_usd in outcomes)
+        has_failures   = passed_count < len(run_ids)
+        report(f"{passed_count}/{len(run_ids)} passed, {total_cost_usd:.2f} USD. Outputs and logs: {round_dir}", log_file)
+        report(f"Round log: {log_path}", log_file)
+        log_file.write(f"finished:  {datetime.now().isoformat(timespec='seconds')}\n")
     sys.exit(1 if has_failures else 0)
 
 

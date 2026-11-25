@@ -21,6 +21,8 @@ python3 test/run_scenarios.py --self-check              # tests the alignment ch
 
 The first argument names the round. Each session works in its own folder under the system temp folder (`/tmp/moxwel-skill-tests/<round>/` on Linux), outside this repo so that its `CLAUDE.md` does not tell the session which style to follow. The session log is the `.jsonl` file next to each folder. Running a round name again replaces the folders of the scenarios you run.
 
+Each round also writes a log to `test/logs/<date>-<time>-<round>.log`, which git ignores. It records when the round started, the command you ran, the commit of the skills and whether they had uncommitted changes, the model, the `claude` command of each session, every verdict with its problems, and the totals.
+
 All sessions of a round run at the same time with `--model sonnet` and stop after 9 minutes. In the 51 sessions used to tune the skill, one session cost between 0.11 and 0.29 USD.
 
 ## Reading the output
@@ -29,6 +31,7 @@ All sessions of a round run at the same time with `--model sonnet` and stop afte
 [PASS] cut2: skill=yes references=['comments-and-docs', 'copy', 'naming', 'readability'] words=2177
 [PASS] robust: skill=yes references=['comments-and-docs', 'copy', 'naming', 'readability', 'robustness'] words=4582
 2/2 passed, 0.34 USD. Outputs and logs: /tmp/moxwel-skill-tests/verify
+Round log: test/logs/20261125-201500-verify.log
 ```
 
 - `skill` says whether the session loaded `moxwel-code-style`.
