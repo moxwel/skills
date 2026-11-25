@@ -9,13 +9,10 @@ import { formatBytes } from "./formatBytes";
 
 import type { Item } from "./types";
 
-/** Folder that holds one <name>.json file per item; Item keeps the file's snake_case keys. */
-const ITEMS_DIR = process.env.ITEMS_DIR ?? "./items";
-/** Cap on one listing, so a huge folder can't flood the caller. */
-const MAX_LISTED_ITEMS = 500;
+const ITEMS_DIR        = process.env.ITEMS_DIR ?? "./items"; // one <name>.json per item, snake_case keys
+const MAX_LISTED_ITEMS = 500; // caps huge folders
 const ITEM_EXTENSION   = ".json";
-/** Lowercase letters, digits and _, so a name is always a safe file name; 48 keeps paths short. */
-const NAME_PATTERN = /^[a-z0-9_]{1,48}$/;
+const NAME_PATTERN     = /^[a-z0-9_]{1,48}$/; // safe file names, short paths
 
 async function readItem(path: string): Promise<Item> {
   const itemJson = await readFile(path, "utf8");

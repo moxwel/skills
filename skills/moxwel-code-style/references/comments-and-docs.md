@@ -20,9 +20,13 @@ Covers every source file in any language: when comments are written at all, the 
      - `throws` when the function throws or rethrows on purpose, or calls a function whose doc has `throws` without catching it. Say when it throws in the tag, never in prose.
      - No `@` inside the text: tag parsers read it as a new tag.
      - A summary-only doc is one line (`/** Number of active items. */`).
-   - **Constants** that need explaining get a one-line doc comment above them (`/** … */`, `#` in Python/Bash), never a trailing comment. A constant with a descriptive name needs none.
+   - **Constants** never get a doc comment: one that needs explaining gets a short comment at the end of its line (rule 7). A constant with a descriptive name needs none.
    - **Shared types** get `@property name - Desc.` lines in the type's doc for non-obvious fields, never comments inside the type.
-7. **Comments in code are line comments, as short as possible:** a single `//` or `#` line, never a `/* */` block or several lines. It starts lowercase, has no final period, and uses the fewest words that keep the fact (`// socket may be stale`, not `// retry once here because the socket may be stale`). Only a header or doc comment the user asked for as documentation takes the forms of rules 3, 5 and 6. The tone rules of copy.md apply to every comment and doc.
+7. **Comments in code are line comments, as short as possible, placed by what they explain.** This rule only places the comments rule 2 allows; it never asks for one.
+   - **A variable, constant or field:** at the end of its own line, in a few words (`const MAX_ITEMS = 100; // cap per listing`). Never a comment line above it.
+   - **A function:** one line right above it (`// safe file name`, then the function). In Python too it is a `#` line above the `def`, never a docstring. A doc comment or docstring the user asked for as documentation replaces it, in the forms of rules 5 and 6.
+   - **A statement or a block:** one line right above it.
+   - Never a `/* */` block or several lines; a language with no line comment (CSS) uses a one-line `/* */` in the same place. It starts lowercase, has no final period, and uses the fewest words that keep the fact (`// socket may be stale`, not `// retry once here because the socket may be stale`). Only a header or doc comment the user asked for as documentation takes the forms of rules 3, 5 and 6. The tone rules of copy.md apply to every comment and doc.
 
 ## Details
 
@@ -40,6 +44,15 @@ Covers every source file in any language: when comments are written at all, the 
   - An inline comment is a `//` or `#` comment inside a body or after a line of code. File headers, doc comments and the usage block of a script keep full sentences (capital, final period).
   - Names, acronyms and proper nouns keep their case (`the API returns null`, `Plasma ignores it`), and a tool directive or marker stays as the tool expects it (`// eslint-disable-next-line`, `# noqa`, `shortcut: ...`, `slow: ...`).
   - Cut the lead-in: `this is needed because`, `note that`, `we need to`. Start at the fact.
+  - Placement (rule 7): trailing comments on consecutive lines line up (readability.md rule 6). Python puts two spaces before a trailing `#` (PEP 8).
+
+```ts
+const MAX_LISTED_ITEMS = 500; // caps huge folders
+const ITEM_EXTENSION   = ".json";
+
+// safe file name
+function isValidName(name: string): boolean {
+```
   - A comment that seems to need several sentences is cut to one line: keep the constraint, drop the story (Gotchas).
 
 | Before | After |
@@ -78,3 +91,4 @@ def mark_item_reviewed(item_id: str, status: str) -> bool:
 - [ ] No comment echoes a name, a type or a signature; self-descriptive functions and constants have none.
 - [ ] A doc comment exists where the name hides something (an outcome, a deliberate throw, complex logic), and is two lines at most.
 - [ ] Every comment in code is one `//` or `#` line, lowercase, no final period, no lead-in filler, as few words as possible.
+- [ ] A comment on a variable, constant or field sits at the end of its line; one on a function or a statement sits on the line right above it; no constant has a doc comment.

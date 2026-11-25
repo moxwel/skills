@@ -8,13 +8,10 @@ import re
 
 from format_bytes import format_bytes
 
-# Folder that holds one <name>.json file per item.
-ITEMS_DIR = os.environ.get("ITEMS_DIR", "./items")
-# Cap on one listing, so a huge folder can't flood the caller.
-MAX_LISTED_ITEMS = 500
+ITEMS_DIR        = os.environ.get("ITEMS_DIR", "./items")  # one <name>.json per item
+MAX_LISTED_ITEMS = 500  # caps huge folders
 ITEM_EXTENSION   = ".json"
-# Lowercase letters, digits and _, so a name is always a safe file name; 48 keeps paths short.
-NAME_PATTERN = re.compile(r"^[a-z0-9_]{1,48}$")
+NAME_PATTERN     = re.compile(r"^[a-z0-9_]{1,48}$")  # safe file names, short paths
 
 
 def read_item(path: str) -> dict:
