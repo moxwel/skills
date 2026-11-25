@@ -12,6 +12,7 @@ Covers every `.ts`/`.tsx` file (comments and line length also cover CSS) where R
 6. **Forms keep their values on failure:** never use the `<Form action>` prop. Use `useFormAction`, which resets only on `ok`.
 7. **Validate everything, then execute:** nothing slow or with side effects runs until every check that can run has passed. Every field the server requires carries its HTML constraint (`required` on selects too), so the Form blocks the submit. A form that processes data before sending first calls a server pre-check action with the same `lib/` validation as the final action (without uploading files), and the final action validates again.
 8. **Output:** rely on React's escaping. Never use `dangerouslySetInnerHTML`. User-influenced URL segments go through `encodeURIComponent`.
+9. **No memoization by default** (base `readability.md` rule 9): no `useMemo`, `useCallback` or `memo()` until a slow render or computation was measured. React's `cache()` that shares one fetch per request is not covered.
 
 ## Details
 
@@ -68,6 +69,7 @@ useEffect(() => {
 - [ ] The base skill's checklists pass (comments, naming, readability, copy), and naming.md for the React names.
 - [ ] Every name is defined above its first use: constants first, helpers and subcomponents above their callers, the exported component last.
 - [ ] No inline prop types.
+- [ ] No `useMemo`, `useCallback` or `memo()` without a measured slow render.
 - [ ] `"use client"` only where needed. No `<Form action=` (`grep -rn "<Form action=" src`).
 - [ ] Forms validate fully before processing or sending.
 - [ ] `python3 <skill>/scripts/checkImports.py src` prints nothing (`--fix` reorders).
