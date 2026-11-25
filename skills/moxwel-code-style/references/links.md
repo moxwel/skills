@@ -20,3 +20,4 @@ Videos behind some rules, for the reasoning. The references hold the rules and w
 - "Don't Write Comments": named constants and conditions, predicate functions, types instead of comments and sentinels (comments-and-docs.md rule 2, naming.md rule 5, readability.md rules 1 and 8): https://www.youtube.com/watch?v=Bf7vDBBOBUA
 - Never nester: the 3-level limit, inversion and extraction, guards at the top (readability.md rules 2 and 3): https://www.youtube.com/watch?v=CFRhGnuXG-4
 - Naming things: no single letters, no abbreviations, no types in names, units in names, no `utils` modules (naming.md rules 2, 4 and 7, readability.md rule 8): https://www.youtube.com/watch?v=-J3wNP6u5YU
+- Premature optimization: readable before fast, measure first, data structures before micro-tuning, then the profiler (readability.md rule 9): https://www.youtube.com/watch?v=tKbV6BpH-C8

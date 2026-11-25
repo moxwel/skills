@@ -1,6 +1,6 @@
 # Readability
 
-Covers the shape of code in any language: conditions, control flow and nesting depth, function body order, definition order, line length, alignment, imports, and the types that say what a comment would.
+Covers the shape of code in any language: conditions, control flow and nesting depth, function body order, definition order, line length, alignment, imports, the types that say what a comment would, and readability before speed.
 
 ## Rules
 
@@ -47,6 +47,11 @@ Covers the shape of code in any language: conditions, control flow and nesting d
    - A library or built-in that returns a sentinel (`indexOf`, `str.find`) is read through a named condition right where it is called (`const isFound = index !== -1`), and the sentinel goes no further than that line.
    - Bash has no types: a function reports a missing value with its exit status and an empty output, never with a magic string.
    - A unit goes in the type when the language or the project already has one for it (`timedelta` in Python, `Duration` in Kotlin or Rust). A plain number keeps the unit in its name instead (naming.md rule 4).
+9. **Readable before fast:** write the clearest code, not the code believed to be faster. Optimize only for a performance problem that is real and was measured.
+   - **No micro-optimizations by default:** don't inline a function to save a call, don't pick a data structure, loop form or operator for assumed speed (`++i` over `i++`, a manual loop over `map`), and don't cache or memoize without a measured need. Pick the structure that reads clearest (a `Set` for membership); a guess about speed is often wrong (a `Set` can be slower than an array for a few items).
+   - **Knowingly slow code says so:** when the readable form is knowingly slow (a linear search, a full re-scan, a nested loop over the same list), a one-line comment above it says so and that it can be optimized later: `// slow: linear search, optimize if it becomes a bottleneck`. This `slow:` marker needs no request from the user (comments-and-docs.md rule 2).
+   - **Fixing a measured problem,** measuring again after each change: first the biggest change (another data structure or a known faster algorithm), then a profiler to find the hotspot, and only then allocations and memory layout. The `slow:` marker goes when the code it marks is optimized.
+   - **Reviews and audits:** an "X is faster than Y" finding needs a measurement behind it; without one it is not a finding. Knowingly slow code without its `slow:` marker is.
 
 ## Details
 
@@ -288,6 +293,7 @@ Button {
 - **Extraction that only renames the depth.** Moving a nested block into an inline callback (`items.forEach((item) => { ... })`) keeps every level it had. Extract a named function at the top level of the file, or invert first.
 - **A guard with no main path.** Two branches of equal weight that pick one of two values are a named const with a ternary, not a guard and a fallthrough.
 - **A named condition evaluated too early.** Naming `const isOwner = item.ownerId === userId` before the `item` guard throws on a missing item. Keep each named condition after the guard it depends on.
+- **"Fast" or "efficient" in a task is not a measured problem.** Write the readable version and mark what is knowingly slow (rule 9). When the user asks to optimize specific code, that request is the problem: measure, then follow rule 9's order.
 
 ## Checklist
 
@@ -300,4 +306,5 @@ Button {
 - [ ] Consecutive lines of the same shape are aligned per block, groups cut at 8 columns, trailing comments aligned; lines that only open a body are left out.
 - [ ] Variables, fields and properties (aliases too) first; every object, element and function defined above its first use (calls, reads, handlers, bindings by name), the entry point last.
 - [ ] A value that may be missing uses the type for absence and a fixed set of states uses a union or enum; no new sentinel such as `-1` or `""`.
+- [ ] Nothing optimized without a measured problem; knowingly slow code has its one-line `slow:` comment.
 - [ ] In existing code, only the smaller of the two candidate moves for each break, meaningful orders untouched, and the sorted lines unchanged.

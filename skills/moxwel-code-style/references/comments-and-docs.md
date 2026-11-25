@@ -8,7 +8,7 @@ Covers every source file in any language: when comments are written at all, the 
 2. **No new comments unless the user asks for them:** write a comment, doc comment or file header only where the user explicitly asks for an explanation or documentation. Names, named conditions, types (readability.md rule 8) and small functions carry the intent instead. The rest of this file sets the form of the comments the user asked for and of the ones already in the code.
    - Existing comments stay. One that a change makes wrong is corrected, or deleted if it no longer applies (SKILL.md).
    - Code moved to another file keeps its existing comments, so the move adds none.
-   - Tool directives and markers are not comments in this sense (`// eslint-disable-next-line`, `# noqa`, `shortcut: ...`) and go wherever the tool needs them.
+   - Tool directives and markers are not comments in this sense (`// eslint-disable-next-line`, `# noqa`, `shortcut: ...`) and go wherever the tool needs them. Neither is the `// slow: ...` comment above knowingly slow code (readability.md rule 9), written without a request.
    - A reason the user should know (a workaround, a dropped error, a non-obvious decision) goes in the reply to the user, not in a comment.
 3. **A file header, when asked for,** is at most two lines: what the file is, plus any non-obvious decision and why. It never restates the file name. Only a line the language requires to be literally first (a shebang or an encoding declaration) precedes it. Config and data files need none.
 4. **Inline comments explain *why*, never what the next line does.** No emojis. A line, variable or constant whose name already says it gets no comment, even when comments were asked for.
@@ -38,7 +38,7 @@ Covers every source file in any language: when comments are written at all, the 
 - **Does it need a doc comment?** Read the name and the signature as a stranger would. If they answer what it does, what it takes and what it returns, stop. Otherwise write only the missing part: the unexpected outcome, the edge case, the throw.
 - **Inline comment form:**
   - An inline comment is a `//` or `#` comment inside a body or after a line of code. File headers, doc comments and the usage block of a script keep full sentences (capital, final period).
-  - Names, acronyms and proper nouns keep their case (`the API returns null`, `Plasma ignores it`), and a tool directive or marker stays as the tool expects it (`// eslint-disable-next-line`, `# noqa`, `shortcut: ...`).
+  - Names, acronyms and proper nouns keep their case (`the API returns null`, `Plasma ignores it`), and a tool directive or marker stays as the tool expects it (`// eslint-disable-next-line`, `# noqa`, `shortcut: ...`, `slow: ...`).
   - Cut the lead-in: `this is needed because`, `note that`, `we need to`. Start at the fact.
   - A comment that seems to need several sentences is cut to one line: keep the constraint, drop the story (Gotchas).
 
