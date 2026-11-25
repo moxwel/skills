@@ -39,7 +39,7 @@ def resolved_paths(command: str) -> str:
         except ValueError:
             # an unbalanced quote: fall back to plain words
             words = step.split()
-        words = [expanded(word, variables) for word in words]
+        words       = [expanded(word, variables) for word in words]
         assignments = [SHELL_ASSIGNMENT.match(word) for word in words]
         variables.update({match.group(1): match.group(2) for match in assignments if match})
         is_cd = words[:1] == ["cd"] and len(words) > 1

@@ -23,9 +23,9 @@ GOOGLE_DOC_SECTION  = re.compile(r"^\s+(Args|Returns|Raises):\s*$", re.M)
 IMPORT_GROUPS       = ["external", "relative", "type"]
 # Typographic symbols copy.md and markdown.md forbid: dashes, curly quotes, ellipsis, arrows, bullets.
 TYPOGRAPHIC_SYMBOL = re.compile("[\u2013\u2014\u2018\u2019\u201c\u201d\u2022\u2026\u2190-\u21ff]")
-EMOJI              = re.compile("[\U0001f300-\U0001faff\u2600-\u27bf]")
-GENERIC_LABEL      = re.compile(r"get started|learn more|try now|explore|discover|oops", re.I)
-SQL_STATEMENT      = re.compile(r"\b(SELECT|INSERT|UPDATE|DELETE)\b")
+EMOJI = re.compile("[\U0001f300-\U0001faff\u2600-\u27bf]")
+GENERIC_LABEL        = re.compile(r"get started|learn more|try now|explore|discover|oops", re.I)
+SQL_STATEMENT        = re.compile(r"\b(SELECT|INSERT|UPDATE|DELETE)\b")
 CONVENTIONAL_SUBJECT = re.compile(r"[a-z]+(\([\w-]+\))?!?: \S")
 # Footers git-conventions.md keeps: not a body.
 GIT_FOOTER     = re.compile(r"(Refs|BREAKING CHANGE): \S")
@@ -128,8 +128,8 @@ def check_robust(work_dir: Path) -> list[str]:
     has_domain_error = re.search(r"class \w+\((\w*Error|Exception)\)", text)
     is_cause_dropped = re.search(r"raise \w+\(", text) and " from " not in text
     problems = found({
-        "request without timeout":    "timeout=" not in text,
-        "bare or swallowing except":  re.search(r"except\s*:|except Exception[^\n]*:\s*\n\s*pass", text),
+        "request without timeout":   "timeout=" not in text,
+        "bare or swallowing except": re.search(r"except\s*:|except Exception[^\n]*:\s*\n\s*pass", text),
         "no domain error: library errors reach the caller": not has_domain_error,
         "re-raise without chained cause": is_cause_dropped,
         "ignores Retry-After": "Retry-After" not in text,
@@ -226,7 +226,7 @@ def check_react(work_dir: Path) -> list[str]:
     return found({
         "\"use client\" in a component that needs no state, effects or handlers": '"use client"' in text,
         "inline style attribute instead of a CSS class": "style={" in text,
-        "no CSS file for the component's own styles": not has_css,
+        "no CSS file for the component's own styles":    not has_css,
         "dangerouslySetInnerHTML": "dangerouslySetInnerHTML" in text,
     })
 
@@ -236,10 +236,10 @@ def check_action(work_dir: Path) -> list[str]:
                if '"use server"' in path.read_text(encoding="utf-8")]
     if not actions:
         return ["no new .ts file with \"use server\""]
-    action = actions[0]
-    text   = action.read_text(encoding="utf-8")
-    auth_at   = text.find("requireUser(")
-    delete_at = text.find("softDeleteItem(")
+    action        = actions[0]
+    text          = action.read_text(encoding="utf-8")
+    auth_at       = text.find("requireUser(")
+    delete_at     = text.find("softDeleteItem(")
     is_auth_first = 0 <= auth_at < delete_at
     return found({
         "action outside actions/": "actions" not in action.relative_to(work_dir).parts,
@@ -247,8 +247,8 @@ def check_action(work_dir: Path) -> list[str]:
         "SQL written outside lib/db": SQL_STATEMENT.search(text),
         "deletes through something other than softDeleteItem": delete_at < 0,
         "no refresh() after changing data": "refresh(" not in text,
-        "lib/db/items.ts was changed": (work_dir / "lib/db/items.ts").read_text(encoding="utf-8")
-                                       != SCENARIOS["action"]["files"]["lib/db/items.ts"],
+        "lib/db/items.ts was changed":      (work_dir / "lib/db/items.ts").read_text(encoding="utf-8")
+                                            != SCENARIOS["action"]["files"]["lib/db/items.ts"],
     })
 
 
@@ -261,7 +261,7 @@ def check_const(work_dir: Path) -> list[str]:
     has_const   = const_file.exists() and "export const MAX_IMPORT_ROWS" in const_file.read_text(encoding="utf-8")
     return found({
         "MAX_IMPORT_ROWS not exported from lib/imports/const.ts": not has_const,
-        f"MAX_IMPORT_ROWS still defined in {definitions}": definitions,
+        f"MAX_IMPORT_ROWS still defined in {definitions}":        definitions,
         "no countImportBatches.ts": not (work_dir / "lib/imports/countImportBatches.ts").exists(),
     })
 
@@ -273,7 +273,7 @@ def check_metadata(work_dir: Path) -> list[str]:
     open_graph_fields   = ["title", "type", "url", "siteName"]
     missing_fields      = [field for field in open_graph_fields if not re.search(rf"\b{field}:", text)]
     return found({
-        "hand-written <head> or <meta> tags": re.search(r"<head|<meta", text),
+        "hand-written <head> or <meta> tags":     re.search(r"<head|<meta", text),
         "no metadata or generateMetadata export": not has_metadata_export,
         "no metadataBase": "metadataBase" not in text,
         "metadataBase not read from SITE_URL": "SITE_URL" not in text,
@@ -295,7 +295,7 @@ def check_question(work_dir: Path) -> list[str]:
 
 
 def check_override(work_dir: Path) -> list[str]:
-    lines = read_output(work_dir, "links.ts").splitlines()
+    lines      = read_output(work_dir, "links.ts").splitlines()
     long_lines = [line for line in lines if len(line) > 80]
     return found({f"{len(long_lines)} lines over the 80 columns the project CLAUDE.md sets": long_lines})
 
@@ -337,7 +337,7 @@ def check_readme(work_dir: Path) -> list[str]:
         "typographic symbol outside code": TYPOGRAPHIC_SYMBOL.search(prose),
         "emoji": EMOJI.search(text),
         f"expected one # title, got {len(titles)}": len(titles) != 1,
-        "fenced code block without a language": any(not fence.strip() for fence in opening_fences),
+        "fenced code block without a language":     any(not fence.strip() for fence in opening_fences),
         "slugify.ts was changed": unchanged_problems(SCENARIOS["readme"]["files"]["slugify.ts"],
                                                      read_output(work_dir, "slugify.ts")),
     })
@@ -349,7 +349,7 @@ def message_problems(message: str) -> list[str]:
     attributions = [line for line in lines if AI_ATTRIBUTION.search(line)]
     body_lines   = [line for line in lines[1:] if line.strip() and not GIT_FOOTER.match(line) and line not in attributions]
     return found({
-        f"subject is not Conventional Commits: {subject!r}": not CONVENTIONAL_SUBJECT.match(subject),
+        f"subject is not Conventional Commits: {subject!r}":  not CONVENTIONAL_SUBJECT.match(subject),
         f"has a body the user did not ask for: {body_lines}": body_lines,
         f"AI attribution line: {attributions}": attributions,
     })
@@ -388,9 +388,9 @@ def check_order(work_dir: Path) -> list[str]:
     is_reordered_only = sorted(filter(str.strip, lines)) == sorted(filter(str.strip, ORDERS_TS.splitlines()))
     changed_count     = changed_line_count(ORDERS_TS, text)
     return found({
-        "lines changed besides their order": not is_reordered_only,
+        "lines changed besides their order":        not is_reordered_only,
         "lineTotal still defined below orderTotal": helper_at > caller_at,
-        "constants no longer above the functions": constant_at > min(helper_at, caller_at),
+        "constants no longer above the functions":  constant_at > min(helper_at, caller_at),
         f"{changed_count} lines changed, moving lineTotal up takes {HELPER_MOVE_LINE_COUNT}": changed_count > HELPER_MOVE_LINE_COUNT,
     })
 
@@ -408,9 +408,9 @@ def check_jsxorder(work_dir: Path) -> list[str]:
     is_props_adjacent = 0 <= props_at and list_at - props_at <= 2
     changed_count     = changed_line_count(ITEM_LIST_TSX, text)
     return found({
-        "lines changed besides their order": not is_reordered_only,
-        "ItemRow still defined below ItemList": row_at > list_at,
-        "ItemRowProps not above ItemRow": row_props_at > row_at,
+        "lines changed besides their order":     not is_reordered_only,
+        "ItemRow still defined below ItemList":  row_at > list_at,
+        "ItemRowProps not above ItemRow":        row_props_at > row_at,
         "Props no longer right before ItemList": not is_props_adjacent,
         f"{changed_count} lines changed, moving ItemRow up takes {ITEM_ROW_MOVE_LINE_COUNT}": changed_count > ITEM_ROW_MOVE_LINE_COUNT,
     })
@@ -437,15 +437,15 @@ def identifier_parts(text: str) -> set[str]:
 
 def check_names(work_dir: Path) -> list[str]:
     """No abbreviations, no type in a type name and no grab-bag module (naming.md rules 2, 4 and 7)."""
-    sources       = new_sources(work_dir, "**/*.ts", SCENARIOS["names"]["files"])
-    texts         = [source.read_text(encoding="utf-8") for source in sources]
+    sources = new_sources(work_dir, "**/*.ts", SCENARIOS["names"]["files"])
+    texts   = [source.read_text(encoding="utf-8") for source in sources]
     abbreviations = sorted(set().union(*(identifier_parts(text) for text in texts)) & ABBREVIATIONS)
     grab_bags     = [source.relative_to(work_dir).as_posix() for source in sources if GRAB_BAG_NAMES & {source.stem.lower(), source.parent.name.lower()}]
     typed_names   = [match.group(2) for text in texts for match in TYPED_TYPE_NAME.finditer(text)]
     return found({
         "no .ts file written": not sources,
         f"abbreviated names: {abbreviations}": abbreviations,
-        f"grab-bag modules: {grab_bags}": grab_bags,
+        f"grab-bag modules: {grab_bags}":      grab_bags,
         f"type names with I, Base or Abstract: {typed_names}": typed_names,
     })
 
@@ -455,7 +455,7 @@ def check_types(work_dir: Path) -> list[str]:
     text = read_output(work_dir, "orders.ts")
     return found({
         "returns a sentinel (-1, 0 or an empty string) for a missing value": SENTINEL_RETURN.search(text),
-        "no type for absence (null or undefined) in a return type": not re.search(r"\)\s*:\s*[^{]*\|\s*(null|undefined)", text),
+        "no type for absence (null or undefined) in a return type":      not re.search(r"\)\s*:\s*[^{]*\|\s*(null|undefined)", text),
         "refund condition not a predicate function (is/has/can/should)": not PREDICATE_FUNCTION.search(text),
     })
 
@@ -550,12 +550,12 @@ def output_problems(name: str, work_dir: Path) -> list[str]:
     """
     is_alignment_checked = name not in UNALIGNED_START_SCENARIOS
     is_header_checked    = name in HEADER_SCENARIOS
+    is_documented        = name in DOCUMENTED_SCENARIOS
     sources = [path for path in sorted(work_dir.iterdir()) if is_checked_source(path)]
     checked_sources = sources if is_alignment_checked else []
     problems        = CHECKS[name](work_dir)
     for source in checked_sources:
         problems += assignment_problems(source.read_text(encoding="utf-8"))
-    is_documented = name in DOCUMENTED_SCENARIOS
-    problems += header_problems(name, work_dir) if is_header_checked else []
+    problems +=header_problems(name, work_dir) if is_header_checked else []
     problems += comment_form_problems(name, work_dir) if is_documented else new_comment_problems(name, work_dir)
     return problems
