@@ -10,13 +10,13 @@ description: Use this skill when building, changing, styling, reviewing or audit
 ## Before acting
 
 1. Read the project `CLAUDE.md`/`AGENTS.md`. A convention it declares is a deliberate deviation and wins over this skill.
-2. **Also load the base `moxwel-code-style` skill and read the files its table lists for your task** (comments, naming, readability, copy, git): its rules apply here and are not repeated. Loading it is not enough, and this skill's table below does not list them. If it is not installed, stop and ask the user to install it (`npx skills add moxwel/skills`). Only if the user declines, or nobody can answer (a headless or scheduled session), read the base references you need from `https://raw.githubusercontent.com/moxwel/skills/main/skills/moxwel-code-style/references/<file>.md`: `comments-and-docs.md`, `copy.md`, `naming.md`, `readability.md`, `robustness.md`, `git-conventions.md`, `delegating.md`. Save them in the session scratchpad under `moxwel-code-style/references/`, and use that folder as the base skill's folder.
+2. **Also load the base `moxwel-code-style` skill and read the files its table lists for your task** (comments, naming, readability, copy, git): its rules apply here and are not repeated. Loading it is not enough. The first row below links the base files every code change needs (the two skills are sibling folders, so the links resolve from this skill's folder); the other rows of the base table still apply when they match. If it is not installed, stop and ask the user to install it (`npx skills add moxwel/skills`). Only if the user declines, or nobody can answer (a headless or scheduled session), read the base references you need from `https://raw.githubusercontent.com/moxwel/skills/main/skills/moxwel-code-style/references/<file>.md`: `comments-and-docs.md`, `copy.md`, `naming.md`, `readability.md`, `robustness.md`, `git-conventions.md`, `delegating.md`. Save them in the session scratchpad under `moxwel-code-style/references/`, and read the linked base files from that folder instead.
 3. **Read in full the references for your task** (table below), every time, before writing, changing or reviewing code. If a read is denied or fails, read the file with another tool; never write code without them. The first row is the minimum for any task that touches code, however narrow it looks (only the order, only a name, a one-line fix): every rule applies to each line written or moved, so the narrowest task still reads all of that row, the base skill's files included. Don't rely on memory of an earlier session: the standard has many non-obvious rules and gotchas that only the references state.
 4. If the repo ships `node_modules/next/dist/docs/`, read the relevant Next.js guide too.
 
 | Task | Read |
 |---|---|
-| Any code change or review, however small or narrow (a reorder, a rename, a one-line fix) | [workflow-and-verification.md](references/workflow-and-verification.md), [code-style.md](references/code-style.md), [naming.md](references/naming.md), and the base skill's `comments-and-docs.md`, `copy.md`, `naming.md`, `readability.md` plus any other row of its table that matches |
+| Any code change or review, however small or narrow (a reorder, a rename, a one-line fix) | From the base skill: [comments-and-docs.md](../moxwel-code-style/references/comments-and-docs.md), [copy.md](../moxwel-code-style/references/copy.md), [naming.md](../moxwel-code-style/references/naming.md), [readability.md](../moxwel-code-style/references/readability.md). From this skill: [workflow-and-verification.md](references/workflow-and-verification.md), [code-style.md](references/code-style.md), [naming.md](references/naming.md). The two `naming.md` are different files: read both. Add any other row of the base table that matches |
 | UI: component, feature, page, layout, styling, markup | + [styling.md](references/styling.md), [semantic-html.md](references/semantic-html.md), [components.md](references/components.md), [user-experience.md](references/user-experience.md) |
 | New file (component, page, action, `lib/` module, hook), moving or splitting code | + [project-structure.md](references/project-structure.md) |
 | Page, server action, route handler, auth, uploads, env | + [security-management.md](references/security-management.md) |
@@ -24,14 +24,14 @@ description: Use this skill when building, changing, styling, reviewing or audit
 | Any data access or schema | + [database.md](references/database.md), [security-management.md](references/security-management.md) |
 | New project, dependencies, config, Docker, deploy | + [stack-and-setup.md](references/stack-and-setup.md), [security-management.md](references/security-management.md) |
 | Audit or "find and fix inconsistencies" | all references |
-| Audit, or applying picked fixes, over more than 5 files | + [delegating.md](references/delegating.md) and the base skill's `delegating.md` |
+| Audit, or applying picked fixes, over more than 5 files | + [delegating.md](references/delegating.md) and the base skill's [delegating.md](../moxwel-code-style/references/delegating.md) |
 
 When an API is in doubt, check [links.md](references/links.md) (official docs) rather than memory.
 
 ## Always
 
 - Edit this skill only when the user explicitly asks to change the skill. Project conventions go to the project `CLAUDE.md`/`AGENTS.md`.
-- Git follows the base skill's `git-conventions.md`.
+- Git follows the base skill's [git-conventions.md](../moxwel-code-style/references/git-conventions.md).
 - Before saying "done", go through the Checklist of every reference you read.
 
 ## Why the standard looks like this
