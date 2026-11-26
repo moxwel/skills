@@ -14,12 +14,17 @@ Covers choosing elements and accessibility. Authority: MDN elements reference, h
 ## Details
 
 - Navigation: `<nav>` + `<ul>` of `<li>`. Every `nav` besides the main one gets an `aria-label`.
-- Thematic blocks: `<section>`. That covers a feature or panel root and tab content (heading optional), and a card with its own heading. A self-contained entry is an `<article>`.
+- Thematic blocks: `<section>`. That covers a feature or panel root and tab content (heading optional), and a card with its own heading. A self-contained entry is an `<article>`. Content beside the main topic (a sidebar, related links) is an `<aside>`.
 - Headings: one `<h1>` per page (`PageTitle`), `<h2>` for sections and cards, `<h3>` for entries. Heading + subtitle: `<hgroup>`.
-- Lists: `<ul>`/`<ol>`. Label/value pairs and stats: `<dl>`. Tabular data: `<table>` with `<thead>`/`<th>`.
+- Lists: `<ul>`/`<ol>`. Label/value pairs and stats: `<dl>`. Tabular data: `<table>` with a `<caption>` that names it, `<thead>`/`<th>`, `<tbody>`, and `<tfoot>` for totals.
 - Values: dates in `<time dateTime="…Z">`, machine-readable values in `<data value>`, computed or live results in `<output>`, script output in `<pre><samp>`, code and file names in `<code>`.
+- Inline text by meaning, never by look (looks go in CSS): `<strong>` for importance, `<em>` for stress, `<mark>` for what is relevant in context (a search match), `<abbr title>` for abbreviations, `<kbd>` for keys the user presses, `<small>` for fine print, `<del>`/`<ins>` for edits, `<s>` for what is no longer accurate. `<b>`, `<i>` and `<u>` only for their own meaning: a keyword, a term in another language, an annotation such as a misspelling.
+- Quotes: `<blockquote>` for a long quotation, `<q>` for a short inline one. The attribution goes outside the quote: `<figure>` > `<blockquote>` + `<figcaption>`. `<cite>` holds only the title of a work, never a person's name.
+- Figures: an image, chart or code sample referenced as one unit goes in `<figure>`, with its caption in `<figcaption>` (the caption is its accessible name).
 - Related controls (radios) go in `<fieldset>` + `<legend>` through the `Fieldset` wrapper.
-- Page shell: `<main>` once per page, in the `(app)` layout; pages outside it (login) render their own. The navbar is a `<header>`.
+- Search and filter controls go in `<search>` (no `role="search"`); the results stay outside it. Contact details are an `<address>`.
+- Page shell: `<main>` once per page, in the `(app)` layout; pages outside it (login) render their own. The navbar is a `<header>` and the site footer a `<footer>`. An `<article>` can close with its own `<footer>` (author, date).
+- Never an element MDN marks obsolete or deprecated (`center`, `font`, `big`, `strike`, `tt`, `marquee`, `acronym`…).
 - Collapsibles and dialogs use Base UI, never the native equivalents.
 - `<html lang>` matches the UI language. The active nav link gets `data-active` + `aria-current="page"`.
 
@@ -27,3 +32,5 @@ Covers choosing elements and accessibility. Authority: MDN elements reference, h
 
 - [ ] Semantic elements used, and every `div`/`span` fits rule 2.
 - [ ] Icon-only buttons have `aria-label` + `title`. Radio groups are in a `Fieldset`.
+- [ ] Inline text elements are chosen by meaning, not by look.
+- [ ] No obsolete or deprecated element.
