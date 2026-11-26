@@ -49,6 +49,6 @@ def rename_item(name: str, new_name: str) -> bool:
 
 
 def describe_item(item: dict) -> str:
-    size = format_bytes(item["size_bytes"])
+    size           = format_bytes(item["size_bytes"])
     archived_label = " (archived)" if item["is_archived"] else ""
     return f"{item['name']}, {size}{archived_label}"

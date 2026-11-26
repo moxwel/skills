@@ -115,7 +115,7 @@ def missing_skill_files(scenario: dict, facts: dict) -> list[str]:
     references             = base_references + scenario.get("references", [])
     react_references       = [f"react:{name}" for name in scenario.get("react", [])]
     is_react_skill_missing = "react" in scenario and REACT_SKILL not in facts["skills"]
-    missing = [name for name in references + react_references if name not in facts["references"]]
+    missing                = [name for name in references + react_references if name not in facts["references"]]
     missing += ["React skill not loaded"] if is_react_skill_missing else []
     return missing
 

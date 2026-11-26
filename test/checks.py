@@ -22,8 +22,8 @@ PREDICATE_NAME      = re.compile(r"(is|has|can|should|was)[A-Z]")
 GOOGLE_DOC_SECTION  = re.compile(r"^\s+(Args|Returns|Raises):\s*$", re.M)
 IMPORT_GROUPS       = ["external", "relative", "type"]
 # Typographic symbols copy.md and markdown.md forbid: dashes, curly quotes, ellipsis, arrows, bullets.
-TYPOGRAPHIC_SYMBOL = re.compile("[\u2013\u2014\u2018\u2019\u201c\u201d\u2022\u2026\u2190-\u21ff]")
-EMOJI = re.compile("[\U0001f300-\U0001faff\u2600-\u27bf]")
+TYPOGRAPHIC_SYMBOL   = re.compile("[\u2013\u2014\u2018\u2019\u201c\u201d\u2022\u2026\u2190-\u21ff]")
+EMOJI                = re.compile("[\U0001f300-\U0001faff\u2600-\u27bf]")
 GENERIC_LABEL        = re.compile(r"get started|learn more|try now|explore|discover|oops", re.I)
 SQL_STATEMENT        = re.compile(r"\b(SELECT|INSERT|UPDATE|DELETE)\b")
 CONVENTIONAL_SUBJECT = re.compile(r"[a-z]+(\([\w-]+\))?!?: \S")
@@ -87,7 +87,7 @@ def check_align(work_dir: Path) -> list[str]:
     new_names  = re.findall(r"const (\w+)", text.replace("MAX_ITEMS", "").replace("PAGE_SIZE", ""))
     has_unit   = any(name.endswith("_MS") for name in new_names)
     problems   = found({
-        "existing constants were changed": "const MAX_ITEMS = 50\nconst PAGE_SIZE = 10\n" not in text,
+        "existing constants were changed":            "const MAX_ITEMS = 50\nconst PAGE_SIZE = 10\n" not in text,
         f"expected 2 new constants, got {new_names}": len(new_names) != 2,
         f"timeout constant has no unit in its name: {new_names}": not has_unit,
     })
@@ -95,18 +95,18 @@ def check_align(work_dir: Path) -> list[str]:
 
 
 def check_cut(work_dir: Path) -> list[str]:
-    lines = read_output(work_dir, "settings.ts").splitlines()
-    rows  = rows_of(lines, r"\s+(\w+):(\s+)\S")
+    lines            = read_output(work_dir, "settings.ts").splitlines()
+    rows             = rows_of(lines, r"\s+(\w+):(\s+)\S")
     has_all_fields   = len(rows) == 4
     is_existing_kept = '    id:      "itemList",' in lines and "    enabled: true," in lines
-    problems = alignment_problems(rows, "fields") if has_all_fields else [f"expected 4 fields, got {rows}"]
+    problems         = alignment_problems(rows, "fields") if has_all_fields else [f"expected 4 fields, got {rows}"]
     return problems + found({"existing fields were re-padded or changed": not is_existing_kept})
 
 
 def check_cut2(work_dir: Path) -> list[str]:
     """Checks only the constant names: assignment_problems covers their alignment."""
-    names = re.findall(r"const (\w+)", read_output(work_dir, "limits.ts"))
-    expected_names = ["API_URL", "REQUEST_TIMEOUT_SEC", "MAX_ATTEMPTS", "TTL_SEC"]
+    names          = re.findall(r"const (\w+)", read_output(work_dir, "limits.ts"))
+    expected_names = ["API_URL", "DEFAULT_REQUEST_TIMEOUT_SEC", "MAX_ATTEMPTS", "TTL_SEC"]
     return found({f"unexpected constants: {names}": names != expected_names})
 
 
@@ -115,24 +115,24 @@ def check_imports(work_dir: Path) -> list[str]:
     kinds    = [import_kind(line) for line in text.splitlines() if line.startswith("import ")]
     external = re.findall(r"""from ["'](node:[\w/]+)["']""", text)
     return found({
-        f"import groups out of order: {kinds}": kinds != sorted(kinds, key=IMPORT_GROUPS.index),
+        f"import groups out of order: {kinds}":           kinds != sorted(kinds, key=IMPORT_GROUPS.index),
         f"external imports not alphabetical: {external}": external != sorted(external),
-        "FolderStats not imported as type-only": "import type" not in text,
-        "single-letter name": SINGLE_LETTER_TS.search(text),
+        "FolderStats not imported as type-only":          "import type" not in text,
+        "single-letter name":               SINGLE_LETTER_TS.search(text),
         "inline comparison in a condition": INLINE_CONDITION_TS.search(text),
     })
 
 
 def check_robust(work_dir: Path) -> list[str]:
-    text = read_output(work_dir, "items_client.py")
+    text             = read_output(work_dir, "items_client.py")
     has_domain_error = re.search(r"class \w+\((\w*Error|Exception)\)", text)
     is_cause_dropped = re.search(r"raise \w+\(", text) and " from " not in text
-    problems = found({
+    problems         = found({
         "request without timeout":   "timeout=" not in text,
         "bare or swallowing except": re.search(r"except\s*:|except Exception[^\n]*:\s*\n\s*pass", text),
         "no domain error: library errors reach the caller": not has_domain_error,
-        "re-raise without chained cause": is_cause_dropped,
-        "ignores Retry-After": "Retry-After" not in text,
+        "re-raise without chained cause":   is_cause_dropped,
+        "ignores Retry-After":              "Retry-After" not in text,
         "magic number in sleep or timeout": re.search(r"time\.sleep\(\s*\d|timeout=\s*\d", text),
         "Google-style docstring sections instead of :param/:returns/:raises": GOOGLE_DOC_SECTION.search(text),
     })
@@ -140,22 +140,22 @@ def check_robust(work_dir: Path) -> list[str]:
 
 
 def check_naming(work_dir: Path) -> list[str]:
-    text       = read_output(work_dir, "slugs.ts")
-    body       = text.split("*/", 1)[-1]
-    functions  = re.findall(r"function (\w+)\([^)]*\):\s*(\w+)", text)
-    predicates = [name for name, return_type in functions if return_type == "boolean"]
-    has_predicate_name  = bool(predicates) and PREDICATE_NAME.match(predicates[0])
+    text               = read_output(work_dir, "slugs.ts")
+    body               = text.split("*/", 1)[-1]
+    functions          = re.findall(r"function (\w+)\([^)]*\):\s*(\w+)", text)
+    predicates         = [name for name, return_type in functions if return_type == "boolean"]
+    has_predicate_name = bool(predicates) and PREDICATE_NAME.match(predicates[0])
     has_length_constant = re.search(r"^(export )?const [A-Z_]+\s*=\s*40", text, re.M)
     return found({
         f"boolean function not named is/has/can/should/was: {functions}": not has_predicate_name,
-        "inline comparison in a condition": INLINE_CONDITION_TS.search(text),
-        "single-letter name": SINGLE_LETTER_TS.search(text),
+        "inline comparison in a condition":      INLINE_CONDITION_TS.search(text),
+        "single-letter name":                    SINGLE_LETTER_TS.search(text),
         "max length 40 is not a named constant": re.search(r"\b40\b", body) and not has_length_constant,
     })
 
 
 def check_doc(work_dir: Path) -> list[str]:
-    text = read_output(work_dir, "store.py")
+    text            = read_output(work_dir, "store.py")
     has_returns_tag = ":returns:" in text or ":return:" in text
     return found({
         "existing constants were re-aligned or changed": 'PENDING = "pending"\nREVIEWED = "reviewed"\n' not in text,
@@ -177,7 +177,7 @@ def check_bash(work_dir: Path) -> list[str]:
     return found({
         "no shebang on line 1": not text.startswith("#!"),
         "no # header block right after the shebang": not header,
-        "header has no usage section": bool(header) and not has_usage,
+        "header has no usage section":               bool(header) and not has_usage,
         "compound test inline in an if (should be a predicate function)": compound_test,
         f"function names not snake_case: {functions}": any(name != name.lower() for name in functions),
         "non-ASCII character": re.search(r"[^\x00-\x7f]", text),
@@ -198,13 +198,13 @@ def check_tsdoc(work_dir: Path) -> list[str]:
 
 
 def check_mindiff(work_dir: Path) -> list[str]:
-    text = read_output(work_dir, "legacy.ts")
+    text           = read_output(work_dir, "legacy.ts")
     original_lines = set(LEGACY_TS.splitlines())
-    added    = "\n".join(line for line in text.splitlines() if line not in original_lines)
-    problems = found({
-        "single-letter name in the new code": SINGLE_LETTER_TS.search(added),
+    added          = "\n".join(line for line in text.splitlines() if line not in original_lines)
+    problems       = found({
+        "single-letter name in the new code":               SINGLE_LETTER_TS.search(added),
         "inline comparison in a condition in the new code": INLINE_CONDITION_TS.search(added),
-        "no exported function added": "export function" not in added,
+        "no exported function added":                       "export function" not in added,
     })
     return unchanged_problems(LEGACY_TS, text) + problems
 
@@ -267,8 +267,8 @@ def check_const(work_dir: Path) -> list[str]:
 
 
 def check_metadata(work_dir: Path) -> list[str]:
-    sources = sorted(work_dir.glob("app/**/*.tsx"))
-    text    = "\n".join(path.read_text(encoding="utf-8") for path in sources)
+    sources             = sorted(work_dir.glob("app/**/*.tsx"))
+    text                = "\n".join(path.read_text(encoding="utf-8") for path in sources)
     has_metadata_export = re.search(r"export (const metadata|(async )?function generateMetadata)", text)
     open_graph_fields   = ["title", "type", "url", "siteName"]
     missing_fields      = [field for field in open_graph_fields if not re.search(rf"\b{field}:", text)]
@@ -285,7 +285,7 @@ def check_metadata(work_dir: Path) -> list[str]:
 def check_config(work_dir: Path) -> list[str]:
     text = read_output(work_dir, "tsconfig.json")
     return found({
-        "strict is not true": not re.search(r'"strict":\s*true', text),
+        "strict is not true":           not re.search(r'"strict":\s*true', text),
         "other tsconfig lines changed": len(unchanged_problems(TSCONFIG_JSON, text)) > 1,
     })
 
@@ -328,11 +328,11 @@ def prose_of(markdown: str) -> str:
 
 
 def check_readme(work_dir: Path) -> list[str]:
-    text   = read_output(work_dir, "README.md")
-    prose  = prose_of(text)
-    fences = re.findall(r"^```(.*)$", text, re.M)
+    text           = read_output(work_dir, "README.md")
+    prose          = prose_of(text)
+    fences         = re.findall(r"^```(.*)$", text, re.M)
     opening_fences = fences[0::2]
-    titles = re.findall(r"^# ", prose, re.M)
+    titles         = re.findall(r"^# ", prose, re.M)
     return found({
         "typographic symbol outside code": TYPOGRAPHIC_SYMBOL.search(prose),
         "emoji": EMOJI.search(text),
@@ -351,7 +351,7 @@ def message_problems(message: str) -> list[str]:
     return found({
         f"subject is not Conventional Commits: {subject!r}":  not CONVENTIONAL_SUBJECT.match(subject),
         f"has a body the user did not ask for: {body_lines}": body_lines,
-        f"AI attribution line: {attributions}": attributions,
+        f"AI attribution line: {attributions}":               attributions,
     })
 
 
@@ -437,8 +437,8 @@ def identifier_parts(text: str) -> set[str]:
 
 def check_names(work_dir: Path) -> list[str]:
     """No abbreviations, no type in a type name and no grab-bag module (naming.md rules 2, 4 and 7)."""
-    sources = new_sources(work_dir, "**/*.ts", SCENARIOS["names"]["files"])
-    texts   = [source.read_text(encoding="utf-8") for source in sources]
+    sources       = new_sources(work_dir, "**/*.ts", SCENARIOS["names"]["files"])
+    texts         = [source.read_text(encoding="utf-8") for source in sources]
     abbreviations = sorted(set().union(*(identifier_parts(text) for text in texts)) & ABBREVIATIONS)
     grab_bags     = [source.relative_to(work_dir).as_posix() for source in sources if GRAB_BAG_NAMES & {source.stem.lower(), source.parent.name.lower()}]
     typed_names   = [match.group(2) for text in texts for match in TYPED_TYPE_NAME.finditer(text)]
@@ -455,8 +455,8 @@ def check_types(work_dir: Path) -> list[str]:
     text = read_output(work_dir, "orders.ts")
     return found({
         "returns a sentinel (-1, 0 or an empty string) for a missing value": SENTINEL_RETURN.search(text),
-        "no type for absence (null or undefined) in a return type":      not re.search(r"\)\s*:\s*[^{]*\|\s*(null|undefined)", text),
-        "refund condition not a predicate function (is/has/can/should)": not PREDICATE_FUNCTION.search(text),
+        "no type for absence (null or undefined) in a return type":          not re.search(r"\)\s*:\s*[^{]*\|\s*(null|undefined)", text),
+        "refund condition not a predicate function (is/has/can/should)":     not PREDICATE_FUNCTION.search(text),
     })
 
 
@@ -516,8 +516,8 @@ def new_comment_problems(name: str, work_dir: Path) -> list[str]:
     for path in sorted(work_dir.rglob("*")):
         if not is_written_source(path, work_dir):
             continue
-        relative_path = path.relative_to(work_dir).as_posix()
-        lines = path.read_text(encoding="utf-8").splitlines()
+        relative_path  = path.relative_to(work_dir).as_posix()
+        lines          = path.read_text(encoding="utf-8").splitlines()
         starting_lines = set(starting_files.get(relative_path, "").splitlines())
         is_shebang     = lines[:1] and lines[0].startswith("#!")
         added          = [line for line in lines[1 if is_shebang else 0:] if line not in starting_lines]
@@ -532,8 +532,8 @@ def comment_form_problems(name: str, work_dir: Path) -> list[str]:
         is_python      = file_name.endswith(".py")
         pattern        = INLINE_COMMENT_PY if is_python else INLINE_COMMENT_TS
         starting_lines = set(starting_text.splitlines())
-        added    = [line for line in read_output(work_dir, file_name).splitlines() if line not in starting_lines]
-        comments = [match.group(1) for match in map(pattern.search, added) if match]
+        added          = [line for line in read_output(work_dir, file_name).splitlines() if line not in starting_lines]
+        comments       = [match.group(1) for match in map(pattern.search, added) if match]
         problems += [f"{file_name}: inline comment ends with a period: {comment!r}" for comment in comments if comment.endswith(".")]
     return problems
 
@@ -551,9 +551,9 @@ def output_problems(name: str, work_dir: Path) -> list[str]:
     is_alignment_checked = name not in UNALIGNED_START_SCENARIOS
     is_header_checked    = name in HEADER_SCENARIOS
     is_documented        = name in DOCUMENTED_SCENARIOS
-    sources = [path for path in sorted(work_dir.iterdir()) if is_checked_source(path)]
-    checked_sources = sources if is_alignment_checked else []
-    problems        = CHECKS[name](work_dir)
+    sources              = [path for path in sorted(work_dir.iterdir()) if is_checked_source(path)]
+    checked_sources      = sources if is_alignment_checked else []
+    problems             = CHECKS[name](work_dir)
     for source in checked_sources:
         problems += assignment_problems(source.read_text(encoding="utf-8"))
     problems +=header_problems(name, work_dir) if is_header_checked else []

@@ -42,11 +42,11 @@ A run that fails lists its problems below its line:
 
 ```text
 [FAIL] robust:1: skill=yes references=['comments-and-docs', 'copy', 'naming', 'readability', 'robustness'] words=4541
-    constants: group [(9, 11)] padded past its widest item (missed the 8-column cut?)
+    constants: group [(9, 18)] padded past its widest item (missed the 15-column cut?)
 ```
 
 - A `required files not read` line names the files the `SKILL.md` table lists for the task that the session never opened.
-- The other lines are rules the code breaks. An alignment group is a list of `(name width, spaces before the value)` pairs: here a 9-column name got 11 spaces to line up with a name 8 or more columns wider.
+- The other lines are rules the code breaks. An alignment group is a list of `(name width, spaces before the value)` pairs: here a 9-column name got 18 spaces to line up with a name 15 or more columns wider.
 
 The command exits with 1 when a run fails.
 
@@ -57,8 +57,8 @@ A model does not answer the same way twice. Repeat a scenario (`cut2:1 cut2:2 cu
 | Scenario | Task | What it checks |
 |---|---|---|
 | `align` | Add two constants to a TypeScript file | Alignment of the new constants, a unit in the name, existing lines untouched |
-| `cut` | Add two fields to an aligned object | The 8-column cut between field names, existing fields untouched |
-| `cut2` | Create four constants with names of very different width | The 8-column cut in new code |
+| `cut` | Add two fields to an aligned object | The 15-column cut between field names, existing fields untouched |
+| `cut2` | Create four constants with names of very different width | The 15-column cut in new code |
 | `imports` | Add a function that needs three new imports | Import groups and order, type-only import, named conditions |
 | `robust` | Write a Python client for a flaky API | Timeout, domain error with its cause, `Retry-After`, and that it read `robustness.md` |
 | `naming` | Add a predicate and a slug function | Boolean prefix, named constant |

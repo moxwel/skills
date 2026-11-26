@@ -1,24 +1,24 @@
 """
-Alignment checks for readability.md rule 6: blocks of consecutive lines of the same shape and the 8-column cut.
+Alignment checks for readability.md rule 6: blocks of consecutive lines of the same shape and the 15-column cut.
 """
 
 import re
 
 # Width jump between consecutive names that ends an alignment group (readability.md rule 6).
-CUT_COLUMNS = 8
+CUT_COLUMNS = 15
 # A plain assignment: group 1 is the indentation, 2 the name with its keyword, 3 the padding before "=".
 ASSIGNMENT = re.compile(r"^(\s*)((?:export const |const |let |local )?[A-Za-z_][\w.]*)(\s+)= \S")
 OPENS_BODY = re.compile(r"(=>|\bfunction\b[^=]*\))\s*\{\s*$")
 
 
 def alignment_problems(rows: list[tuple[int, int]], label: str) -> list[str]:
-    """Checks consecutive lines of one block against the alignment and 8-column cut rules.
+    """Checks consecutive lines of one block against the alignment and 15-column cut rules.
 
     :param rows: One (name width, spaces before the value) pair per line, in file order.
     """
     groups = []
     for row in rows:
-        is_same_group = bool(groups) and abs(row[0] - groups[-1][-1][0]) < CUT_COLUMNS
+        is_same_group = bool(groups) and abs(row[0] - groups[-1][0][0]) < CUT_COLUMNS
         if is_same_group:
             groups[-1].append(row)
         else:
@@ -32,7 +32,7 @@ def alignment_problems(rows: list[tuple[int, int]], label: str) -> list[str]:
         if not is_aligned:
             problems.append(f"{label}: group {group} not aligned")
         elif not is_tight:
-            problems.append(f"{label}: group {group} padded past its widest item (missed the 8-column cut?)")
+            problems.append(f"{label}: group {group} padded past its widest item (missed the 15-column cut?)")
     return problems
 
 
@@ -70,15 +70,21 @@ def assignment_problems(text: str) -> list[str]:
 
 def self_check() -> None:
     """Asserts the alignment checks on known lines, without starting a session."""
-    cut_kept   = "PORT = 8080\nMAX_CONNECTIONS = 100\nMAX_RETRIES     = 3\n"
-    cut_missed = "PORT            = 8080\nMAX_CONNECTIONS = 100\n"
+    cut_kept   = "PORT = 8080\nMAX_CONNECTIONS_PER_HOST = 100\nMAX_RETRIES_PER_HOST     = 3\n"
+    cut_missed = "PORT                     = 8080\nMAX_CONNECTIONS_PER_HOST = 100\n"
+    small_jump = "PORT = 8080\nMAX_CONNECTIONS = 100\n"
+    growing    = "PORT         = 8080\nMAX_ATTEMPTS = 4\nDEFAULT_PAGE_SIZE_MAX          = 100\nMAX_CONNECTIONS_PER_HOST_LIMIT = 16\n"
+    one_group  = "PORT                           = 8080\nMAX_ATTEMPTS                   = 4\nDEFAULT_PAGE_SIZE_MAX          = 100\nMAX_CONNECTIONS_PER_HOST_LIMIT = 16\n"
     unaligned  = "TIMEOUT_MS = 500\nRETRIES = 3\n"
     aligned    = "TIMEOUT_MS = 500\nRETRIES    = 3\n"
 
     body_opener    = "const url = 1\nconst onSave = () => {\n"
     object_literal = "const url = 1\nconst config = {\n"
-    assert assignment_problems(cut_kept) == [], "a line 8 columns shorter keeps its single space"
-    assert assignment_problems(cut_missed) != [], "padding across an 8-column jump is a problem"
+    assert assignment_problems(cut_kept) == [], "a line 15 columns shorter keeps its single space"
+    assert assignment_problems(cut_missed) != [], "padding across a 15-column jump is a problem"
+    assert assignment_problems(small_jump) != [], "a jump under 15 columns still aligns"
+    assert assignment_problems(growing) == [], "a group ends 15 columns past its first line"
+    assert assignment_problems(one_group) != [], "small steps that add up to 15 still cut"
     assert assignment_problems(unaligned) != [], "names of similar width must be aligned"
     assert assignment_problems(aligned) == [], "an aligned group is clean"
     assert assignment_problems(body_opener) == [], "a line that only opens a body joins no group"

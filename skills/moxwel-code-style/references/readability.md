@@ -29,7 +29,7 @@ Covers the shape of code in any language: conditions, control flow and nesting d
    - Expressions and statements of the same shape: pad so the operator or keyword sits in the same column across the lines (the `=` of assignments, `&&` or `||`, the keyword after `if (...)`, the `=>` of arrow functions). For arrows, pad before the shorter parameter so the `=>` lines up. A declaration (`const url = ...`) and an assignment to a variable or property (`url.search = ...`) are the same shape, even when one value opens a multi-line expression: their `=` line up.
    - A line that only opens a body is not part of any group: the body of a function, handler or callback (`onFilled: {`, `onLineLaidOut: line => {`, `const onSave = () => {`) or a child object of a declarative tree (`contentItem: Item {`). It keeps a single space and does not count when measuring the group. A value that is an expression continuing on the next lines still aligns: a call (`url.search = new URLSearchParams({`), an object literal (`const config = {`) or an array literal (`const items = [`).
    - Trailing comments on consecutive lines go in the same column, one space after the longest line of the group.
-   - **Cut at 8 columns:** a group ends where a line differs by 8 or more columns from the previous one (in the width of the name, or of the code for trailing comments), shorter or longer. The line left out keeps a single space, and each side of the cut aligns on its own. Compare each line with the one right above it, never with the widest of the block: after `PORT = 8080` (a 4-column name), `MAX_CONNECTIONS` (15) jumps by 11, so `PORT` keeps its single space and the aligned group starts at `MAX_CONNECTIONS`.
+   - **Cut at 15 columns:** a group ends where a line differs by 15 or more columns from the first line of the group (in the width of the name, or of the code for trailing comments), shorter or longer, and that line starts the next group. Each group aligns on its own, and a group of one line keeps a single space. Compare each line with the first line of its group, never with the line above or the widest of the block: names of width 4, 12, 21 and 30 (`PORT`, `MAX_ATTEMPTS`, `DEFAULT_PAGE_SIZE_MAX`, `MAX_CONNECTIONS_PER_HOST_LIMIT`) make two groups, because 21 is 17 past the 4 that opened the first group, though no two neighbors differ by 15 (Details).
    - Never aligned: imports, a line alone, and data files (JSON, XML, `.po`, lockfiles).
    - Adding or renaming the widest item of a group re-pads its other lines. Re-pad the groups the change touches, and leave the rest of the file as it is (git-conventions.md rule 7).
 7. **Defined before used:** every named thing (constant, variable, function, class, type, or a child element or component of a declarative tree) is defined above the first line that uses it, even when the language allows the reverse (hoisting, late binding, names resolved at load time). The file reads top to bottom in call order: helpers first, then the code that calls them, and the entry point last.
@@ -271,13 +271,22 @@ url.search = new URLSearchParams({
 }).toString();
 ```
 
-  In QML, `showAlphaChannel` (16 columns) is 9 wider than `enabled`, so the cut leaves it a single space. `onClicked: {` only opens a handler body, so it does not join `showAlphaChannel` either.
+  Names that grow a little at a time still split where the total reaches 15 from the first line of the group (rule 6):
+
+```python
+PORT         = 8080
+MAX_ATTEMPTS = 4
+DEFAULT_PAGE_SIZE_MAX          = 100
+MAX_CONNECTIONS_PER_HOST_LIMIT = 16
+```
+
+  In QML, `Accessible.description` (22 columns) is 20 wider than `id`, the first line of the group, so the cut leaves it a single space. `onClicked: {` only opens a handler body, so it does not join `Accessible.description` either.
 
 ```qml
 Button {
     id:      saveButton
     enabled: canSave
-    showAlphaChannel: false
+    Accessible.description: "Saves the item"
     onClicked: {
         save();
     }
@@ -303,7 +312,7 @@ Button {
 - [ ] Derived values are named before the result.
 - [ ] No line broken only because it was long; a hard-to-read line was shortened by naming its parts.
 - [ ] Imports grouped, sorted and taken from their defining module.
-- [ ] Consecutive lines of the same shape are aligned per block, groups cut at 8 columns, trailing comments aligned; lines that only open a body are left out.
+- [ ] Consecutive lines of the same shape are aligned per block, groups cut at 15 columns from their first line, trailing comments aligned; lines that only open a body are left out.
 - [ ] Variables, fields and properties (aliases too) first; every object, element and function defined above its first use (calls, reads, handlers, bindings by name), the entry point last.
 - [ ] A value that may be missing uses the type for absence and a fixed set of states uses a union or enum; no new sentinel such as `-1` or `""`.
 - [ ] Nothing optimized without a measured problem; knowingly slow code has its one-line `slow:` comment.

@@ -286,12 +286,12 @@ SCENARIOS = {
     },
     "cut": {
         "files":   {"settings.ts": SETTINGS_TS},
-        "prompt":  "In settings.ts add two fields to listSettings: showArchivedItems (false) and limit (50).",
+        "prompt":  "In settings.ts add two fields to listSettings: showArchivedItemsInSearch (false) and limit (50).",
     },
     "cut2": {
         "files":  {},
         "prompt": "Create limits.ts with these module constants, in this order: API_URL (https://api.example.com), "
-                  "REQUEST_TIMEOUT_SEC (10), MAX_ATTEMPTS (4) and TTL_SEC (60).",
+                  "DEFAULT_REQUEST_TIMEOUT_SEC (10), MAX_ATTEMPTS (4) and TTL_SEC (60).",
     },
     "imports": {
         "files":  {"report.ts": REPORT_TS, "formatBytes.ts": FORMAT_BYTES_TS, "types.ts": TYPES_TS},

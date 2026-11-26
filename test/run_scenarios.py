@@ -172,9 +172,9 @@ def evaluate(run_id: str, round_dir: Path, has_timed_out: bool, log_file: TextIO
     has_read    = bool(facts["references"])
     # "skill": False allows loading SKILL.md, which costs little, but no reference may be read
     is_skill_as_expected = is_loaded if is_expected else not has_read
-    is_pass = is_skill_as_expected and not missing and not problems
-    verdict = "PASS" if is_pass else "FAIL"
-    loaded  = "yes" if is_loaded else "no"
+    is_pass              = is_skill_as_expected and not missing and not problems
+    verdict              = "PASS" if is_pass else "FAIL"
+    loaded               = "yes" if is_loaded else "no"
     if not is_skill_as_expected:
         problems.insert(0, "skill not loaded" if is_expected else "references read for a task that needs none")
     report(f"[{verdict}] {run_id}: skill={loaded} references={sorted(facts['references'])} "
@@ -195,11 +195,11 @@ def main() -> None:
         return
     if not arguments:
         sys.exit(USAGE)
-    round_name = arguments[0]
-    run_ids    = arguments[1:] or list(SCENARIOS)
+    round_name          = arguments[0]
+    run_ids             = arguments[1:] or list(SCENARIOS)
     unknown_run_ids     = [run_id for run_id in run_ids if not is_valid_run_id(run_id)]
     is_round_name_valid = ROUND_NAME.fullmatch(round_name) is not None
-    has_claude = shutil.which("claude") is not None
+    has_claude          = shutil.which("claude") is not None
     if not is_round_name_valid:
         sys.exit(f"Invalid round name: {round_name}. Use letters, digits, - and _ only.")
     if unknown_run_ids:

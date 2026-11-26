@@ -48,7 +48,7 @@ export async function renameItem(name: string, newName: string): Promise<boolean
 }
 
 export function describeItem(item: Item): string {
-  const size = formatBytes(item.size_bytes);
+  const size          = formatBytes(item.size_bytes);
   const archivedLabel = item.is_archived ? " (archived)" : "";
   return `${item.name}, ${size}${archivedLabel}`;
 }
